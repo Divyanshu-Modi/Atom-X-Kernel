@@ -325,7 +325,7 @@ static void tcp_delack_timer(unsigned long data)
 		inet_csk(sk)->icsk_ack.blocked = 1;
 		NET_INC_STATS_BH(sock_net(sk), LINUX_MIB_DELAYEDACKLOCKED);
 		/* deleguate our work to tcp_release_cb() */
-		if (!test_and_set_bit(TCP_DELACK_TIMER_DEFERRED, &tcp_sk(sk)->tsq_flags))
+		if (!test_and_set_bit(TCP_DELACK_TIMER_DEFERRED, &sk->sk_tsq_flags))
 			sock_hold(sk);
 	}
 	bh_unlock_sock(sk);
@@ -403,6 +403,7 @@ static void tcp_fastopen_synack_timer(struct sock *sk)
 	 */
 	inet_rtx_syn_ack(sk, req);
 	req->num_timeout++;
+	icsk->icsk_retransmits++;
 	inet_csk_reset_xmit_timer(sk, ICSK_TIME_RETRANS,
 			  TCP_TIMEOUT_INIT << req->num_timeout, TCP_RTO_MAX);
 }
@@ -461,7 +462,7 @@ void tcp_retransmit_timer(struct sock *sk)
 			goto out;
 		}
 		tcp_enter_loss(sk);
-		tcp_retransmit_skb(sk, tcp_write_queue_head(sk));
+		tcp_retransmit_skb(sk, tcp_write_queue_head(sk), 1);
 		__sk_dst_reset(sk);
 		goto out_reset_timer;
 	}
@@ -493,7 +494,7 @@ void tcp_retransmit_timer(struct sock *sk)
 
 	tcp_enter_loss(sk);
 
-	if (tcp_retransmit_skb(sk, tcp_write_queue_head(sk)) > 0) {
+	if (tcp_retransmit_skb(sk, tcp_write_queue_head(sk), 1) > 0) {
 		/* Retransmission failed because of local congestion,
 		 * do not backoff.
 		 */
@@ -567,8 +568,8 @@ void tcp_write_timer_handler(struct sock *sk)
 	event = icsk->icsk_pending;
 
 	switch (event) {
-	case ICSK_TIME_EARLY_RETRANS:
-		tcp_resume_early_retransmit(sk);
+	case ICSK_TIME_REO_TIMEOUT:
+		tcp_rack_reo_timeout(sk);
 		break;
 	case ICSK_TIME_LOSS_PROBE:
 		tcp_send_loss_probe(sk);
@@ -595,8 +596,8 @@ static void tcp_write_timer(unsigned long data)
 	if (!sock_owned_by_user(sk)) {
 		tcp_write_timer_handler(sk);
 	} else {
-		/* deleguate our work to tcp_release_cb() */
-		if (!test_and_set_bit(TCP_WRITE_TIMER_DEFERRED, &tcp_sk(sk)->tsq_flags))
+		/* delegate our work to tcp_release_cb() */
+		if (!test_and_set_bit(TCP_WRITE_TIMER_DEFERRED, &sk->sk_tsq_flags))
 			sock_hold(sk);
 	}
 	bh_unlock_sock(sk);
@@ -713,4 +714,7 @@ void tcp_init_xmit_timers(struct sock *sk)
 {
 	inet_csk_init_xmit_timers(sk, &tcp_write_timer, &tcp_delack_timer,
 				  &tcp_keepalive_timer);
+	hrtimer_init(&tcp_sk(sk)->pacing_timer, CLOCK_MONOTONIC,
+		     HRTIMER_MODE_ABS_PINNED);
+	tcp_sk(sk)->pacing_timer.function = tcp_pace_kick;
 }

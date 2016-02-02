@@ -395,7 +395,7 @@ void tcp_init_sock(struct sock *sk)
 
 	icsk->icsk_rto = TCP_TIMEOUT_INIT;
 	tp->mdev_us = jiffies_to_usecs(TCP_TIMEOUT_INIT);
-	tp->rtt_min[0].rtt = ~0U;
+	minmax_reset(&tp->rtt_min, tcp_time_stamp, ~0U);
 
 	/* So many TCP implementations out there (incorrectly) count the
 	 * initial SYN frame in their delayed-ACK and congestion control
@@ -403,6 +403,9 @@ void tcp_init_sock(struct sock *sk)
 	 * efficiently to them.  -DaveM
 	 */
 	tp->snd_cwnd = TCP_INIT_CWND;
+
+	/* There's a bubble in the pipe until at least the first ACK. */
+	tp->app_limited = ~0U;
 
 	/* See draft-stevens-tcpca-spec-01 for discussion of the
 	 * initialization of these values.
@@ -413,7 +416,6 @@ void tcp_init_sock(struct sock *sk)
 	u64_stats_init(&tp->syncp);
 
 	tp->reordering = sysctl_tcp_reordering;
-	tcp_enable_early_retrans(tp);
 	tcp_assign_congestion_control(sk);
 
 	tp->tsoffset = 0;
@@ -563,20 +565,7 @@ int tcp_ioctl(struct sock *sk, int cmd, unsigned long arg)
 			return -EINVAL;
 
 		slow = lock_sock_fast(sk);
-		if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV))
-			answ = 0;
-		else if (sock_flag(sk, SOCK_URGINLINE) ||
-			 !tp->urg_data ||
-			 before(tp->urg_seq, tp->copied_seq) ||
-			 !before(tp->urg_seq, tp->rcv_nxt)) {
-
-			answ = tp->rcv_nxt - tp->copied_seq;
-
-			/* Subtract 1, if FIN was received */
-			if (answ && sock_flag(sk, SOCK_DONE))
-				answ--;
-		} else
-			answ = tp->urg_seq - tp->copied_seq;
+		answ = tcp_inq(sk);
 		unlock_sock_fast(sk, slow);
 		break;
 	case SIOCATMARK:
@@ -681,9 +670,9 @@ static void tcp_push(struct sock *sk, int flags, int mss_now,
 	if (tcp_should_autocork(sk, skb, size_goal)) {
 
 		/* avoid atomic op if TSQ_THROTTLED bit is already set */
-		if (!test_bit(TSQ_THROTTLED, &tp->tsq_flags)) {
+		if (!test_bit(TSQ_THROTTLED, &sk->sk_tsq_flags)) {
 			NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPAUTOCORKING);
-			set_bit(TSQ_THROTTLED, &tp->tsq_flags);
+			set_bit(TSQ_THROTTLED, &sk->sk_tsq_flags);
 		}
 		/* It is possible TX completion already happened
 		 * before we set TSQ_THROTTLED.
@@ -1036,6 +1025,9 @@ int tcp_sendpage(struct sock *sk, struct page *page, int offset,
 					flags);
 
 	lock_sock(sk);
+
+	tcp_rate_check_app_limited(sk);  /* is sending application-limited? */
+
 	res = do_tcp_sendpages(sk, page, offset, size, flags);
 	release_sock(sk);
 	return res;
@@ -1123,6 +1115,8 @@ int tcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
 	}
 
 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+
+	tcp_rate_check_app_limited(sk);  /* is sending application-limited? */
 
 	/* Wait for a connection to finish. One exception is TCP Fast Open
 	 * (passive side) where data is allowed to be sent before a connection
@@ -1483,8 +1477,10 @@ static struct sk_buff *tcp_recv_skb(struct sock *sk, u32 seq, u32 *off)
 
 	while ((skb = skb_peek(&sk->sk_receive_queue)) != NULL) {
 		offset = seq - TCP_SKB_CB(skb)->seq;
-		if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_SYN)
+		if (unlikely(TCP_SKB_CB(skb)->tcp_flags & TCPHDR_SYN)) {
+			pr_err_once("%s: found a SYN, please report !\n", __func__);
 			offset--;
+		}
 		if (offset < skb->len || (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN)) {
 			*off = offset;
 			return skb;
@@ -1674,8 +1670,10 @@ int tcp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int nonblock,
 				break;
 
 			offset = *seq - TCP_SKB_CB(skb)->seq;
-			if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_SYN)
+			if (unlikely(TCP_SKB_CB(skb)->tcp_flags & TCPHDR_SYN)) {
+				pr_err_once("%s: found a SYN, please report !\n", __func__);
 				offset--;
+			}
 			if (offset < skb->len)
 				goto found_ok_skb;
 			if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN)
@@ -2440,11 +2438,6 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 	case TCP_THIN_DUPACK:
 		if (val < 0 || val > 1)
 			err = -EINVAL;
-		else {
-			tp->thin_dupack = val;
-			if (tp->thin_dupack)
-				tcp_disable_early_retrans(tp);
-		}
 		break;
 
 	case TCP_REPAIR:
@@ -2671,13 +2664,33 @@ int compat_tcp_setsockopt(struct sock *sk, int level, int optname,
 EXPORT_SYMBOL(compat_tcp_setsockopt);
 #endif
 
+static void tcp_get_info_chrono_stats(const struct tcp_sock *tp,
+				      struct tcp_info *info)
+{
+	u64 stats[__TCP_CHRONO_MAX], total = 0;
+	enum tcp_chrono i;
+
+	for (i = TCP_CHRONO_BUSY; i < __TCP_CHRONO_MAX; ++i) {
+		stats[i] = tp->chrono_stat[i - 1];
+		if (i == tp->chrono_type)
+			stats[i] += tcp_time_stamp - tp->chrono_start;
+		stats[i] *= USEC_PER_SEC / HZ;
+		total += stats[i];
+	}
+
+	info->tcpi_busy_time = total;
+	info->tcpi_rwnd_limited = stats[TCP_CHRONO_RWND_LIMITED];
+	info->tcpi_sndbuf_limited = stats[TCP_CHRONO_SNDBUF_LIMITED];
+}
+
 /* Return information about state of tcp endpoint in API format. */
 void tcp_get_info(struct sock *sk, struct tcp_info *info)
 {
 	const struct tcp_sock *tp = tcp_sk(sk); /* iff sk_type == SOCK_STREAM */
 	const struct inet_connection_sock *icsk = inet_csk(sk);
-	u32 now = tcp_time_stamp;
+	u32 now = tcp_time_stamp, intv;
 	unsigned int start;
+	int notsent_bytes;
 	u64 rate64;
 	u32 rate;
 
@@ -2754,6 +2767,7 @@ void tcp_get_info(struct sock *sk, struct tcp_info *info)
 	/* Expose reference count for socket */
 	if (sk->sk_socket) {
 		struct file *filep = sk->sk_socket->file;
+	tcp_get_info_chrono_stats(tp, info);
 
 		if (filep)
 			info->tcpi_count = file_count(filep);
@@ -2766,8 +2780,44 @@ void tcp_get_info(struct sock *sk, struct tcp_info *info)
 	} while (u64_stats_fetch_retry_irq(&tp->syncp, start));
 	info->tcpi_segs_out = tp->segs_out;
 	info->tcpi_segs_in = tp->segs_in;
+
+	notsent_bytes = READ_ONCE(tp->write_seq) - READ_ONCE(tp->snd_nxt);
+	info->tcpi_notsent_bytes = max(0, notsent_bytes);
+
+	info->tcpi_min_rtt = tcp_min_rtt(tp);
+	info->tcpi_data_segs_in = tp->data_segs_in;
+	info->tcpi_data_segs_out = tp->data_segs_out;
+
+	info->tcpi_delivery_rate_app_limited = tp->rate_app_limited ? 1 : 0;
+	rate = READ_ONCE(tp->rate_delivered);
+	intv = READ_ONCE(tp->rate_interval_us);
+	if (rate && intv) {
+		rate64 = (u64)rate * tp->mss_cache * USEC_PER_SEC;
+		do_div(rate64, intv);
+		put_unaligned(rate64, &info->tcpi_delivery_rate);
+	}
 }
 EXPORT_SYMBOL_GPL(tcp_get_info);
+
+struct sk_buff *tcp_get_timestamping_opt_stats(const struct sock *sk)
+{
+	const struct tcp_sock *tp = tcp_sk(sk);
+	struct sk_buff *stats;
+	struct tcp_info info;
+
+	stats = alloc_skb(3 * nla_total_size(sizeof(u64)), GFP_ATOMIC);
+	if (!stats)
+		return NULL;
+
+	tcp_get_info_chrono_stats(tp, &info);
+	nla_put(stats, TCP_NLA_BUSY,
+			  info.tcpi_busy_time, TCP_NLA_PAD);
+	nla_put(stats, TCP_NLA_RWND_LIMITED,
+			  info.tcpi_rwnd_limited, TCP_NLA_PAD);
+	nla_put(stats, TCP_NLA_SNDBUF_LIMITED,
+			  info.tcpi_sndbuf_limited, TCP_NLA_PAD);
+	return stats;
+}
 
 static int do_tcp_getsockopt(struct sock *sk, int level,
 		int optname, char __user *optval, int __user *optlen)
@@ -2874,8 +2924,9 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
 	case TCP_THIN_LINEAR_TIMEOUTS:
 		val = tp->thin_lto;
 		break;
+
 	case TCP_THIN_DUPACK:
-		val = tp->thin_dupack;
+		val = 0;
 		break;
 
 	case TCP_REPAIR:
@@ -3211,12 +3262,12 @@ static void __init tcp_init_mem(void)
 
 void __init tcp_init(void)
 {
-	unsigned long limit;
 	int max_rshare, max_wshare, cnt;
+	unsigned long limit;
 	unsigned int i;
 
-	BUILD_BUG_ON(TCP_MIN_SND_MSS <= MAX_TCP_OPTION_SPACE);
-	sock_skb_cb_check_size(sizeof(struct tcp_skb_cb));
+	BUILD_BUG_ON(sizeof(struct tcp_skb_cb) >
+		     FIELD_SIZEOF(struct sk_buff, cb));
 
 	percpu_counter_init(&tcp_sockets_allocated, 0, GFP_KERNEL);
 	percpu_counter_init(&tcp_orphan_count, 0, GFP_KERNEL);
