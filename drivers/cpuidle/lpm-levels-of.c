@@ -488,6 +488,12 @@ static int parse_cluster_params(struct device_node *node,
 							__func__, key);
 			return ret;
 		}
+		key = "qcom,clstr-tmr-add";
+
+		ret = of_property_read_u32(node, key, &c->tmr_add);
+		if (ret || c->tmr_add < TIMER_ADD_LOW ||
+					c->tmr_add > TIMER_ADD_HIGH)
+			c->tmr_add = DEFAULT_TIMER_ADD;
 
 		/* Set ndevice to 1 as default */
 		c->ndevices = 1;
@@ -742,7 +748,8 @@ static int calculate_residency(struct power_params *base_pwr,
 		((int32_t)(next_pwr->ss_power * next_pwr->time_overhead_us)
 		- (int32_t)(base_pwr->ss_power * base_pwr->time_overhead_us));
 
-	residency /= (int32_t)(base_pwr->ss_power  - next_pwr->ss_power);
+	if (base_pwr->ss_power != next_pwr->ss_power)
+		residency /= (int32_t)(base_pwr->ss_power  - next_pwr->ss_power);
 
 	if (residency < 0) {
 		pr_err("%s: residency < 0 for LPM\n",
@@ -784,6 +791,26 @@ static int parse_cpu_levels(struct device_node *node, struct lpm_cluster *c)
 					node->name);
 			return ret;
 		}
+		key = "qcom,ref-stddev";
+
+		ret = of_property_read_u32(node, key, &c->cpu->ref_stddev);
+		if (ret || c->cpu->ref_stddev < STDDEV_LOW ||
+					c->cpu->ref_stddev > STDDEV_HIGH)
+			c->cpu->ref_stddev = DEFAULT_STDDEV;
+
+		key = "qcom,tmr-add";
+
+		ret = of_property_read_u32(node, key, &c->cpu->tmr_add);
+		if (ret || c->cpu->tmr_add < TIMER_ADD_LOW ||
+					c->cpu->tmr_add > TIMER_ADD_HIGH)
+			c->cpu->tmr_add = DEFAULT_TIMER_ADD;
+
+		key = "qcom,ref-premature-cnt";
+
+		ret = of_property_read_u32(node, key, &c->cpu->ref_premature_cnt);
+		if (ret || c->cpu->ref_premature_cnt < PREMATURE_CNT_LOW ||
+				c->cpu->ref_premature_cnt > PREMATURE_CNT_HIGH)
+			c->cpu->ref_premature_cnt = DEFAULT_PREMATURE_CNT;
 	}
 	for_each_child_of_node(node, n) {
 		struct lpm_cpu_level *l = &c->cpu->levels[c->cpu->nlevels];
@@ -873,6 +900,7 @@ struct lpm_cluster *parse_cluster(struct device_node *node,
 	if (ret)
 		goto failed_parse_params;
 
+	INIT_LIST_HEAD(&c->list);
 	INIT_LIST_HEAD(&c->child);
 	c->parent = parent;
 	spin_lock_init(&c->sync_lock);
