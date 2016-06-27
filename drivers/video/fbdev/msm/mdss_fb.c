@@ -88,6 +88,12 @@
  */
 #define MDP_TIME_PERIOD_CALC_FPS_US	1000000
 
+#define MDSS_BRIGHT_TO_BL_DIM(out, v) do {\
+			out = (12*v*v+1393*v+3060)/4465;\
+			} while (0)
+bool backlight_dimmer = false;
+module_param(backlight_dimmer, bool, 0644);
+
 int backlight_min = 0;
 int backlight_max = 4095;
 
@@ -332,10 +338,14 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	if (value > mfd->panel_info->brightness_max)
 		value = mfd->panel_info->brightness_max;
 
-	/* This maps android backlight level 0 to 255 into
-	   driver backlight level 0 to bl_max with rounding */
-	MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
-				mfd->panel_info->brightness_max);
+	if (backlight_dimmer) {
+		MDSS_BRIGHT_TO_BL_DIM(bl_lvl, value);
+	} else {
+		/* This maps android backlight level 0 to 255 into
+		   driver backlight level 0 to bl_max with rounding */
+		MDSS_BRIGHT_TO_BL(bl_lvl, value, mfd->panel_info->bl_max,
+					mfd->panel_info->brightness_max);
+	}
 
 	// Boeffla: apply min/max limits for LCD backlight (0 is exception for display off)
 	if (value != 0)
