@@ -323,6 +323,13 @@ config PM_GENERIC_DOMAINS_OF
 config CPU_PM
 	bool
 
-config DEDUCE_WAKEUP_REASONS
-	bool
+config BOEFFLA_WL_BLOCKER
+	bool "Boeffla generic wakelock blocker driver"
+	depends on PM
+	default N
+
+config ENERGY_MODEL
+	bool "Energy Model for CPUs"
+	depends on SMP
+	depends on CPU_FREQ
 	default n
