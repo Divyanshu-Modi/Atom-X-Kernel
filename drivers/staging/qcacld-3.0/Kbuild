@@ -6,6 +6,8 @@ else
 	KERNEL_BUILD := 0
 endif
 
+TARGET_BUILD_VARIANT := user
+
 ifeq ($(CONFIG_CLD_HL_SDIO_CORE), y)
 	CONFIG_QCA_WIFI_SDIO := 1
 endif
@@ -32,12 +34,12 @@ ifeq ($(KERNEL_BUILD),1)
 	WLAN_ROOT := drivers/staging/qcacld-3.0
 	WLAN_COMMON_ROOT := ../qca-wifi-host-cmn
 	WLAN_COMMON_INC := $(WLAN_ROOT)/$(WLAN_COMMON_ROOT)
+	WLAN_DISABLE_BUILD_TAG := y
 endif
 
 # Make WLAN as open-source driver by default
 WLAN_OPEN_SOURCE := 1
 
-ifeq ($(KERNEL_BUILD), 0)
 	# These are configurable via Kconfig for kernel-based builds
 	# Need to explicitly configure for Android-based builds
 
@@ -184,7 +186,7 @@ ifeq ($(KERNEL_BUILD), 0)
 	CONFIG_MPC_UT_FRAMEWORK := y
 
 	#Flag to enable offload packets feature
-	CONFIG_WLAN_OFFLOAD_PACKETS := y
+	CONFIG_WLAN_OFFLOAD_PACKETS := n
 
 	#Flag to enable packet capture mode
 	CONFIG_WLAN_FEATURE_PKT_CAPTURE := y
@@ -244,27 +246,6 @@ endif
 	# Flag to enable MCC to SCC switch feature
 	CONFIG_MCC_TO_SCC_SWITCH := y
 
-endif
-
-
-# As per target team, build is done as follows:
-# Defconfig : build with default flags
-# Slub      : defconfig  + CONFIG_SLUB_DEBUG=y +
-#	      CONFIG_SLUB_DEBUG_ON=y + CONFIG_PAGE_POISONING=y
-# Perf      : Using appropriate msmXXXX-perf_defconfig
-#
-# Shipment builds (user variants) should not have any debug feature
-# enabled. This is identified using 'TARGET_BUILD_VARIANT'. Slub builds
-# are identified using the CONFIG_SLUB_DEBUG_ON configuration. Since
-# there is no other way to identify defconfig builds, QCOMs internal
-# representation of perf builds (identified using the string 'perf'),
-# is used to identify if the build is a slub or defconfig one. This
-# way no critical debug feature will be enabled for perf and shipment
-# builds. Other OEMs are also protected using the TARGET_BUILD_VARIANT
-# config.
-ifneq ($(TARGET_BUILD_VARIANT),user)
-	CONFIG_FEATURE_PKTLOG := y
-endif
 
 #enable spectral scan feature
 CONFIG_WLAN_SPECTRAL_SCAN := y
@@ -276,9 +257,9 @@ CONFIG_WLAN_FEATURE_APF := y
 ifeq ($(CONFIG_DEBUG_FS), y)
        # Flag to enable debugfs. Depends on CONFIG_DEBUG_FS in kernel
        # configuration.
-       CONFIG_WLAN_DEBUGFS := y
+       CONFIG_WLAN_DEBUGFS := n
 
-       CONFIG_WLAN_POWER_DEBUGFS := y
+       CONFIG_WLAN_POWER_DEBUGFS := n
 endif
 
 # If not set, assume, Common driver is with in the build tree
@@ -305,25 +286,27 @@ CONFIG_WLAN_FW_THERMAL_MITIGATION := n
 # Feature flags which are not (currently) configurable via Kconfig
 
 #Whether to build debug version
-BUILD_DEBUG_VERSION := 1
+BUILD_DEBUG_VERSION := 0
 
 #Enable this flag to build driver in diag version
-BUILD_DIAG_VERSION := 1
+BUILD_DIAG_VERSION := 0
 
-#Do we panic on bug?  default is to warn
 ifeq ($(CONFIG_SLUB_DEBUG), y)
 	PANIC_ON_BUG := 1
+	WLAN_WARN_ON_ASSERT := 1
 else ifeq ($(CONFIG_PERF_DEBUG), y)
 	PANIC_ON_BUG := 1
+	WLAN_WARN_ON_ASSERT := 1
 else
 	PANIC_ON_BUG := 0
+	WLAN_WARN_ON_ASSERT := 0
 endif
 
 #Enable OL debug and wmi unified functions
 CONFIG_ATH_PERF_PWR_OFFLOAD := 1
 
 #Disable packet log
-CONFIG_REMOVE_PKT_LOG := 0
+CONFIG_REMOVE_PKT_LOG := 1
 
 #Whether have QMI support
 CONFIG_QMI_SUPPORT := 1
@@ -718,7 +701,6 @@ DFS_INC :=	-I$(WLAN_ROOT)/$(DFS_INC_DIR) \
 
 DFS_OBJS :=	$(DFS_SRC_DIR)/dfs_bindetects.o \
 		$(DFS_SRC_DIR)/dfs.o \
-		$(DFS_SRC_DIR)/dfs_debug.o\
 		$(DFS_SRC_DIR)/dfs_fcc_bin5.o\
 		$(DFS_SRC_DIR)/dfs_init.o\
 		$(DFS_SRC_DIR)/dfs_misc.o\
@@ -727,6 +709,10 @@ DFS_OBJS :=	$(DFS_SRC_DIR)/dfs_bindetects.o \
 		$(DFS_SRC_DIR)/dfs_process_phyerr.o\
 		$(DFS_SRC_DIR)/dfs_process_radarevent.o\
 		$(DFS_SRC_DIR)/dfs_staggered.o
+
+ifdef DFS_DEBUG
+DFS_OBJS +=	$(DFS_SRC_DIR)/dfs_debug.o
+endif
 
 ############ SME ############
 SME_DIR :=	core/sme
@@ -1236,9 +1222,7 @@ ifeq ($(CONFIG_REMOVE_PKT_LOG), 0)
 INCS +=		$(PKTLOG_INC)
 endif
 
-ifeq ($(BUILD_DIAG_VERSION), 1)
 INCS +=		$(HOST_DIAG_LOG_INC)
-endif
 
 OBJS :=		$(HDD_OBJS) \
 		$(EPPING_OBJS) \
@@ -1253,7 +1237,6 @@ OBJS :=		$(HDD_OBJS) \
 OBJS +=		$(WMA_OBJS) \
 		$(TXRX_OBJS) \
 		$(WMI_OBJS) \
-		$(FWLOG_OBJS) \
 		$(HTC_OBJS) \
 		$(DFS_OBJS)
 
@@ -1261,7 +1244,11 @@ OBJS +=		$(HIF_OBJS) \
 		$(BMI_OBJS) \
 		$(HTT_OBJS)
 
-OBJS +=		$(WLAN_LOGGING_OBJS)
+ifeq ($(BUILD_DEBUG_VERSION), 1)
+OBJS +=		$(WLAN_LOGGING_OBJS) \
+		$(FWLOG_OBJS)
+endif
+
 OBJS +=		$(NLINK_OBJS)
 OBJS +=		$(PTT_OBJS)
 
@@ -1298,9 +1285,7 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DWLAN_AP_STA_CONCURRENCY \
 		-DFEATURE_WLAN_SCAN_PNO \
 		-DWLAN_FEATURE_PACKET_FILTERING \
-		-DWLAN_FEATURE_P2P_DEBUG \
 		-DWLAN_ENABLE_AGEIE_ON_SCAN_RESULTS \
-		-DWLANTL_DEBUG\
 		-DWLAN_NS_OFFLOAD \
 		-DWLAN_SOFTAP_VSTA_FEATURE \
 		-DWLAN_FEATURE_GTK_OFFLOAD \
@@ -1325,7 +1310,9 @@ CDEFINES += -DWLAN_FEATURE_FIPS
 endif
 
 ifneq ($(CONFIG_HIF_USB), 1)
+ifeq ($(BUILD_DEBUG_VERSION), 1)
 CDEFINES += -DWLAN_LOGGING_SOCK_SVC_ENABLE
+endif
 endif
 
 ifeq ($(CONFIG_WLAN_FEATURE_FILS),y)
@@ -1517,13 +1504,17 @@ ifeq ($(CONFIG_WLAN_FEATURE_LPSS),y)
 CDEFINES += -DWLAN_FEATURE_LPSS
 endif
 
-ifneq ($(TARGET_BUILD_VARIANT),user)
+ifeq ($(CONFIG_QCA_CLD_DEBUG),y)
 CDEFINES += -DDESC_DUP_DETECT_DEBUG
 CDEFINES += -DDEBUG_RX_RING_BUFFER
 endif
 
 ifeq ($(PANIC_ON_BUG),1)
 CDEFINES += -DPANIC_ON_BUG
+endif
+
+ifeq ($(WLAN_WARN_ON_ASSERT), 1)
+CDEFINES += -DWLAN_WARN_ON_ASSERT
 endif
 
 ifeq ($(WLAN_OPEN_SOURCE), 1)
@@ -1845,10 +1836,6 @@ ifeq (y,$(filter y,$(CONFIG_CNSS_EOS) $(CONFIG_ICNSS)))
 CONFIG_HELIUMPLUS := y
 CONFIG_64BIT_PADDR := y
 CONFIG_FEATURE_TSO := y
-CONFIG_FEATURE_TSO_DEBUG := y
-ifneq ($(CONFIG_FORCE_ALLOC_FROM_DMA_ZONE), y)
-CONFIG_ENABLE_DEBUG_ADDRESS_MARKING := y
-endif
 ifeq ($(CONFIG_HELIUMPLUS),y)
 CDEFINES += -DHELIUMPLUS
 CDEFINES += -DAR900B
@@ -1971,6 +1958,9 @@ EXTRA_CFLAGS += -Wmissing-prototypes
 ifeq ($(call cc-option-yn, -Wheader-guard),y)
 EXTRA_CFLAGS += -Wheader-guard
 endif
+
+EXTRA_CFLAGS += $(call cc-option, -g0)
+EXTRA_CFLAGS += $(call cc-option, -Os)
 
 # If the module name is not "wlan", then the define MULTI_IF_NAME to be the
 # same a the QCA CHIP name. The host driver will then append MULTI_IF_NAME to
