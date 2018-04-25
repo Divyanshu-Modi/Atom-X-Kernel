@@ -1243,13 +1243,13 @@ static int ep_create_wakeup_source(struct epitem *epi)
 	if (!epi->ep->ws) {
 		snprintf(buf, sizeof(buf), "epoll_%.*s_epollfd",
 			 (int)sizeof(task_comm_buf), task_comm_buf);
-		epi->ep->ws = wakeup_source_register(buf);
+		epi->ep->ws = wakeup_source_register(NULL, buf);
 		if (!epi->ep->ws)
 			return -ENOMEM;
 	}
 
 	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
-	ws = wakeup_source_register(n.name);
+	ws = wakeup_source_register(NULL, n.name);
 	release_dentry_name_snapshot(&n);
 
 	if (!ws)
