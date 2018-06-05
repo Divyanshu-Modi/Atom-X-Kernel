@@ -593,19 +593,6 @@ struct mdss_dsi_ctrl_pdata {
 
 	bool phy_power_off;
 
-#ifdef CONFIG_MACH_MI
-	bool dsi_panel_off_mode;
-	int tp_rst_gpio;
-	u32 bklt_level;
-
-	struct dsi_panel_cmds dispparam_dimmingon_cmds;
-	struct dsi_panel_cmds displayoff_cmds;
-	struct dsi_panel_cmds displayon_cmds;
-
-	struct delayed_work cmds_work;
-	struct delayed_work panel_dead_report_work;
-#endif
-
 	struct notifier_block wake_notif;
 	struct task_struct *wake_thread;
 	struct completion wake_comp;
