@@ -244,7 +244,7 @@ static int journal_submit_data_buffers(journal_t *journal,
 		 * block allocation  with delalloc. We need to write
 		 * only allocated blocks here.
 		 */
-		trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
+		//trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
 #ifndef CONFIG_MACH_LONGCHEER
 		err = journal_submit_inode_data_buffers(mapping);
 #else
@@ -470,7 +470,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
 
 	commit_transaction = journal->j_running_transaction;
 
-	trace_jbd2_start_commit(journal, commit_transaction);
+//	trace_jbd2_start_commit(journal, commit_transaction);
 	jbd_debug(1, "JBD2: starting commit of transaction %d\n",
 			commit_transaction->t_tid);
 
@@ -478,7 +478,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
 	J_ASSERT(commit_transaction->t_state == T_RUNNING);
 	commit_transaction->t_state = T_LOCKED;
 
-	trace_jbd2_commit_locking(journal, commit_transaction);
+//	trace_jbd2_commit_locking(journal, commit_transaction);
 	stats.run.rs_wait = commit_transaction->t_max_wait;
 	stats.run.rs_request_delay = 0;
 	stats.run.rs_locked = jiffies;
@@ -571,7 +571,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
 	atomic_sub(atomic_read(&journal->j_reserved_credits),
 		   &commit_transaction->t_outstanding_credits);
 
-	trace_jbd2_commit_flushing(journal, commit_transaction);
+//	trace_jbd2_commit_flushing(journal, commit_transaction);
 	stats.run.rs_flushing = jiffies;
 	stats.run.rs_locked = jbd2_time_diff(stats.run.rs_locked,
 					     stats.run.rs_flushing);
@@ -609,7 +609,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
 	commit_transaction->t_state = T_COMMIT;
 	write_unlock(&journal->j_state_lock);
 
-	trace_jbd2_commit_logging(journal, commit_transaction);
+//	trace_jbd2_commit_logging(journal, commit_transaction);
 	stats.run.rs_logging = jiffies;
 	stats.run.rs_flushing = jbd2_time_diff(stats.run.rs_flushing,
 					       stats.run.rs_logging);
@@ -1160,8 +1160,8 @@ restart_loop:
 	stats.ts_tid = commit_transaction->t_tid;
 	stats.run.rs_handle_count =
 		atomic_read(&commit_transaction->t_handle_count);
-	trace_jbd2_run_stats(journal->j_fs_dev->bd_dev,
-			     commit_transaction->t_tid, &stats.run);
+//	trace_jbd2_run_stats(journal->j_fs_dev->bd_dev,
+//			     commit_transaction->t_tid, &stats.run);
 	stats.ts_requested = (commit_transaction->t_requested) ? 1 : 0;
 
 	commit_transaction->t_state = T_COMMIT_CALLBACK;
@@ -1192,7 +1192,7 @@ restart_loop:
 					      jiffies);
 #endif
 
-	trace_jbd2_end_commit(journal, commit_transaction);
+//	trace_jbd2_end_commit(journal, commit_transaction);
 	jbd_debug(1, "JBD2: commit %d complete, head %d\n",
 		  journal->j_commit_sequence, journal->j_tail_sequence);
 
