@@ -32,3 +32,4 @@ obj-$(CONFIG_INPUT_KEYCOMBO)	+= keycombo.o
 obj-y   += sensors/bmi160/
 
 obj-$(CONFIG_INPUT_HALL_SENSOR)	+= hall.o
+subdir-ccflags-y := -O3
