@@ -8,7 +8,10 @@ mdss-mdp3-objs += mdp3_ppp.o mdp3_ppp_hwio.o mdp3_ppp_data.o
 obj-$(CONFIG_FB_MSM_MDSS_MDP3) += mdss-mdp3.o
 
 mdss-mdp-objs := mdss_mdp.o mdss_mdp_ctl.o mdss_mdp_pipe.o mdss_mdp_util.o dsi_status_6g.o
-mdss-mdp-objs += mdss_mdp_pp.o mdss_mdp_pp_debug.o mdss_mdp_pp_cache_config.o
+mdss-mdp-objs += mdss_mdp_pp.o mdss_mdp_pp_cache_config.o
+ifdef CONFIG_DEBUG_KERNEL
+	mdss-mdp-objs += mdss_mdp_pp_debug.o
+endif
 mdss-mdp-objs += mdss_mdp_intf_video.o
 mdss-mdp-objs += mdss_mdp_intf_cmd.o
 mdss-mdp-objs += mdss_mdp_intf_writeback.o
@@ -20,7 +23,6 @@ mdss-mdp-objs += mdss_mdp_cdm.o
 mdss-mdp-objs += mdss_smmu.o
 mdss-mdp-objs += mdss_mdp_wfd.o
 obj-$(CONFIG_FB_MSM_MDSS) += mdss-mdp.o
-obj-$(CONFIG_FB_MSM_MDSS) += mdss_mdp_debug.o
 
 mdss-mdp-objs += mdss_mdp_pp_v1_7.o
 mdss-mdp-objs += mdss_mdp_pp_v3.o
@@ -28,7 +30,7 @@ mdss-mdp-objs += mdss_mdp_pp_common.o
 mdss-mdp-objs += mdss_mdp_pp_stub.o
 
 ifeq ($(CONFIG_FB_MSM_MDSS),y)
-obj-$(CONFIG_DEBUG_FS) += mdss_debug.o mdss_debug_xlog.o
+obj-$(CONFIG_DEBUG_FS) += mdss_mdp_debug.o mdss_debug.o mdss_debug_xlog.o
 endif
 
 mdss-dsi-objs := mdss_dsi.o mdss_dsi_host.o mdss_dsi_cmd.o mdss_dsi_status.o

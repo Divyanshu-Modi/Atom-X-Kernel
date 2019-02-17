@@ -212,11 +212,7 @@ struct smb2 {
 	bool			bad_part;
 };
 
-#ifdef CONFIG_MACH_LONGCHEER
-static int __debug_mask = 0xFF;
-#else
 static int __debug_mask;
-#endif
 module_param_named(
 	debug_mask, __debug_mask, int, S_IRUSR | S_IWUSR
 );
