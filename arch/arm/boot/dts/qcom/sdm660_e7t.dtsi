@@ -418,18 +418,16 @@
 		};
 
 		dfps_data_mem: dfps_data_mem@0x9f7ff000 {
-		       reg = <0 0x9f7ff000 0 0x00001000>;
+		       reg = <0 0x9f800000 0 0x00001000>;
 		       label = "dfps_data_mem";
 		};
 		
-		pstore_reserve_mem: pstore_reserve_mem_region@0 {
-			linux,reserve-contiguous-region;
-			linux,reserve-region;
-			linux,remove-completely;
-			reg = <0x0 0xA0000000 0x0 0x00400000>;
-			label = "pstore_reserve_mem";
-    	};
-    };	
+		ramoops_mem: ramoops_region@b0000000 {
+			compatible = "removed-dma-pool";
+			no-map;
+			reg = <0 0xA0000000 0 0x00400000>;
+		};
+    };		
 
 	bluetooth: bt_wcn3990 {
 		compatible = "qca,wcn3990";
@@ -665,7 +663,7 @@
 			compatible = "qcom,memshare-peripheral";
 			qcom,peripheral-size = <0x0>;
 			qcom,client-id = <1>;
-			qcom,allocate-boot-time;
+			qcom,allocate-on-request;
 			label = "modem";
 		};
 	};
@@ -2552,6 +2550,13 @@
 
 		qcom,coresight-jtagmm-cpu = <&CPU7>;
 	};
+	
+	ramoops {
+		compatible = "ramoops";
+		memory-region = <&ramoops_mem>;
+		console-size = <0x0 0x200000>;
+		pmsg-size = <0x0 0x200000>;
+	};	
 };
 
 #include "sdm660-ion.dtsi"
