@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include "jasway.dtsi"
+
+/* sdm660.dtsi jasmine specific diff */
+&firmware {
+	android {
+		fstab {
+			vendor {
+				mnt_flags = "ro,barrier=1";
+			};
+		};
+	};
+};
