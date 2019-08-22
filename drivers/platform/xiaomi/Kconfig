@@ -1,0 +1,50 @@
+#------------------------------#
+# Xiaomi configuration options #
+#------------------------------#
+
+config MACH_XIAOMI
+	bool "Xiaomi device"
+	depends on ARCH_QCOM
+	help
+	  Support for Xiaomi Products.
+
+config MACH_XIAOMI_SDM660
+	bool "Xiaomi SDM660"
+	depends on ARCH_SDM660
+	select MACH_XIAOMI
+	help
+	  Support for Xiaomi SDM660 Platform Devices.
+
+menu "Xiaomi board selection"
+
+	config MACH_LONGCHEER
+		bool "Longcheer board"
+		select MACH_XIAOMI_SDM660
+		help
+		  Support for Xiaomi's Longcheer boards.
+
+	config MACH_XIAOMI_LAVENDER
+		bool "Xiaomi lavender board"
+		select MACH_LONGCHEER
+		help
+		  Support for Xiaomi Redmi Note 7.
+
+	config MACH_XIAOMI_TULIP
+		bool "Xiaomi tulip board"
+		select MACH_LONGCHEER
+		help
+		  Support for Xiaomi Redmi Note 6 Pro.
+
+	config MACH_XIAOMI_WHYRED
+		bool "Xiaomi whyred board"
+		select MACH_LONGCHEER
+		help
+		  Support for Xiaomi Redmi Note 5 (Pro).
+
+	config MACH_XIAOMI_JASWAY
+		bool "Xiaomi jasmine/wayne board"
+		select MACH_LONGCHEER
+		help
+		  Support for Xiaomi MI 6X/A2 variant.
+
+endmenu
