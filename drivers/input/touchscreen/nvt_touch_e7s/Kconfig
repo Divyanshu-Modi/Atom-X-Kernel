@@ -1,0 +1,14 @@
+#
+# Novatek NT36xxx touchscreen driver configuration
+#
+config TOUCHSCREEN_NVT_E7S
+	tristate "novatek touchscreens"
+	help
+	  Say Y here if you have a nvt touchscreen.
+	  nvt controllers are multi touch controllers which can
+	  report 5 touches at a time.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called nvt.
