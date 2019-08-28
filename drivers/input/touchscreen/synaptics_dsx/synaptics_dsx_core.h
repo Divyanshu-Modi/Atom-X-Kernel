@@ -27,28 +27,15 @@
 
 #include <linux/version.h>
 #include <linux/debugfs.h>
-
-#if defined(CONFIG_FB)
 #include <linux/notifier.h>
 #include <linux/fb.h>
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-#include <linux/earlysuspend.h>
-#endif
 #if defined(CONFIG_SECURE_TOUCH)
 #include <linux/completion.h>
 #include <linux/atomic.h>
 #include <linux/clk.h>
 #endif
 
-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 38))
-#define KERNEL_ABOVE_2_6_38
-#endif
-
-#ifdef KERNEL_ABOVE_2_6_38
 #define sstrtoul(...) kstrtoul(__VA_ARGS__)
-#else
-#define sstrtoul(...) strict_strtoul(__VA_ARGS__)
-#endif
 
 #define PDT_PROPS (0X00EF)
 #define PDT_START (0x00E9)
