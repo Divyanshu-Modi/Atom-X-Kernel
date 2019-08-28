@@ -29,9 +29,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/input/synaptics_dsx_v2.h>
 #include "synaptics_dsx_core.h"
-#ifdef KERNEL_ABOVE_2_6_38
 #include <linux/input/mt.h>
-#endif
 #if defined(CONFIG_SECURE_TOUCH)
 #include <linux/errno.h>
 #include <soc/qcom/scm.h>
@@ -45,10 +43,6 @@ enum subsystem {
 
 #define INPUT_PHYS_NAME "synaptics_dsx/input0"
 #define DEBUGFS_DIR_NAME "ts_debug"
-
-#ifdef KERNEL_ABOVE_2_6_38
-#define TYPE_B_PROTOCOL
-#endif
 
 #define NO_0D_WHILE_2D
 #define REPORT_2D_Z
@@ -114,15 +108,9 @@ static ssize_t synaptics_rmi4_full_pm_cycle_show(struct device *dev,
 static ssize_t synaptics_rmi4_full_pm_cycle_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);
 
-#if defined(CONFIG_FB)
 static void fb_notify_resume_work(struct work_struct *work);
 static int fb_notifier_callback(struct notifier_block *self,
 				unsigned long event, void *data);
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-static void synaptics_rmi4_early_suspend(struct early_suspend *h);
-
-static void synaptics_rmi4_late_resume(struct early_suspend *h);
-#endif
 
 static int synaptics_rmi4_suspend(struct device *dev);
 
@@ -930,11 +918,9 @@ static int synaptics_rmi4_f11_abs_report(struct synaptics_rmi4_data *rmi4_data,
 		 * 10 = finger present but data may be inaccurate
 		 * 11 = reserved
 		 */
-#ifdef TYPE_B_PROTOCOL
 		input_mt_slot(rmi4_data->input_dev, finger);
 		input_mt_report_slot_state(rmi4_data->input_dev,
 				MT_TOOL_FINGER, finger_status);
-#endif
 
 		if (finger_status) {
 			data_offset = data_addr +
@@ -980,10 +966,6 @@ static int synaptics_rmi4_f11_abs_report(struct synaptics_rmi4_data *rmi4_data,
 			input_report_abs(rmi4_data->input_dev,
 					ABS_MT_TOUCH_MINOR, min(wx, wy));
 #endif
-#ifndef TYPE_B_PROTOCOL
-			input_mt_sync(rmi4_data->input_dev);
-#endif
-
 			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Finger %d:\n"
 					"status = 0x%02x\n"
@@ -1004,9 +986,6 @@ static int synaptics_rmi4_f11_abs_report(struct synaptics_rmi4_data *rmi4_data,
 				BTN_TOUCH, 0);
 		input_report_key(rmi4_data->input_dev,
 				BTN_TOOL_FINGER, 0);
-#ifndef TYPE_B_PROTOCOL
-		input_mt_sync(rmi4_data->input_dev);
-#endif
 	}
 
 	input_sync(rmi4_data->input_dev);
@@ -1111,16 +1090,12 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 		finger_status = finger_data->object_type_and_status;
 
 		if (finger_status == F12_FINGER_STATUS) {
-#ifdef TYPE_B_PROTOCOL
 			input_mt_slot(rmi4_data->input_dev, finger);
 			input_mt_report_slot_state(rmi4_data->input_dev,
 					MT_TOOL_FINGER, 1);
-#endif
-
 #ifdef F12_DATA_15_WORKAROUND
 			fingers_already_present = finger + 1;
 #endif
-
 			x = (finger_data->x_msb << 8) | (finger_data->x_lsb);
 			y = (finger_data->y_msb << 8) | (finger_data->y_lsb);
 #ifdef REPORT_2D_W
@@ -1156,10 +1131,6 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 			input_report_abs(rmi4_data->input_dev,
 					ABS_MT_TOUCH_MINOR, min(wx, wy));
 #endif
-#ifndef TYPE_B_PROTOCOL
-			input_mt_sync(rmi4_data->input_dev);
-#endif
-
 			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Finger %d:\n"
 					"status = 0x%02x\n"
@@ -1173,11 +1144,9 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 
 			touch_count++;
 		} else {
-#ifdef TYPE_B_PROTOCOL
 			input_mt_slot(rmi4_data->input_dev, finger);
 			input_mt_report_slot_state(rmi4_data->input_dev,
 					MT_TOOL_FINGER, 0);
-#endif
 		}
 	}
 
@@ -1186,9 +1155,6 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 				BTN_TOUCH, 0);
 		input_report_key(rmi4_data->input_dev,
 				BTN_TOOL_FINGER, 0);
-#ifndef TYPE_B_PROTOCOL
-		input_mt_sync(rmi4_data->input_dev);
-#endif
 	}
 
 	input_sync(rmi4_data->input_dev);
@@ -2633,10 +2599,8 @@ static void synaptics_rmi4_set_params(struct synaptics_rmi4_data *rmi4_data)
 			rmi4_data->max_touch_width, 0, 0);
 #endif
 
-#ifdef TYPE_B_PROTOCOL
 	input_mt_init_slots(rmi4_data->input_dev,
 			rmi4_data->num_of_fingers, 0);
-#endif
 
 	f1a = NULL;
 	if (!list_empty(&rmi->support_fn_list)) {
@@ -3246,20 +3210,15 @@ static int synaptics_rmi4_free_fingers(struct synaptics_rmi4_data *rmi4_data)
 {
 	unsigned char ii;
 
-#ifdef TYPE_B_PROTOCOL
 	for (ii = 0; ii < rmi4_data->num_of_fingers; ii++) {
 		input_mt_slot(rmi4_data->input_dev, ii);
 		input_mt_report_slot_state(rmi4_data->input_dev,
 				MT_TOOL_FINGER, 0);
 	}
-#endif
 	input_report_key(rmi4_data->input_dev,
 			BTN_TOUCH, 0);
 	input_report_key(rmi4_data->input_dev,
 			BTN_TOOL_FINGER, 0);
-#ifndef TYPE_B_PROTOCOL
-	input_mt_sync(rmi4_data->input_dev);
-#endif
 	input_sync(rmi4_data->input_dev);
 
 	rmi4_data->fingers_on_2d = false;
@@ -3776,7 +3735,6 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 		goto err_set_input_dev;
 	}
 
-#ifdef CONFIG_FB
 	INIT_WORK(&rmi4_data->fb_notify_work, fb_notify_resume_work);
 	rmi4_data->fb_notif.notifier_call = fb_notifier_callback;
 
@@ -3784,12 +3742,6 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 	if (retval)
 		dev_err(rmi4_data->pdev->dev.parent,
 			"Unable to register fb_notifier: %d\n", retval);
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-	rmi4_data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
-	rmi4_data->early_suspend.suspend = synaptics_rmi4_early_suspend;
-	rmi4_data->early_suspend.resume = synaptics_rmi4_late_resume;
-	register_early_suspend(&rmi4_data->early_suspend);
-#endif
 
 	rmi4_data->irq = gpio_to_irq(bdata->irq_gpio);
 
@@ -3873,12 +3825,7 @@ err_create_wq:
 	free_irq(rmi4_data->irq, rmi4_data);
 
 err_enable_irq:
-#if defined(CONFIG_FB)
 	fb_unregister_client(&rmi4_data->fb_notif);
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-	unregister_early_suspend(&rmi4_data->early_suspend);
-#endif
-
 	synaptics_rmi4_empty_fn_list(rmi4_data);
 	input_unregister_device(rmi4_data->input_dev);
 	rmi4_data->input_dev = NULL;
@@ -3966,12 +3913,7 @@ static int synaptics_rmi4_remove(struct platform_device *pdev)
 
 	synaptics_rmi4_irq_enable(rmi4_data, false);
 
-#if defined(CONFIG_FB)
 	fb_unregister_client(&rmi4_data->fb_notif);
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
-	unregister_early_suspend(&rmi4_data->early_suspend);
-#endif
-
 	synaptics_rmi4_empty_fn_list(rmi4_data);
 	input_unregister_device(rmi4_data->input_dev);
 	rmi4_data->input_dev = NULL;
@@ -4025,7 +3967,6 @@ static int synaptics_rmi4_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#if defined(CONFIG_FB)
 static void fb_notify_resume_work(struct work_struct *work)
 {
 	struct synaptics_rmi4_data *rmi4_data =
@@ -4072,100 +4013,6 @@ static int fb_notifier_callback(struct notifier_block *self,
 
 	return 0;
 }
-#elif defined(CONFIG_HAS_EARLYSUSPEND)
- /**
- * synaptics_rmi4_early_suspend()
- *
- * Called by the kernel during the early suspend phase when the system
- * enters suspend.
- *
- * This function calls synaptics_rmi4_sensor_sleep() to stop finger
- * data acquisition and put the sensor to sleep.
- */
-static void synaptics_rmi4_early_suspend(struct early_suspend *h)
-{
-	struct synaptics_rmi4_exp_fhandler *exp_fhandler;
-	struct synaptics_rmi4_data *rmi4_data =
-			container_of(h, struct synaptics_rmi4_data,
-			early_suspend);
-
-	if (rmi4_data->stay_awake) {
-		rmi4_data->staying_awake = true;
-		return;
-	} else {
-		rmi4_data->staying_awake = false;
-	}
-
-	synaptics_secure_touch_stop(rmi4_data, 0);
-
-	rmi4_data->touch_stopped = true;
-	synaptics_rmi4_irq_enable(rmi4_data, false);
-	synaptics_rmi4_sensor_sleep(rmi4_data);
-	synaptics_rmi4_free_fingers(rmi4_data);
-
-	mutex_lock(&exp_data.mutex);
-	if (!list_empty(&exp_data.list)) {
-		list_for_each_entry(exp_fhandler, &exp_data.list, link)
-			if (exp_fhandler->exp_fn->early_suspend != NULL)
-				exp_fhandler->exp_fn->early_suspend(rmi4_data);
-	}
-	mutex_unlock(&exp_data.mutex);
-
-	if (rmi4_data->full_pm_cycle)
-		synaptics_rmi4_suspend(&(rmi4_data->input_dev->dev));
-
-	return;
-}
-
- /**
- * synaptics_rmi4_late_resume()
- *
- * Called by the kernel during the late resume phase when the system
- * wakes up from suspend.
- *
- * This function goes through the sensor wake process if the system wakes
- * up from early suspend (without going into suspend).
- */
-static void synaptics_rmi4_late_resume(struct early_suspend *h)
-{
-	int retval;
-	struct synaptics_rmi4_exp_fhandler *exp_fhandler;
-	struct synaptics_rmi4_data *rmi4_data =
-			container_of(h, struct synaptics_rmi4_data,
-			early_suspend);
-
-	if (rmi4_data->staying_awake)
-		return;
-
-	synaptics_secure_touch_stop(rmi4_data, 0);
-
-	if (rmi4_data->full_pm_cycle)
-		synaptics_rmi4_resume(&(rmi4_data->input_dev->dev));
-
-	if (rmi4_data->sensor_sleep == true) {
-		synaptics_rmi4_sensor_wake(rmi4_data);
-		synaptics_rmi4_irq_enable(rmi4_data, true);
-		retval = synaptics_rmi4_reinit_device(rmi4_data);
-		if (retval < 0) {
-			dev_err(rmi4_data->pdev->dev.parent,
-					"%s: Failed to reinit device\n",
-					__func__);
-		}
-	}
-
-	mutex_lock(&exp_data.mutex);
-	if (!list_empty(&exp_data.list)) {
-		list_for_each_entry(exp_fhandler, &exp_data.list, link)
-			if (exp_fhandler->exp_fn->late_resume != NULL)
-				exp_fhandler->exp_fn->late_resume(rmi4_data);
-	}
-	mutex_unlock(&exp_data.mutex);
-
-	rmi4_data->touch_stopped = false;
-
-	return;
-}
-#endif
 
 #ifdef CONFIG_PM
  /**
@@ -4430,7 +4277,7 @@ static int synaptics_rmi4_resume(struct device *dev)
 }
 
 static const struct dev_pm_ops synaptics_rmi4_dev_pm_ops = {
-#if (!defined(CONFIG_FB) && !defined(CONFIG_HAS_EARLYSUSPEND))
+#ifndef CONFIG_FB
 	.suspend = synaptics_rmi4_suspend,
 	.resume  = synaptics_rmi4_resume,
 #endif
