@@ -1,4 +1,5 @@
 /* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -55,11 +56,7 @@
 #include "debug.h"
 #include "xhci.h"
 
-#ifdef CONFIG_MACH_LONGCHEER
 #define SDP_CONNETION_CHECK_TIME 5000 /* in ms */
-#else
-#define SDP_CONNETION_CHECK_TIME 10000 /* in ms */
-#endif
 
 /* time out to wait for USB cable status notification (in ms)*/
 #define SM_INIT_TIMEOUT 30000
@@ -2738,10 +2735,8 @@ static void check_for_sdp_connection(struct work_struct *w)
 	struct dwc3_msm *mdwc =
 		container_of(w, struct dwc3_msm, sdp_check.work);
 	struct dwc3 *dwc = platform_get_drvdata(mdwc->dwc3);
-#ifdef CONFIG_MACH_LONGCHEER
 	union power_supply_propval pval = {0};
 	int ret;
-#endif
 
 	if (!mdwc->vbus_active)
 		return;
@@ -2757,7 +2752,6 @@ static void check_for_sdp_connection(struct work_struct *w)
 	if (dwc->gadget.state < USB_STATE_DEFAULT &&
 		dwc3_gadget_get_link_state(dwc) != DWC3_LINK_STATE_CMPLY) {
 		mdwc->vbus_active = 0;
-#ifdef CONFIG_MACH_LONGCHEER
 		if (!mdwc->usb_psy)
 			mdwc->usb_psy = power_supply_get_by_name("usb");
 		if (mdwc->usb_psy) {
@@ -2767,7 +2761,6 @@ static void check_for_sdp_connection(struct work_struct *w)
 			if (ret)
 				dev_dbg(mdwc->dev, "error when set property\n");
 		}
-#endif
 		dbg_event(0xFF, "Q RW SPD CHK", mdwc->vbus_active);
 		queue_work(mdwc->dwc3_wq, &mdwc->resume_work);
 	}

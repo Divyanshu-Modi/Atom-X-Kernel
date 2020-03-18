@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -438,9 +439,7 @@ struct fg_chip {
 	int			last_recharge_volt_mv;
 	int			delta_temp_irq_count;
 	int			esr_timer_charging_default[NUM_ESR_TIMERS];
-#ifdef CONFIG_MACH_LONGCHEER
 	int                     battery_full_design;
-#endif
 	enum slope_limit_status	slope_limit_sts;
 	enum esr_filter_status	esr_flt_sts;
 	bool			profile_available;
@@ -448,7 +447,7 @@ struct fg_chip {
 	bool			battery_missing;
 	bool			fg_restarting;
 	bool			charge_full;
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
 	bool			report_full;
 #endif
 	bool			recharge_soc_adjusted;
@@ -460,9 +459,6 @@ struct fg_chip {
 	bool			use_ima_single_mode;
 	bool			qnovo_enable;
 	bool			suspended;
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
-	bool			report_full;
-#endif
 
 	struct completion	soc_update;
 	struct completion	soc_ready;
@@ -532,7 +528,5 @@ extern void fg_circ_buf_clr(struct fg_circ_buf *);
 extern int fg_circ_buf_avg(struct fg_circ_buf *, int *);
 extern int fg_circ_buf_median(struct fg_circ_buf *, int *);
 extern int fg_lerp(const struct fg_pt *, size_t, s32, s32 *);
-#ifdef CONFIG_MACH_XIAOMI_TULIP
 extern int fg_dma_mem_req(struct fg_chip *, bool);
-#endif
 #endif

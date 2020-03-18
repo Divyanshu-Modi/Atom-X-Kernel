@@ -20,7 +20,6 @@
 #define MAX98937_ID		(1)
 typedef enum
 {
-
 	MAX98927_Interrupt_Raw_1                                          = 0x0001,
 	MAX98927_Interrupt_Raw_1_BDE_ACTIVE_END_RAW                       = (0x1 << 0),
 	MAX98927_Interrupt_Raw_1_BDE_ACTIVE_BGN_RAW                       = (0x1 << 1),
@@ -30,7 +29,6 @@ typedef enum
 	MAX98927_Interrupt_Raw_1_THERMWARN_START_RAW                      = (0x1 << 5),
 	MAX98927_Interrupt_Raw_1_THERMSHDN_END_RAW                        = (0x1 << 6),
 	MAX98927_Interrupt_Raw_1_THERMSHDN_START_RAW                      = (0x1 << 7),
-
 
 	MAX98927_Interrupt_Raw_2                                          = 0x0002,
 	MAX98927_Interrupt_Raw_2_WATCHDOGWARN_RAW                         = (0x1 << 0),
@@ -42,13 +40,11 @@ typedef enum
 	MAX98927_Interrupt_Raw_2_PWRDN_DONE_RAW                           = (0x1 << 6),
 	MAX98927_Interrupt_Raw_2_PWRUP_DONE_RAW                           = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Raw_3                                          = 0x0003,
 	MAX98927_Interrupt_Raw_3_PWRUP_FAIL_RAW                           = (0x1 << 0),
 	MAX98927_Interrupt_Raw_3_AUTH_DONE_RAW                            = (0x1 << 1),
 	MAX98927_Interrupt_Raw_3_SPK_OVC_RAW                              = (0x1 << 2),
 	MAX98927_Interrupt_Raw_3_BST_UVLO_RAW                             = (0x1 << 3),
-
 
 	MAX98927_Interrupt_State_1                                        = 0x0004,
 	MAX98927_Interrupt_State_1_BDE_ACTIVE_END_STATE                   = (0x1 << 0),
@@ -60,7 +56,6 @@ typedef enum
 	MAX98927_Interrupt_State_1_THERMSHDN_END_STATE                    = (0x1 << 6),
 	MAX98927_Interrupt_State_1_THERMSHDN_START_STATE                  = (0x1 << 7),
 
-
 	MAX98927_Interrupt_State_2                                        = 0x0005,
 	MAX98927_Interrupt_State_2_WATCHDOGWARN_STATE                     = (0x1 << 0),
 	MAX98927_Interrupt_State_2_WATCHDOGFAIL_STATE                     = (0x1 << 1),
@@ -71,13 +66,11 @@ typedef enum
 	MAX98927_Interrupt_State_2_PWRDN_DONE_STATE                       = (0x1 << 6),
 	MAX98927_Interrupt_State_2_PWRUP_DONE_STATE                       = (0x1 << 7),
 
-
 	MAX98927_Interrupt_State_3                                        = 0x0006,
 	MAX98927_Interrupt_State_3_PWRUP_FAIL_STATE                       = (0x1 << 0),
 	MAX98927_Interrupt_State_3_AUTH_DONE_STATE                        = (0x1 << 1),
 	MAX98927_Interrupt_State_3_SPK_OVC_STATE                          = (0x1 << 2),
 	MAX98927_Interrupt_State_3_BST_UVLO_STATE                         = (0x1 << 3),
-
 
 	MAX98927_Interrupt_Flag_1                                         = 0x0007,
 	MAX98927_Interrupt_Flag_1_BDE_ACTIVE_END_FLAG                     = (0x1 << 0),
@@ -89,7 +82,6 @@ typedef enum
 	MAX98927_Interrupt_Flag_1_THERMSHDN_END_FLAG                      = (0x1 << 6),
 	MAX98927_Interrupt_Flag_1_THERMSHDN_START_FLAG                    = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Flag_2                                         = 0x0008,
 	MAX98927_Interrupt_Flag_2_WATCHDOGWARN_FLAG                       = (0x1 << 0),
 	MAX98927_Interrupt_Flag_2_WATCHDOGFAIL_FLAG                       = (0x1 << 1),
@@ -100,13 +92,11 @@ typedef enum
 	MAX98927_Interrupt_Flag_2_PWRDN_DONE_FLAG                         = (0x1 << 6),
 	MAX98927_Interrupt_Flag_2_PWRUP_DONE_FLAG                         = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Flag_3                                         = 0x0009,
 	MAX98927_Interrupt_Flag_3_PWRUP_FAIL_FLAG                         = (0x1 << 0),
 	MAX98927_Interrupt_Flag_3_AUTH_DONE_FLAG                          = (0x1 << 1),
 	MAX98927_Interrupt_Flag_3_SPK_OVC_FLAG                            = (0x1 << 2),
 	MAX98927_Interrupt_Flag_3_BST_UVLO_FLAG                           = (0x1 << 3),
-
 
 	MAX98927_Interrupt_Enable_1                                       = 0x000a,
 	MAX98927_Interrupt_Enable_1_BDE_ACTIVE_END_EN                     = (0x1 << 0),
@@ -118,7 +108,6 @@ typedef enum
 	MAX98927_Interrupt_Enable_1_THERMSHDN_END_EN                      = (0x1 << 6),
 	MAX98927_Interrupt_Enable_1_THERMSHDN_START_EN                    = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Enable_2                                       = 0x000b,
 	MAX98927_Interrupt_Enable_2_WATCHDOGWARN_EN                       = (0x1 << 0),
 	MAX98927_Interrupt_Enable_2_WATCHDOGFAIL_EN                       = (0x1 << 1),
@@ -129,13 +118,11 @@ typedef enum
 	MAX98927_Interrupt_Enable_2_PWRDN_DONE_EN                         = (0x1 << 6),
 	MAX98927_Interrupt_Enable_2_PWRUP_DONE_EN                         = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Enable_3                                       = 0x000c,
 	MAX98927_Interrupt_Enable_3_PWRUP_FAIL_EN                         = (0x1 << 0),
 	MAX98927_Interrupt_Enable_3_AUTH_DONE_EN                          = (0x1 << 1),
 	MAX98927_Interrupt_Enable_3_SPK_OVC_EN                            = (0x1 << 2),
 	MAX98927_Interrupt_Enable_3_BST_UVLO_EN                           = (0x1 << 3),
-
 
 	MAX98927_Interrupt_Flag_Clear_1                                   = 0x000d,
 	MAX98927_Interrupt_Flag_Clear_1_BDE_ACTIVE_END_CLR                = (0x1 << 0),
@@ -147,7 +134,6 @@ typedef enum
 	MAX98927_Interrupt_Flag_Clear_1_THERMSHDN_END_CLR                 = (0x1 << 6),
 	MAX98927_Interrupt_Flag_Clear_1_THERMSHDN_START_CLR               = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Flag_Clear_2                                   = 0x000e,
 	MAX98927_Interrupt_Flag_Clear_2_WATCHDOGWARN_CLR                  = (0x1 << 0),
 	MAX98927_Interrupt_Flag_Clear_2_WATCHDOGFAIL_CLR                  = (0x1 << 1),
@@ -158,30 +144,25 @@ typedef enum
 	MAX98927_Interrupt_Flag_Clear_2_PWRDN_DONE_CLR                    = (0x1 << 6),
 	MAX98927_Interrupt_Flag_Clear_2_PWRUP_DONE_CLR                    = (0x1 << 7),
 
-
 	MAX98927_Interrupt_Flag_Clear_3                                   = 0x000f,
 	MAX98927_Interrupt_Flag_Clear_3_PWRUP_FAIL_CLR                    = (0x1 << 0),
 	MAX98927_Interrupt_Flag_Clear_3_AUTH_DONE_CLR                     = (0x1 << 1),
 	MAX98927_Interrupt_Flag_Clear_3_SPK_OVC_CLR                       = (0x1 << 2),
 	MAX98927_Interrupt_Flag_Clear_3_BST_UVLO_CLR                      = (0x1 << 3),
 
-
 	MAX98927_IRQ_Control                                              = 0x0010,
 	MAX98927_IRQ_Control_IRQ_EN                                       = (0x1 << 0),
 	MAX98927_IRQ_Control_IRQ_POL                                      = (0x1 << 1),
 	MAX98927_IRQ_Control_IRQ_MODE                                     = (0x1 << 2),
 
-
 	MAX98927_Clock_monitor_enable                                     = 0x0011,
 	MAX98927_Clock_monitor_enable_CMON_ENA                            = (0x1 << 0),
 	MAX98927_Clock_monitor_enable_CMON_AUTORESTART_ENA                = (0x1 << 1),
-
 
 	MAX98927_Watchdog_Control                                         = 0x0012,
 	MAX98927_Watchdog_Control_WDT_ENA                                 = (0x1 << 0),
 	MAX98927_Watchdog_Control_WDT_MODE                                = (0x1 << 1),
 	MAX98927_Watchdog_Control_WDT_TO_SEL_Mask                         = (0x3 << 2),
-
 	MAX98927_Watchdog_Control_WDT_TO_SEL_5                            = (0x0 << 2),
 	MAX98927_Watchdog_Control_WDT_TO_SEL_10                           = (0x1 << 2),
 	MAX98927_Watchdog_Control_WDT_TO_SEL_35                           = (0x2 << 2),
@@ -242,7 +223,6 @@ typedef enum
 	MAX98927_PCM_Rx_Enables_A_PCM_RX_CH6_EN                           = (0x1 << 6),
 	MAX98927_PCM_Rx_Enables_A_PCM_RX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98927_PCM_Rx_Enables_B                                         = 0x0019,
 	MAX98927_PCM_Rx_Enables_B_PCM_RX_CH8_EN                           = (0x1 << 0),
 	MAX98927_PCM_Rx_Enables_B_PCM_RX_CH9_EN                           = (0x1 << 1),
@@ -252,7 +232,6 @@ typedef enum
 	MAX98927_PCM_Rx_Enables_B_PCM_RX_CH13_EN                          = (0x1 << 5),
 	MAX98927_PCM_Rx_Enables_B_PCM_RX_CH14_EN                          = (0x1 << 6),
 	MAX98927_PCM_Rx_Enables_B_PCM_RX_CH15_EN                          = (0x1 << 7),
-
 
 	MAX98927_PCM_Tx_Enables_A                                         = 0x001a,
 	MAX98927_PCM_Tx_Enables_A_PCM_TX_CH0_EN                           = (0x1 << 0),
@@ -264,7 +243,6 @@ typedef enum
 	MAX98927_PCM_Tx_Enables_A_PCM_TX_CH6_EN                           = (0x1 << 6),
 	MAX98927_PCM_Tx_Enables_A_PCM_TX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98927_PCM_Tx_Enables_B                                         = 0x001b,
 	MAX98927_PCM_Tx_Enables_B_PCM_TX_CH8_EN                           = (0x1 << 0),
 	MAX98927_PCM_Tx_Enables_B_PCM_TX_CH9_EN                           = (0x1 << 1),
@@ -275,7 +253,6 @@ typedef enum
 	MAX98927_PCM_Tx_Enables_B_PCM_TX_CH14_EN                          = (0x1 << 6),
 	MAX98927_PCM_Tx_Enables_B_PCM_TX_CH15_EN                          = (0x1 << 7),
 
-
 	MAX98927_PCM_Tx_HiZ_Control_A                                     = 0x001c,
 	MAX98927_PCM_Tx_HiZ_Control_A_PCM_TX_CH0_HIZ                      = (0x1 << 0),
 	MAX98927_PCM_Tx_HiZ_Control_A_PCM_TX_CH1_HIZ                      = (0x1 << 1),
@@ -285,7 +262,6 @@ typedef enum
 	MAX98927_PCM_Tx_HiZ_Control_A_PCM_TX_CH5_HIZ                      = (0x1 << 5),
 	MAX98927_PCM_Tx_HiZ_Control_A_PCM_TX_CH6_HIZ                      = (0x1 << 6),
 	MAX98927_PCM_Tx_HiZ_Control_A_PCM_TX_CH7_HIZ                      = (0x1 << 7),
-
 
 	MAX98927_PCM_Tx_HiZ_Control_B                                     = 0x001d,
 	MAX98927_PCM_Tx_HiZ_Control_B_PCM_TX_CH8_HIZ                      = (0x1 << 0),
@@ -416,7 +392,6 @@ typedef enum
 	MAX98927_ICC_RX_Enables_A_ICC_RX_CH6_EN                           = (0x1 << 6),
 	MAX98927_ICC_RX_Enables_A_ICC_RX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98927_ICC_RX_Enables_B                                         = 0x0028,
 	MAX98927_ICC_RX_Enables_B_ICC_RX_CH8_EN                           = (0x1 << 0),
 	MAX98927_ICC_RX_Enables_B_ICC_RX_CH9_EN                           = (0x1 << 1),
@@ -427,7 +402,6 @@ typedef enum
 	MAX98927_ICC_RX_Enables_B_ICC_RX_CH14_EN                          = (0x1 << 6),
 	MAX98927_ICC_RX_Enables_B_ICC_RX_CH15_EN                          = (0x1 << 7),
 
-
 	MAX98927_ICC_TX_Enables_A                                         = 0x002b,
 	MAX98927_ICC_TX_Enables_A_ICC_TX_CH0_EN                           = (0x1 << 0),
 	MAX98927_ICC_TX_Enables_A_ICC_TX_CH1_EN                           = (0x1 << 1),
@@ -437,7 +411,6 @@ typedef enum
 	MAX98927_ICC_TX_Enables_A_ICC_TX_CH5_EN                           = (0x1 << 5),
 	MAX98927_ICC_TX_Enables_A_ICC_TX_CH6_EN                           = (0x1 << 6),
 	MAX98927_ICC_TX_Enables_A_ICC_TX_CH7_EN                           = (0x1 << 7),
-
 
 	MAX98927_ICC_TX_Enables_B                                         = 0x002c,
 	MAX98927_ICC_TX_Enables_B_ICC_TX_CH8_EN                           = (0x1 << 0),
@@ -458,7 +431,6 @@ typedef enum
 	MAX98927_ICC_HiZ_Manual_Mode_ICC_TX_HIZ_MANUAL                    = (0x1 << 0),
 	MAX98927_ICC_HiZ_Manual_Mode_ICC_TX_EXTRA_HIZ                     = (0x1 << 1),
 
-
 	MAX98927_ICC_TX_HiZ_Enables_A                                     = 0x002f,
 	MAX98927_ICC_TX_HiZ_Enables_A_ICC_TX_CH0_HIZ                      = (0x1 << 0),
 	MAX98927_ICC_TX_HiZ_Enables_A_ICC_TX_CH1_HIZ                      = (0x1 << 1),
@@ -468,7 +440,6 @@ typedef enum
 	MAX98927_ICC_TX_HiZ_Enables_A_ICC_TX_CH5_HIZ                      = (0x1 << 5),
 	MAX98927_ICC_TX_HiZ_Enables_A_ICC_TX_CH6_HIZ                      = (0x1 << 6),
 	MAX98927_ICC_TX_HiZ_Enables_A_ICC_TX_CH7_HIZ                      = (0x1 << 7),
-
 
 	MAX98927_ICC_TX_HiZ_Enables_B                                     = 0x0030,
 	MAX98927_ICC_TX_HiZ_Enables_B_ICC_TX_CH8_HIZ                      = (0x1 << 0),
@@ -497,7 +468,6 @@ typedef enum
 	MAX98927_PDM_Tx_Control                                           = 0x0034,
 	MAX98927_PDM_Tx_Control_PDM_TX_CH0_SOURCE                         = (0x1 << 0),
 	MAX98927_PDM_Tx_Control_PDM_TX_CH1_SOURCE                         = (0x1 << 1),
-
 
 	MAX98927_PDM_Rx_Enable                                            = 0x0035,
 	MAX98927_PDM_Rx_Enable_PDM_RX_EN                                  = (0x1 << 0),
@@ -574,11 +544,9 @@ typedef enum
 	MAX98927_SSM_Configuration_SPK_FSW_SEL                            = (0x1 << 3),
 	MAX98927_SSM_Configuration_SSM_ENA                                = (0x1 << 7),
 
-
 	MAX98927_Measurement_enables                                      = 0x003e,
 	MAX98927_Measurement_enables_IVADC_V_EN                           = (0x1 << 0),
 	MAX98927_Measurement_enables_IVADC_I_EN                           = (0x1 << 1),
-
 
 	MAX98927_Measurement_DSP_Config                                   = 0x003f,
 	MAX98927_Measurement_DSP_Config_MEAS_V_DCBLK_EN                   = (0x1 << 0),
@@ -949,7 +917,6 @@ typedef enum
 
 typedef enum
 {
-
 	MAX98937_Interrupt_Raw_1                                          = 0x0001,
 	MAX98937_Interrupt_Raw_1_BDE_ACTIVE_END_RAW                       = (0x1 << 0),
 	MAX98937_Interrupt_Raw_1_BDE_ACTIVE_BGN_RAW                       = (0x1 << 1),
@@ -959,7 +926,6 @@ typedef enum
 	MAX98937_Interrupt_Raw_1_THERMWARN_START_RAW                      = (0x1 << 5),
 	MAX98937_Interrupt_Raw_1_THERMSHDN_END_RAW                        = (0x1 << 6),
 	MAX98937_Interrupt_Raw_1_THERMSHDN_START_RAW                      = (0x1 << 7),
-
 
 	MAX98937_Interrupt_Raw_2                                          = 0x0002,
 	MAX98937_Interrupt_Raw_2_WATCHDOGWARN_RAW                         = (0x1 << 0),
@@ -971,13 +937,11 @@ typedef enum
 	MAX98937_Interrupt_Raw_2_PWRDN_DONE_RAW                           = (0x1 << 6),
 	MAX98937_Interrupt_Raw_2_PWRUP_DONE_RAW                           = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Raw_3                                          = 0x0003,
 	MAX98937_Interrupt_Raw_3_PWRUP_FAIL_RAW                           = (0x1 << 0),
 	MAX98937_Interrupt_Raw_3_AUTH_DONE_RAW                            = (0x1 << 1),
 	MAX98937_Interrupt_Raw_3_SPK_OVC_RAW                              = (0x1 << 2),
 	MAX98937_Interrupt_Raw_3_BST_UVLO_RAW                             = (0x1 << 3),
-
 
 	MAX98937_Interrupt_State_1                                        = 0x0004,
 	MAX98937_Interrupt_State_1_BDE_ACTIVE_END_STATE                   = (0x1 << 0),
@@ -989,7 +953,6 @@ typedef enum
 	MAX98937_Interrupt_State_1_THERMSHDN_END_STATE                    = (0x1 << 6),
 	MAX98937_Interrupt_State_1_THERMSHDN_START_STATE                  = (0x1 << 7),
 
-
 	MAX98937_Interrupt_State_2                                        = 0x0005,
 	MAX98937_Interrupt_State_2_WATCHDOGWARN_STATE                     = (0x1 << 0),
 	MAX98937_Interrupt_State_2_WATCHDOGFAIL_STATE                     = (0x1 << 1),
@@ -1000,13 +963,11 @@ typedef enum
 	MAX98937_Interrupt_State_2_PWRDN_DONE_STATE                       = (0x1 << 6),
 	MAX98937_Interrupt_State_2_PWRUP_DONE_STATE                       = (0x1 << 7),
 
-
 	MAX98937_Interrupt_State_3                                        = 0x0006,
 	MAX98937_Interrupt_State_3_PWRUP_FAIL_STATE                       = (0x1 << 0),
 	MAX98937_Interrupt_State_3_AUTH_DONE_STATE                        = (0x1 << 1),
 	MAX98937_Interrupt_State_3_SPK_OVC_STATE                          = (0x1 << 2),
 	MAX98937_Interrupt_State_3_BST_UVLO_STATE                         = (0x1 << 3),
-
 
 	MAX98937_Interrupt_Flag_1                                         = 0x0007,
 	MAX98937_Interrupt_Flag_1_BDE_ACTIVE_END_FLAG                     = (0x1 << 0),
@@ -1018,7 +979,6 @@ typedef enum
 	MAX98937_Interrupt_Flag_1_THERMSHDN_END_FLAG                      = (0x1 << 6),
 	MAX98937_Interrupt_Flag_1_THERMSHDN_START_FLAG                    = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Flag_2                                         = 0x0008,
 	MAX98937_Interrupt_Flag_2_WATCHDOGWARN_FLAG                       = (0x1 << 0),
 	MAX98937_Interrupt_Flag_2_WATCHDOGFAIL_FLAG                       = (0x1 << 1),
@@ -1029,13 +989,11 @@ typedef enum
 	MAX98937_Interrupt_Flag_2_PWRDN_DONE_FLAG                         = (0x1 << 6),
 	MAX98937_Interrupt_Flag_2_PWRUP_DONE_FLAG                         = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Flag_3                                         = 0x0009,
 	MAX98937_Interrupt_Flag_3_PWRUP_FAIL_FLAG                         = (0x1 << 0),
 	MAX98937_Interrupt_Flag_3_AUTH_DONE_FLAG                          = (0x1 << 1),
 	MAX98937_Interrupt_Flag_3_SPK_OVC_FLAG                            = (0x1 << 2),
 	MAX98937_Interrupt_Flag_3_BST_UVLO_FLAG                           = (0x1 << 3),
-
 
 	MAX98937_Interrupt_Enable_1                                       = 0x000a,
 	MAX98937_Interrupt_Enable_1_BDE_ACTIVE_END_EN                     = (0x1 << 0),
@@ -1047,7 +1005,6 @@ typedef enum
 	MAX98937_Interrupt_Enable_1_THERMSHDN_END_EN                      = (0x1 << 6),
 	MAX98937_Interrupt_Enable_1_THERMSHDN_START_EN                    = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Enable_2                                       = 0x000b,
 	MAX98937_Interrupt_Enable_2_WATCHDOGWARN_EN                       = (0x1 << 0),
 	MAX98937_Interrupt_Enable_2_WATCHDOGFAIL_EN                       = (0x1 << 1),
@@ -1058,13 +1015,11 @@ typedef enum
 	MAX98937_Interrupt_Enable_2_PWRDN_DONE_EN                         = (0x1 << 6),
 	MAX98937_Interrupt_Enable_2_PWRUP_DONE_EN                         = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Enable_3                                       = 0x000c,
 	MAX98937_Interrupt_Enable_3_PWRUP_FAIL_EN                         = (0x1 << 0),
 	MAX98937_Interrupt_Enable_3_AUTH_DONE_EN                          = (0x1 << 1),
 	MAX98937_Interrupt_Enable_3_SPK_OVC_EN                            = (0x1 << 2),
 	MAX98937_Interrupt_Enable_3_BST_UVLO_EN                           = (0x1 << 3),
-
 
 	MAX98937_Interrupt_Flag_Clear_1                                   = 0x000d,
 	MAX98937_Interrupt_Flag_Clear_1_BDE_ACTIVE_END_CLR                = (0x1 << 0),
@@ -1076,7 +1031,6 @@ typedef enum
 	MAX98937_Interrupt_Flag_Clear_1_THERMSHDN_END_CLR                 = (0x1 << 6),
 	MAX98937_Interrupt_Flag_Clear_1_THERMSHDN_START_CLR               = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Flag_Clear_2                                   = 0x000e,
 	MAX98937_Interrupt_Flag_Clear_2_WATCHDOGWARN_CLR                  = (0x1 << 0),
 	MAX98937_Interrupt_Flag_Clear_2_WATCHDOGFAIL_CLR                  = (0x1 << 1),
@@ -1087,30 +1041,25 @@ typedef enum
 	MAX98937_Interrupt_Flag_Clear_2_PWRDN_DONE_CLR                    = (0x1 << 6),
 	MAX98937_Interrupt_Flag_Clear_2_PWRUP_DONE_CLR                    = (0x1 << 7),
 
-
 	MAX98937_Interrupt_Flag_Clear_3                                   = 0x000f,
 	MAX98937_Interrupt_Flag_Clear_3_PWRUP_FAIL_CLR                    = (0x1 << 0),
 	MAX98937_Interrupt_Flag_Clear_3_AUTH_DONE_CLR                     = (0x1 << 1),
 	MAX98937_Interrupt_Flag_Clear_3_SPK_OVC_CLR                       = (0x1 << 2),
 	MAX98937_Interrupt_Flag_Clear_3_BST_UVLO_CLR                      = (0x1 << 3),
 
-
 	MAX98937_IRQ_Control                                              = 0x0010,
 	MAX98937_IRQ_Control_IRQ_EN                                       = (0x1 << 0),
 	MAX98937_IRQ_Control_IRQ_POL                                      = (0x1 << 1),
 	MAX98937_IRQ_Control_IRQ_MODE                                     = (0x1 << 2),
 
-
 	MAX98937_Clock_monitor_enable                                     = 0x0011,
 	MAX98937_Clock_monitor_enable_CMON_ENA                            = (0x1 << 0),
 	MAX98937_Clock_monitor_enable_CMON_AUTORESTART_ENA                = (0x1 << 1),
-
 
 	MAX98937_Watchdog_Control                                         = 0x0012,
 	MAX98937_Watchdog_Control_WDT_ENA                                 = (0x1 << 0),
 	MAX98937_Watchdog_Control_WDT_MODE                                = (0x1 << 1),
 	MAX98937_Watchdog_Control_WDT_TO_SEL_Mask                         = (0x3 << 2),
-
 	MAX98937_Watchdog_Control_WDT_TO_SEL_5                            = (0x0 << 2),
 	MAX98937_Watchdog_Control_WDT_TO_SEL_10                           = (0x1 << 2),
 	MAX98937_Watchdog_Control_WDT_TO_SEL_35                           = (0x2 << 2),
@@ -1171,7 +1120,6 @@ typedef enum
 	MAX98937_PCM_Rx_Enables_A_PCM_RX_CH6_EN                           = (0x1 << 6),
 	MAX98937_PCM_Rx_Enables_A_PCM_RX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98937_PCM_Rx_Enables_B                                         = 0x0019,
 	MAX98937_PCM_Rx_Enables_B_PCM_RX_CH8_EN                           = (0x1 << 0),
 	MAX98937_PCM_Rx_Enables_B_PCM_RX_CH9_EN                           = (0x1 << 1),
@@ -1181,7 +1129,6 @@ typedef enum
 	MAX98937_PCM_Rx_Enables_B_PCM_RX_CH13_EN                          = (0x1 << 5),
 	MAX98937_PCM_Rx_Enables_B_PCM_RX_CH14_EN                          = (0x1 << 6),
 	MAX98937_PCM_Rx_Enables_B_PCM_RX_CH15_EN                          = (0x1 << 7),
-
 
 	MAX98937_PCM_Tx_Enables_A                                         = 0x001a,
 	MAX98937_PCM_Tx_Enables_A_PCM_TX_CH0_EN                           = (0x1 << 0),
@@ -1193,7 +1140,6 @@ typedef enum
 	MAX98937_PCM_Tx_Enables_A_PCM_TX_CH6_EN                           = (0x1 << 6),
 	MAX98937_PCM_Tx_Enables_A_PCM_TX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98937_PCM_Tx_Enables_B                                         = 0x001b,
 	MAX98937_PCM_Tx_Enables_B_PCM_TX_CH8_EN                           = (0x1 << 0),
 	MAX98937_PCM_Tx_Enables_B_PCM_TX_CH9_EN                           = (0x1 << 1),
@@ -1203,7 +1149,6 @@ typedef enum
 	MAX98937_PCM_Tx_Enables_B_PCM_TX_CH13_EN                          = (0x1 << 5),
 	MAX98937_PCM_Tx_Enables_B_PCM_TX_CH14_EN                          = (0x1 << 6),
 	MAX98937_PCM_Tx_Enables_B_PCM_TX_CH15_EN                          = (0x1 << 7),
-
 
 	MAX98937_PCM_Tx_HiZ_Control_A                                     = 0x001c,
 	MAX98937_PCM_Tx_HiZ_Control_A_PCM_TX_CH0_HIZ                      = (0x1 << 0),
@@ -1215,7 +1160,6 @@ typedef enum
 	MAX98937_PCM_Tx_HiZ_Control_A_PCM_TX_CH6_HIZ                      = (0x1 << 6),
 	MAX98937_PCM_Tx_HiZ_Control_A_PCM_TX_CH7_HIZ                      = (0x1 << 7),
 
-
 	MAX98937_PCM_Tx_HiZ_Control_B                                     = 0x001d,
 	MAX98937_PCM_Tx_HiZ_Control_B_PCM_TX_CH8_HIZ                      = (0x1 << 0),
 	MAX98937_PCM_Tx_HiZ_Control_B_PCM_TX_CH9_HIZ                      = (0x1 << 1),
@@ -1226,12 +1170,10 @@ typedef enum
 	MAX98937_PCM_Tx_HiZ_Control_B_PCM_TX_CH14_HIZ                     = (0x1 << 6),
 	MAX98937_PCM_Tx_HiZ_Control_B_PCM_TX_CH15_HIZ                     = (0x1 << 7),
 
-
 	MAX98937_PCM_Tx_DOUT_Control_1                                    = 0x001e,
 	MAX98937_PCM_TX_IV_SHARE			               				  = (0x1 << 7),
 	MAX98937_PCM_TX_INTERLEAVE                                        = (0x1 << 6),
 	MAX98937_PCM_START_SLOT_MASK                                      = (0x1f << 0),
-
 
 	MAX98937_PCM_Tx_DOUT_Control_2                                    = 0x001f,
 	MAX98937_PCM_VBAT_EN                                              = (0x1 << 5),
@@ -1254,17 +1196,14 @@ typedef enum
 	MAX98937_PCM_STATUS_ACTIVE_END                                    = (0x1 << 1),
 	MAX98937_PCM_STATUS_ACTIVE_BGN                                    = (0x1 << 0),
 
-
 	MAX98937_PCM_STATUS_WORD_CONFIG_1                                 = 0x0021,
 	MAX98937_PCM_STATUS_SPK_OVC                                       = (0x1 << 7),
 	MAX98937_PCM_STATUS_PWRUP_DONE                                    = (0x1 << 5),
 	MAX98937_PCM_STATUS_BST_ILIM                                      = (0x1 << 0),
 
-
 	MAX98937_PCM_STATUS_WORD_CONFIG_2                                 = 0x0022,
 	MAX98937_PCM_STATUS_CURRENT_BDE_LEVEL                             = (0x1 << 7),
 	MAX98937_PCM_STATUS_BST_UVLO                                      = (0x1 << 0),
-
 
 	MAX98937_PCM_Mode_Config                                          = 0x0023,
 	MAX98937_PCM_Mode_Config_PCM_TX_EXTRA_HIZ                         = (0x1 << 0),
@@ -1369,7 +1308,6 @@ typedef enum
 	MAX98937_ICC_RX_Enables_A_ICC_RX_CH6_EN                           = (0x1 << 6),
 	MAX98937_ICC_RX_Enables_A_ICC_RX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98937_ICC_RX_Enables_B                                         = 0x002b,
 	MAX98937_ICC_RX_Enables_B_ICC_RX_CH8_EN                           = (0x1 << 0),
 	MAX98937_ICC_RX_Enables_B_ICC_RX_CH9_EN                           = (0x1 << 1),
@@ -1379,7 +1317,6 @@ typedef enum
 	MAX98937_ICC_RX_Enables_B_ICC_RX_CH13_EN                          = (0x1 << 5),
 	MAX98937_ICC_RX_Enables_B_ICC_RX_CH14_EN                          = (0x1 << 6),
 	MAX98937_ICC_RX_Enables_B_ICC_RX_CH15_EN                          = (0x1 << 7),
-
 
 	MAX98937_ICC_TX_Enables_A                                         = 0x002c,
 	MAX98937_ICC_TX_Enables_A_ICC_TX_CH0_EN                           = (0x1 << 0),
@@ -1391,7 +1328,6 @@ typedef enum
 	MAX98937_ICC_TX_Enables_A_ICC_TX_CH6_EN                           = (0x1 << 6),
 	MAX98937_ICC_TX_Enables_A_ICC_TX_CH7_EN                           = (0x1 << 7),
 
-
 	MAX98937_ICC_TX_Enables_B                                         = 0x002d,
 	MAX98937_ICC_TX_Enables_B_ICC_TX_CH8_EN                           = (0x1 << 0),
 	MAX98937_ICC_TX_Enables_B_ICC_TX_CH9_EN                           = (0x1 << 1),
@@ -1402,11 +1338,9 @@ typedef enum
 	MAX98937_ICC_TX_Enables_B_ICC_TX_CH14_EN                          = (0x1 << 6),
 	MAX98937_ICC_TX_Enables_B_ICC_TX_CH15_EN                          = (0x1 << 7),
 
-
 	MAX98937_ICC_HiZ_Manual_Mode                                      = 0x002e,
 	MAX98937_ICC_HiZ_Manual_Mode_ICC_TX_HIZ_MANUAL                    = (0x1 << 0),
 	MAX98937_ICC_HiZ_Manual_Mode_ICC_TX_EXTRA_HIZ                     = (0x1 << 1),
-
 
 	MAX98937_ICC_TX_HiZ_Enables_A                                     = 0x002f,
 	MAX98937_ICC_TX_HiZ_Enables_A_ICC_TX_CH0_HIZ                      = (0x1 << 0),
@@ -1417,7 +1351,6 @@ typedef enum
 	MAX98937_ICC_TX_HiZ_Enables_A_ICC_TX_CH5_HIZ                      = (0x1 << 5),
 	MAX98937_ICC_TX_HiZ_Enables_A_ICC_TX_CH6_HIZ                      = (0x1 << 6),
 	MAX98937_ICC_TX_HiZ_Enables_A_ICC_TX_CH7_HIZ                      = (0x1 << 7),
-
 
 	MAX98937_ICC_TX_HiZ_Enables_B                                     = 0x0030,
 	MAX98937_ICC_TX_HiZ_Enables_B_ICC_TX_CH8_HIZ                      = (0x1 << 0),
@@ -1446,7 +1379,6 @@ typedef enum
 	MAX98937_PDM_Tx_Control                                           = 0x0034,
 	MAX98937_PDM_Tx_Control_PDM_TX_CH0_SOURCE                         = (0x1 << 0),
 	MAX98937_PDM_Tx_Control_PDM_TX_CH1_SOURCE                         = (0x1 << 1),
-
 
 	MAX98937_PDM_Rx_Enable                                            = 0x0035,
 	MAX98937_PDM_Rx_Enable_PDM_RX_EN                                  = (0x1 << 0),
@@ -1522,11 +1454,9 @@ typedef enum
 	MAX98937_SSM_Configuration_SSM_EDGE_CTRL_Mask                     = (0x3 << 4),
 	MAX98937_SSM_Configuration_SSM_ENA                                = (0x1 << 7),
 
-
 	MAX98937_Measurement_enables                                      = 0x003d,
 	MAX98937_Measurement_enables_IVADC_V_EN                           = (0x1 << 0),
 	MAX98937_Measurement_enables_IVADC_I_EN                           = (0x1 << 1),
-
 
 	MAX98937_Measurement_DSP_Config                                   = 0x003e,
 	MAX98937_Measurement_DSP_Config_MEAS_V_DCBLK_EN                   = (0x1 << 0),
@@ -1918,7 +1848,6 @@ typedef enum
 	MAX98937_Boost_Bypass_1                                           = 0x0079,
 	MAX98937_BST_CURRLIM_MASK_EN                                      = (0x1 << 6),
 	MAX98937_BST_BYP_HEADROOM_MASK                                    = (0x7 << 0),
-
 
 	MAX98937_Boost_Bypass_2                                           = 0x007a,
 	MAX98937_BST_CURRLIM_MASK_TIMER_MASK                              = (0xf << 3),

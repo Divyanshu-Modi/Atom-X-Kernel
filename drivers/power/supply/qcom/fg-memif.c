@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -745,8 +746,7 @@ out:
 	/* Return the error we got before releasing memory access */
 	return rc;
 }
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
+#if defined(CONFIG_MACH_XIAOMI_TULIP)
 int fg_dma_mem_req(struct fg_chip *chip, bool request)
 {
 	int ret, rc = 0, retry_count  = RETRY_COUNT;
@@ -805,7 +805,6 @@ release_mem:
 	return rc;
 }
 #endif
-
 int fg_ima_init(struct fg_chip *chip)
 {
 	int rc;

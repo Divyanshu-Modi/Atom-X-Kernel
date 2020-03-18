@@ -1,4 +1,5 @@
 /* Copyright (c) 2013-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -84,7 +85,11 @@ static struct notifier_block panic_blk = {
 #endif
 
 static int dload_type = SCM_DLOAD_FULLDUMP;
-static int download_mode = 1;
+#if defined(CONFIG_KMACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+int download_mode = 0;
+#else
+int download_mode = 1;
+#endif
 static struct kobject dload_kobj;
 static void *dload_mode_addr, *dload_type_addr;
 static bool dload_mode_enabled;
@@ -306,7 +311,10 @@ static void msm_restart_prepare(const char *cmd)
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 	}
 
-	if (cmd != NULL) {
+	if (in_panic) {
+		qpnp_pon_set_restart_reason(PON_RESTART_REASON_PANIC);
+		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
+	} else if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_BOOTLOADER);
@@ -356,21 +364,17 @@ static void msm_restart_prepare(const char *cmd)
 					     restart_reason);
 			}
 		} else if (!strncmp(cmd, "edl", 3)) {
-			enable_emergency_dload_mode();
+			if (0)
+				enable_emergency_dload_mode();
+			else
+				pr_notice("This command already been disabled\n");
 		} else {
-#ifdef CONFIG_MACH_LONGCHEER
 			qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
-#endif
 			__raw_writel(0x77665501, restart_reason);
 		}
-#ifdef CONFIG_MACH_LONGCHEER
-	} else if (in_panic) {
-		qpnp_pon_set_restart_reason(PON_RESTART_REASON_PANIC);
-		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
 	} else {
 		qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);
 		__raw_writel(0x77665501, restart_reason);
-#endif
 	}
 
 	flush_cache_all();

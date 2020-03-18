@@ -1608,7 +1608,6 @@ static int max98927_stream_mute(struct snd_soc_dai *codec_dai, int mute, int str
 			*(payload+1) = max98927->ref_RDC[MAX98927R];
 			*(payload+2) = max98927->adsp_mode;
 			afe_dsm_set_calib((uint8_t *)payload);
-
 			mutex_unlock(&dsm_lock);
 			pr_info("%s ------ enable max98927 capture\n", __func__);
 		}
@@ -2550,7 +2549,6 @@ static const struct snd_kcontrol_new max98927_snd_controls[] = {
 	SOC_SINGLE_EXT_TLV("Right Speaker Volume", MAX98927_Speaker_Gain,
 		0, (1<<MAX98927_Speaker_Gain_Width)-1, 0,
 		max98927_spk_gain_get_r, max98927_spk_gain_put_r, max98927_spk_tlv),
-
 	SOC_SINGLE_EXT_TLV("Digital Gain", MAX98927_AMP_volume_control,
 		0, (1<<MAX98927_AMP_VOL_WIDTH)-1, 0,
 		max98927_digital_gain_get, max98927_digital_gain_put, max98927_digital_tlv),
@@ -2637,7 +2635,6 @@ static const struct snd_kcontrol_new max98927_snd_controls[] = {
 		0, 1, 0, max98927_right_channel_enable_get, max98927_right_channel_enable_set),
 	SOC_SINGLE_EXT("Speaker Force Close", MAX98927_Global_Enable,
 		0, 1, 0, max98927_speaker_force_close_get, max98927_speaker_force_close_set),
-
 	SOC_ENUM_EXT("Receiver Mix Mode", max98927_enum[5],
 		max98927_receiver_mix_mode_get, max98927_receiver_mix_mode_put),
 

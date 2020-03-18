@@ -341,6 +341,8 @@
 #define KEY_ANT_UNCONNECT       0x293
 #endif
 /* Code 255 is reserved for special needs of AT keyboard driver */
+#define KEY_ANT_CONNECT         0x292
+#define KEY_ANT_UNCONNECT       0x293
 
 #define BTN_MISC		0x100
 #define BTN_0			0x100

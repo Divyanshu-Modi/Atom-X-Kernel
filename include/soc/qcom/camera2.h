@@ -1,4 +1,5 @@
 /* Copyright (c) 2011-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -20,8 +21,12 @@
 #include <linux/of_device.h>
 #include <linux/of.h>
 
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_LONGCHEER
 enum __camera_vendor_module_id {
+=======
+enum __camera_vendor_module_id{
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	MID_NULL = 0,
 	MID_SUNNY,
 	MID_TRULY,
@@ -34,7 +39,11 @@ enum __camera_vendor_module_id {
 	MID_KINGCOM = MID_HUAQUAN,
 	MID_BOOYI,
 	MID_LAIMU,
+<<<<<<< HEAD
 	MID_E7S = 21,
+=======
+	MID_E7S= 21,
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	MID_WDSEN,
 	MID_SUNRISE,
 	MID_PRIMAX = 0x17,
@@ -42,7 +51,11 @@ enum __camera_vendor_module_id {
 };
 typedef enum __camera_vendor_module_id camera_vendor_module_id;
 
+<<<<<<< HEAD
 enum camera_sensor_id {
+=======
+enum camera_sensor_id{
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	SENSOR_NULL = 0,
 	SENSOR_S5K5E8 = 0x09,
 	SENSOR_MAX
@@ -55,13 +68,20 @@ enum camera_product_id {
 	PRODUCT_MAX
 };
 
+<<<<<<< HEAD
 struct vendor_eeprom {
+=======
+struct vendor_eeprom{
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	char eeprom_name[128];
 	uint8_t module_id;
 };
 
 #define CAMERA_VENDOR_EEPROM_COUNT_MAX 14
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 
 #define MAX_SPECIAL_SUPPORT_SIZE 10
 
@@ -195,6 +215,7 @@ struct msm_camera_sensor_board_info {
 	const char *special_support_sensors[MAX_SPECIAL_SUPPORT_SIZE];
 	int32_t special_support_size;
 	struct msm_camera_slave_info *slave_info;
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_LONGCHEER
 	struct msm_vendor_id_info_t *vendor_id_info;
 	struct msm_vcm_id_info_t *vcm_id_info;
@@ -202,6 +223,10 @@ struct msm_camera_sensor_board_info {
 #ifdef CONFIG_MACH_XIAOMI_LAVENDER
 	struct msm_lens_id_info_t *lens_id_info;
 #endif
+=======
+	struct msm_vendor_id_info_t *vendor_id_info;
+	struct msm_vcm_id_info_t *vcm_id_info;
+>>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	struct msm_camera_csi_lane_params *csi_lane_params;
 	struct msm_camera_sensor_strobe_flash_data *strobe_flash_data;
 	struct msm_actuator_info *actuator_info;

@@ -52,8 +52,9 @@ static ssize_t brightness_store(struct device *dev,
 	ret = kstrtoul(buf, 10, &state);
 	if (ret)
 		goto unlock;
+#ifdef CONFIG_MACH_XIAOMI_TULIP
 
-#ifndef CONFIG_MACH_XIAOMI_TULIP
+#else
 	if (state == LED_OFF && !(led_cdev->flags & LED_KEEP_TRIGGER))
 		led_trigger_remove(led_cdev);
 #endif

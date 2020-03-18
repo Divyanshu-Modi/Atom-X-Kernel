@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -193,6 +194,7 @@
 #define FG_RR_ADC_STS_CHANNEL_READING_MASK	0x3
 #define FG_RR_ADC_STS_CHANNEL_STS		0x2
 
+#define FG_RR_CONV_CONT_CBK_TIME_MIN_MS	10
 #define FG_RR_CONV_CONTINUOUS_TIME_MIN_MS	50
 #define FG_RR_CONV_MAX_RETRY_CNT		50
 #define FG_RR_TP_REV_VERSION1		21
@@ -690,11 +692,10 @@ static const struct rradc_channels rradc_chans[] = {
 			FG_ADC_RR_SKIN_TOO_HOT, FG_ADC_RR_SKIN_TOO_HOT,
 			FG_ADC_RR_AUX_THERM_STS)
 };
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
+#if defined(CONFIG_MACH_XIAOMI_TULIP)
 static bool rradc_is_batt_psy_available(struct rradc_chip *chip)
 {
-	if (!chip->batt_psy)
+if (!chip->batt_psy)
 		chip->batt_psy = power_supply_get_by_name("battery");
 
 	if (!chip->batt_psy)
@@ -714,7 +715,6 @@ static bool rradc_is_bms_psy_available(struct rradc_chip *chip)
 	return true;
 }
 #endif
-
 static int rradc_enable_continuous_mode(struct rradc_chip *chip)
 {
 	int rc = 0;
@@ -843,11 +843,7 @@ static int rradc_check_status_ready_with_retry(struct rradc_chip *chip,
 		if (retry_cnt >= FG_RR_CONV_MAX_RETRY_CNT)
 			rc = -ENODATA;
 	}
-#else
-	if (retry_cnt >= FG_RR_CONV_MAX_RETRY_CNT)
-		rc = -ENODATA;
 #endif
-
 	return rc;
 }
 
@@ -1133,8 +1129,7 @@ static int rradc_read_raw(struct iio_dev *indio_dev,
 
 	return rc;
 }
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
+#if defined(CONFIG_MACH_XIAOMI_TULIP)
 static void psy_notify_work(struct work_struct *work)
 {
 	struct rradc_chip *chip = container_of(work,
@@ -1193,7 +1188,6 @@ static int rradc_psy_notifier_cb(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 #endif
-
 static const struct iio_info rradc_info = {
 	.read_raw	= &rradc_read_raw,
 	.driver_module	= THIS_MODULE,
@@ -1300,8 +1294,7 @@ static int rradc_probe(struct platform_device *pdev)
 	indio_dev->info = &rradc_info;
 	indio_dev->channels = chip->iio_chans;
 	indio_dev->num_channels = chip->nchannels;
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
+#if defined(CONFIG_MACH_XIAOMI_TULIP)
 	chip->batt_psy = power_supply_get_by_name("battery");
 	if (!chip->batt_psy)
 		pr_debug("Error obtaining battery power supply\n");

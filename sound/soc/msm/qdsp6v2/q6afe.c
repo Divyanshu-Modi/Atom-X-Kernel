@@ -1,4 +1,5 @@
 /* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -29,10 +30,11 @@
 #include <sound/adsp_err.h>
 #include <linux/qdsp6v2/apr_tal.h>
 #include <sound/q6core.h>
-#ifdef CONFIG_ELLIPTICLABS
+#ifdef CONFIG_ELLIPTCLABS
+/* ELUS Begin */
 #include <sound/apr_elliptic.h>
+/* ELUS End */
 #endif
-
 #define WAKELOCK_TIMEOUT	5000
 enum {
 	AFE_COMMON_RX_CAL = 0,
@@ -384,15 +386,15 @@ static int32_t sp_make_afe_callback(uint32_t opcode, uint32_t *payload,
 		data_dest = (u32 *) &this_afe.ex_vi_resp;
 		break;
 #ifdef CONFIG_SND_SOC_MAX98937
-	case AFE_PARAM_ID_DSM_CFG:
-	case AFE_PARAM_ID_DSM_INFO:
-		expected_size += sizeof(struct afe_dsm_param_array);
-		data_dest = (u32*) this_afe.dsm_payload;
-		break;
-	case AFE_PARAM_ID_CALIB:
-		expected_size = 84;
-		data_dest = (u32*) this_afe.dsm_payload;
-		break;
+    case AFE_PARAM_ID_DSM_CFG:
+    case AFE_PARAM_ID_DSM_INFO:
+        expected_size += sizeof(struct afe_dsm_param_array);
+        data_dest     = (u32*) this_afe.dsm_payload;
+	break;
+    case AFE_PARAM_ID_CALIB:
+	expected_size = 84;
+	data_dest     = (u32*) this_afe.dsm_payload;
+        break;
 #endif
 	default:
 		pr_err("%s: Unrecognized param ID %d\n", __func__,
@@ -632,12 +634,14 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 		if (!ret) {
 			return ret;
 		}
-#ifdef CONFIG_ELLIPTICLABS
+#ifdef CONFIG_ELLIPTCLABS
+	/* ELUS Begin */
 	} else if (data->opcode == ULTRASOUND_OPCODE) {
 		if (NULL != data->payload)
 			elliptic_process_apr_payload(data->payload);
 		else
 			pr_err("[EXPORT_SYMBOLLUS]: payload ptr is Invalid");
+		/* ELUS End */
 #endif
 	} else if (data->payload_size) {
 		uint32_t *payload;
@@ -1654,13 +1658,12 @@ fail_cmd:
 }
 
 #ifdef CONFIG_SND_SOC_MAX98937
-static int afe_dsm_set_params(int port, int module_id, int param_id,
-		uint8_t *payload, int size)
+static int afe_dsm_set_params(int port, int module_id, int param_id, uint8_t *payload, int size)
 {
-	struct param_hdr_v3 param_info = {0};
+ 	struct param_hdr_v3 param_info = {0};
 	int ret = -EINVAL;
 
-	param_info.module_id = module_id;
+ 	param_info.module_id = module_id;
 	param_info.instance_id = INSTANCE_ID_0;
 	param_info.param_id = param_id;
 	param_info.param_size = size;
@@ -1680,8 +1683,7 @@ fail_cmd:
 	return ret;
 }
 
-static int afe_dsm_get_params(int port, int module_id, int param_id,
-		uint8_t *payload, int size)
+static int afe_dsm_get_params(int port, int module_id, int param_id, uint8_t *payload, int size)
 {
 	struct param_hdr_v3 param_hdr = {0};
 	int ret = -EINVAL;
@@ -1691,8 +1693,7 @@ static int afe_dsm_get_params(int port, int module_id, int param_id,
 	param_hdr.param_id = param_id;
 	param_hdr.param_size = size;
 
-	this_afe.dsm_payload = payload - (sizeof(struct param_hdr_v3) +
-			sizeof(uint32_t));
+    this_afe.dsm_payload = payload - (sizeof(struct param_hdr_v3) + sizeof(uint32_t));
 
 	ret = q6afe_get_params(port, NULL, &param_hdr);
 	if (ret) {
@@ -1704,31 +1705,26 @@ static int afe_dsm_get_params(int port, int module_id, int param_id,
 done:
 	return ret;
 }
-
 int afe_dsm_rx_get_params(uint8_t *payload, int size)
 {
-	return afe_dsm_get_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX,
-			AFE_PARAM_ID_DSM_CFG, payload, size);
+	return afe_dsm_get_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX, AFE_PARAM_ID_DSM_CFG, payload, size);
 }
-
 int afe_dsm_rx_set_params(uint8_t *payload, int size)
 {
-	return afe_dsm_set_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX,
-			AFE_PARAM_ID_DSM_CFG, payload, size);
+	return afe_dsm_set_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX, AFE_PARAM_ID_DSM_CFG, payload, size);
 }
-
 int afe_dsm_set_calib(uint8_t* payload)
 {
-	return afe_dsm_set_params(DSM_TX_PORT_ID, AFE_MODULE_DSM_TX,
-			AFE_PARAM_ID_CALIB, payload, sizeof(uint32_t) * 3);
+	return afe_dsm_set_params(DSM_TX_PORT_ID, AFE_MODULE_DSM_TX, AFE_PARAM_ID_CALIB, payload, sizeof(uint32_t)*3);
 }
+
 
 int afe_dsm_ramp_dn_cfg(uint8_t *payload, uint32_t delay_in_ms)
 {
 	int ret;
-	uint32_t *params = (uint32_t *)payload;
+ 	uint32_t *params = (uint32_t *)payload;
 
-	*(params)	= 0;
+	*(params)		= 0;
 	*(params + 1)	= 3;
 	*(params + 2)	= 0x03000063;
 	*(params + 3)	= 5;
@@ -1744,7 +1740,7 @@ int afe_dsm_ramp_dn_cfg(uint8_t *payload, uint32_t delay_in_ms)
 		goto fail_cmd;
 	}
 	/* dsp needs atleast 15ms to ramp down pilot tone*/
-	usleep_range(delay_in_ms * 1000, delay_in_ms * 1000 + 10);
+	usleep_range(delay_in_ms*1000, delay_in_ms*1000 + 10);
 	ret = 0;
 fail_cmd:
 	pr_debug("%s: status %d\n", __func__, ret);
@@ -1753,39 +1749,37 @@ fail_cmd:
 
 int afe_dsm_pre_calib(uint8_t* payload)
 {
-	uint32_t *params = (uint32_t *)payload;
-	*(params)	= 0;
+ 	uint32_t *params = (uint32_t *)payload;
+ 	*(params)		= 0;
 	*(params + 1)	= 1;
 	*(params + 2)	= 0x03000001;
 	*(params + 3)	= 4;
 
-	afe_dsm_rx_set_params(payload, 4 * sizeof(uint32_t));
-	usleep_range(1000 * 1000, 1000 * 1000 + 10);
+	afe_dsm_rx_set_params(payload, 4*sizeof(uint32_t));
+	usleep_range(1000*1000, 1000*1000 + 10);
 	return 0;
 }
 
 int afe_dsm_post_calib(uint8_t* payload)
 {
-	uint32_t *params = (uint32_t *)payload;
-	*(params)	= 0;
+ 	uint32_t *params = (uint32_t *)payload;
+ 	*(params)		= 0;
 	*(params + 1)	= 1;
 	*(params + 2)	= 0x03000001;
 	*(params + 3)	= 1;
-	return afe_dsm_rx_set_params(payload, 4 * sizeof(uint32_t));
+    return afe_dsm_rx_set_params(payload, 4*sizeof(uint32_t));
 }
 
 int afe_dsm_get_calib(uint8_t* payload)
 {
-	return afe_dsm_get_params(DSM_TX_PORT_ID, AFE_MODULE_DSM_TX,
-			AFE_PARAM_ID_CALIB, payload, sizeof(uint32_t) * 14);
+	return afe_dsm_get_params(DSM_TX_PORT_ID, AFE_MODULE_DSM_TX, AFE_PARAM_ID_CALIB, payload, sizeof(uint32_t)*14);
 }
 
 int afe_dsm_set_status(uint8_t* payload)
 {
-	return afe_dsm_set_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX,
-			AFE_PARAM_ID_DSM_INFO, (int8_t*)payload,
-			sizeof(uint32_t) * 8);
+    return afe_dsm_set_params(DSM_RX_PORT_ID, AFE_MODULE_DSM_RX, AFE_PARAM_ID_DSM_INFO, (int8_t*)payload, sizeof(uint32_t)*8);
 }
+
 #endif
 
 static int afe_spk_prot_prepare(int src_port, int dst_port, int param_id,
@@ -1852,18 +1846,18 @@ fail_cmd:
 		 param_info.param_id, ret, src_port);
 	return ret;
 }
-
-#ifdef CONFIG_ELLIPTICLABS
+#ifdef CONFIG_ELLIPTCLABS
+/* ELUS Begin */
 afe_ultrasound_state_t elus_afe = {
-	.ptr_apr = &this_afe.apr,
-	.ptr_status = &this_afe.status,
-	.ptr_state = &this_afe.state,
-	.ptr_wait = this_afe.wait,
-	.timeout_ms = TIMEOUT_MS,
-};
+	.ptr_apr= &this_afe.apr,
+	.ptr_status= &this_afe.status,
+	.ptr_state= &this_afe.state,
+	.ptr_wait= this_afe.wait,
+	.timeout_ms= TIMEOUT_MS,
+	};
 EXPORT_SYMBOL(elus_afe);
+/* ELUS End */
 #endif
-
 static void afe_send_cal_spkr_prot_tx(int port_id)
 {
 	union afe_spkr_prot_config afe_spk_config;

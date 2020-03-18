@@ -6,7 +6,7 @@ snd-soc-qdsp6v2-objs += msm-dai-q6-v2.o msm-pcm-q6-v2.o msm-pcm-routing-v2.o \
 			msm-audio-effects-q6-v2.o msm-pcm-loopback-v2.o \
 			msm-transcode-loopback-q6-v2.o \
 			adsp_err.o
-ifdef CONFIG_ELLIPTICLABS
+ifdef CONFIG_ELLIPTCLABS
 snd-soc-qdsp6v2-objs += apr_elliptic.o
 endif
 obj-$(CONFIG_SLIMBUS) += msm-dai-slim.o audio_slimslave.o
