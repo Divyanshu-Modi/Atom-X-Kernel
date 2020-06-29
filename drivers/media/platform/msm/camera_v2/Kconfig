@@ -260,3 +260,11 @@ config XIAOMI_NEW_CAMERA_BLOBS
 	depends on MSM_CAMERA_SENSOR
 	---help---
 	  Enables the support for new camera blobs.
+
+config XIAOMI_CAMERA_MIUI_Q
+	bool "Xiaomi new camera blobs"
+	default n
+	depends on MSM_CAMERA_SENSOR
+	---help---
+	  Enables the support for MemeQ camera blobs.
+
