@@ -81,19 +81,20 @@ const uint16_t touch_key_array[TOUCH_KEY_NUM] = {
 
 #if WAKEUP_GESTURE
 const uint16_t gesture_key_array[] = {
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
-	KEY_WAKEUP,
+	KEY_WAKEUP,  //GESTURE_WORD_C
+	KEY_WAKEUP,  //GESTURE_WORD_W
+	KEY_WAKEUP,  //GESTURE_WORD_V
+	KEY_WAKEUP,  //GESTURE_DOUBLE_CLICK
+	KEY_WAKEUP,  //GESTURE_WORD_Z
+	KEY_WAKEUP,  //GESTURE_WORD_M
+	KEY_WAKEUP,  //GESTURE_WORD_O
+	KEY_WAKEUP,  //GESTURE_WORD_e
+	KEY_WAKEUP,  //GESTURE_WORD_S
+	KEY_WAKEUP,  //GESTURE_SLIDE_UP
+	KEY_WAKEUP,  //GESTURE_SLIDE_DOWN
+	KEY_WAKEUP,  //GESTURE_SLIDE_LEFT
+	KEY_WAKEUP,  //GESTURE_SLIDE_RIGHT
+	KEY_DOUBLE_TAP, //AOSPA DT2W
 };
 
 bool enable_gesture_mode = false;
@@ -765,8 +766,10 @@ void nvt_ts_wakeup_gesture_report(uint8_t gesture_id, uint8_t *data)
 
 	if (keycode > 0) {
 		input_report_key(ts->input_dev, keycode, 1);
+		input_report_key(ts->input_dev, KEY_DOUBLE_TAP, 1);
 		input_sync(ts->input_dev);
 		input_report_key(ts->input_dev, keycode, 0);
+		input_report_key(ts->input_dev, KEY_DOUBLE_TAP, 0);
 		input_sync(ts->input_dev);
 	}
 	LOG_DONE();
