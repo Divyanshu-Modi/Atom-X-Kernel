@@ -500,7 +500,6 @@ asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
-	char *p = NULL;
 
 	/*
 	 * Need to run as early as possible, to initialize the
@@ -540,20 +539,16 @@ asmlinkage __visible void __init start_kernel(void)
 	pr_notice("Kernel command line: %s\n", boot_command_line);
 	/* parameters may set static keys */
 	jump_label_init();
-	p = NULL;
-	p= strstr(boot_command_line,"androidboot.fpsensor=fpc");
-	if(p){
+	if (strstr(boot_command_line, "androidboot.fpsensor=fpc"))
 		fpsensor = 1;
-	}else{
+	else
 		fpsensor = 2;
-	}
-
-	p= NULL;
-	p= strstr(boot_command_line,"androidboot.mode=charger");
-	if(p)
-	{
+	
+	if (strstr(boot_command_line, "androidboot.mode=charger"))
 		is_poweroff_charge = true;
-	}
+	else
+		is_poweroff_charge = false;
+
 	parse_early_param();
 	after_dashes = parse_args("Booting kernel",
 				  static_command_line, __start___param,
