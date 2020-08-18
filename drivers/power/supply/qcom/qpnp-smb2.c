@@ -273,7 +273,7 @@ static int smb2_parse_dt(struct smb2 *chip)
 	if(is_poweroff_charge == true)
 	{
 		if(hwc_check_india == 1)
-			chg->batt_profile_fcc_ua = 2200000;
+			chg->batt_profile_fcc_ua = 2300000;
 		else
 			chg->batt_profile_fcc_ua = 2300000;
 	}
