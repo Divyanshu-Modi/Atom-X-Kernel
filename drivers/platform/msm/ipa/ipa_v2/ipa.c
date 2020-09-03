@@ -2365,7 +2365,7 @@ int ioremap_non_ap_bam_regs(void)
 				return -ENOMEM;
 			}
 		}
-		return 0;
+	return 0;
 }
 
 /**
@@ -5500,4 +5500,3 @@ int ipa_iommu_map(struct iommu_domain *domain,
 
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("IPA HW device driver");
-
