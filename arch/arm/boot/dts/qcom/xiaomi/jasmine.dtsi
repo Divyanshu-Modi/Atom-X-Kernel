@@ -12,6 +12,7 @@
 #include "longcheer/common/longcheer-sdm660-base.dtsi"
 #include "xiaomi-sdm660-common.dtsi"
 #include "longcheer/wayne/wayne-common-base.dtsi"
+#include "longcheer/common/longcheer-sdm660-thermal.dtsi"
 
 &firmware {
 	android {

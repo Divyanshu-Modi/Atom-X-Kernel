@@ -14,3 +14,5 @@
 #include "longcheer/common/longcheer-sdm636.dtsi"
 #include "xiaomi-sdm660-common.dtsi"
 #include "longcheer/tulip/tulip-base.dtsi"
+#include "longcheer/common/longcheer-sdm636-thermal.dtsi"
+
