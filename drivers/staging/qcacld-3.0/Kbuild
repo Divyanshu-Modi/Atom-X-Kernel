@@ -198,7 +198,7 @@ WLAN_OPEN_SOURCE := 1
 	endif
 
 #Flag to enable SAE
-CONFIG_WLAN_FEATURE_SAE := y
+CONFIG_WLAN_FEATURE_SAE := n
 
 ifneq ($(CONFIG_ROME_IF),sdio)
 	#Flag to enable DISA
