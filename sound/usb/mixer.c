@@ -1051,7 +1051,6 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
 			cval->res = 384;
 		}
 		break;
-
 	case USB_ID(0x1130, 0x1620): /* Logitech Speakers S150 */
 	/* This audio device has 2 channels and it explicitly requires the
 	 * host to send SET_CUR command on the volume control of both the
