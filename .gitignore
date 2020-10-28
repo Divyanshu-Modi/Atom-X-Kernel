@@ -124,3 +124,13 @@ android/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+
+#
+#to be ignored
+#
+*.sh
+/out
+/tulip
+/whyded
+/lavender
+/wayne
