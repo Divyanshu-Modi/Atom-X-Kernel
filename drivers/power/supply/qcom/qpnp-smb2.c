@@ -29,40 +29,6 @@
 #include "smb-lib.h"
 #include "storm-watch.h"
 #include <linux/pmic-voter.h>
-#ifdef CONFIG_MACH_LONGCHEER
-#ifdef THERMAL_CONFIG_FB
-#include <linux/notifier.h>
-#include <linux/fb.h>
-
-union power_supply_propval lct_therm_lvl_reserved;
-union power_supply_propval lct_therm_level;
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_WHYRED)
-union power_supply_propval lct_therm_call_level = {4,};
-#elif defined(CONFIG_MACH_XIAOMI_TULIP)
-union power_supply_propval lct_therm_call_level = {5,};
-#else
-union power_supply_propval lct_therm_call_level = {3,};
-#endif
-#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
-union power_supply_propval lct_therm_globe_level = {1,};
-union power_supply_propval lct_therm_india_level = {2,};
-#else
-union power_supply_propval lct_therm_globe_level = {2,};
-union power_supply_propval lct_therm_india_level = {1,};
-#endif
-
-bool lct_backlight_off;
-int LctIsInCall = 0;
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
-int LctIsInVideo = 0;
-#endif
-int LctThermal = 0;
-extern int hwc_check_india;
-extern int hwc_check_global;
-extern bool is_poweroff_charge;
-#endif
-#endif
-
 #ifdef THERMAL_CONFIG_FB
 #include <linux/notifier.h>
 #include <linux/fb.h>
@@ -2632,15 +2598,9 @@ static int smb2_probe(struct platform_device *pdev)
 	int rc = 0;
 	union power_supply_propval val;
 	int usb_present, batt_present, batt_health, batt_charge_type;
-#ifdef CONFIG_MACH_LONGCHEER
 #ifdef THERMAL_CONFIG_FB
 	unsigned char attr_count2;
 #endif
-#endif
-
-	#ifdef THERMAL_CONFIG_FB
-	unsigned char attr_count2;
-	#endif
 	chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
