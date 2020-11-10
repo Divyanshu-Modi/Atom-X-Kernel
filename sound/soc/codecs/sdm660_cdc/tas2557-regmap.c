@@ -55,13 +55,10 @@
 #include "tiload.h"
 #endif
 
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static int btas2557 = 1;
 #endif
 
->>>>>>> 43efffccf20d (ASoC:TAS2557 squashed update from TI upstream)
 #define LOW_TEMPERATURE_GAIN 6
 #define LOW_TEMPERATURE_COUNTER 12
 
@@ -851,12 +848,10 @@ static int tas2557_i2c_probe(struct i2c_client *pClient,
 		pTAS2557->dev, GFP_KERNEL, pTAS2557, tas2557_fw_ready);
 
 err:
-<<<<<<< HEAD
-=======
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 	btas2557 = 0;
 #endif
->>>>>>> 43efffccf20d (ASoC:TAS2557 squashed update from TI upstream)
 	return nResult;
 }
 
