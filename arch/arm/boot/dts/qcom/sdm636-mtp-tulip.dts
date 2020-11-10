@@ -17,6 +17,7 @@
 #include "sdm636_tulip.dtsi"
 #include "sdm636-mtp.dtsi"
 #include "sdm660-internal-codec.dtsi"
+#include "focaltech-ft8719-i2c.dtsi"
 / {
 	model = "Qualcomm Technologies, Inc. SDM 636 PM660 + PM660L MTP E7T";
 	compatible = "qcom,sdm636-mtp", "qcom,sdm636", "qcom,mtp";
