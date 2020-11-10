@@ -73,8 +73,7 @@
 	};
 };
 
-/* GPU overrides */
+/* Use adreno 512 chip ID */
 &msm_gpu {
-		/* Update GPU chip ID*/
-		qcom,chipid = <0x05000900>;
+      qcom,chipid = <0x05010200>;
 };

@@ -72,3 +72,8 @@
 		/delete-node/ qcom,msm_fastrpc_compute_cb13;
 	};
 };
+
+/* Use adreno 512 chip ID */
+&msm_gpu {
+      qcom,chipid = <0x05010200>;
+};
