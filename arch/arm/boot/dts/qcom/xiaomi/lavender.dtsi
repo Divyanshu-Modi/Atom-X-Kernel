@@ -9,7 +9,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "longcheer/common/longcheer-sdm660-base.dtsi"
+#include "common/common-sdm660-base.dtsi"
 #include "xiaomi-sdm660-common.dtsi"
-#include "longcheer/lavender/lavender-base.dtsi"
-#include "longcheer/common/longcheer-sdm660-thermal.dtsi"
+#include "lavender/lavender-base.dtsi"
+#include "common/common-sdm660-thermal.dtsi"

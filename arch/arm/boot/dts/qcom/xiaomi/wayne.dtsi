@@ -9,10 +9,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "longcheer/common/longcheer-sdm660-base.dtsi"
+#include "common/common-sdm660-base.dtsi"
 #include "xiaomi-sdm660-common.dtsi"
-#include "longcheer/wayne/wayne-common-base.dtsi"
-#include "longcheer/common/sdm660-thermal.dtsi"
+#include "wayne/wayne-common-base.dtsi"
+#include "common/common-sdm660-thermal.dtsi"
 
 /* sdm660.dtsi wayne specific diff */
 &firmware {
