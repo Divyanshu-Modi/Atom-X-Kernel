@@ -14,7 +14,7 @@
 
 /dts-v1/;
 
-#include "sdm660.dtsi"
+#include "sdm660_wayne.dtsi"
 #include "sdm660-mtp.dtsi"
 #include "sdm660-internal-codec.dtsi"
 
