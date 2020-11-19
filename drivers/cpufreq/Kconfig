@@ -162,7 +162,6 @@ config INPUT_BOOST_FREQ_PERF
 
 endif
 
->>>>>>> c7dd61da016e (schedhorizon: Introduce schedhorizon cpufreq governor)
 comment "CPU frequency scaling drivers"
 
 config CPU_BOOST
