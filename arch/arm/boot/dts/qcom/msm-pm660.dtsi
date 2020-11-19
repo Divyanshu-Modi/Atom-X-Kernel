@@ -642,7 +642,11 @@
 			qcom,play-mode = "direct";
 			qcom,vmax-mv = <3200>;
 			qcom,ilim-ma = <800>;
+#ifdef CONFIG_MACH_XIAOMI_LAVENDER			
+			qcom,wave-shape = "square";
+#else			
 			qcom,wave-shape = "sine";
+#endif
 			qcom,wave-play-rate-us = <6000>;
 			qcom,int-pwm-freq-khz = <505>;
 			qcom,sc-deb-cycles = <8>;
