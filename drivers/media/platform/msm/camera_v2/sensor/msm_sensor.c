@@ -221,9 +221,9 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 				msleep(20);
 				continue;
 			}
-#endif
+#endif /*CONFIG_MACH_XIAOMI_SDM660*/
 		}
-#endif
+#endif /*CONFIG_MACH_MI*/ 
 
 		rc = msm_sensor_check_id(s_ctrl);
 		if (rc < 0) {
@@ -248,12 +248,11 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 	struct msm_camera_slave_info *slave_info;
 	const char *sensor_name;
 	uint16_t temp_sid = 0;
-#endif
+#endif /*CONFIG_MACH_XIAOMI_SDM660*/
 #ifdef CONFIG_MACH_LONGCHEER
 	uint16_t vcmid = 0;
 	int have_vcmid = 0;
-#endif	
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_XIAOMI_NEW_CAMERA_BLOBS)
+#ifdef CONFIG_MACH_XIAOMI_LAVENDER
 	uint16_t lensid = 0;
 	int have_lensid = 0;
 #elif defined(CONFIG_MACH_MI)
@@ -425,7 +424,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 			0x00,
 			MSM_CAMERA_I2C_BYTE_DATA);
 	} else
-#endif
+#endif /*CONFIG_MACH_MI*/
 	rc = msm_camera_cci_i2c_read(
 		sensor_i2c_client,
 		s_ctrl->sensordata->vendor_id_info->vendor_id_addr,
@@ -441,8 +440,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 		s_ctrl->sensordata->vcm_id_info->data_type);
 		have_vcmid = 1;
 	}
-#endif
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_XIAOMI_NEW_CAMERA_BLOBS)
+#ifdef CONFIG_MACH_XIAOMI_LAVENDER
 	if (s_ctrl->sensordata->lens_id_info->lens_id_addr != 0) {
 	    msm_camera_cci_i2c_read(
 		sensor_i2c_client,
@@ -451,7 +449,8 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 		s_ctrl->sensordata->lens_id_info->data_type);
 		have_lensid = 1;
 	}
-#endif
+#endif /*CONFIG_MACH_LONGCHEER*/
+#endif /*CONFIG_MACH_XIAOMI_LAVENDER*/
 
 	sensor_i2c_client->cci_client->sid = temp_sid;
 	sensor_i2c_client->cci_client->cci_i2c_master = temp_master;
@@ -478,7 +477,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 					__func__, vcmid, s_ctrl->sensordata->vcm_id_info->vcm_id);
 			}
 		}
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_XIAOMI_NEW_CAMERA_BLOBS)
+#ifdef CONFIG_MACH_XIAOMI_LAVENDER
 		if (have_lensid == 1) {
 			if (s_ctrl->sensordata->lens_id_info->lens_id != lensid) {
 				pr_err("%s:match lensid if failed read lens id: 0x%x expected id 0x%x:\n",
@@ -490,14 +489,15 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 					__func__, lensid, s_ctrl->sensordata->lens_id_info->lens_id);
 			}
 		}
-#endif
+#endif /*CONFIG_MACH_LONGCHEER*/
+#endif /*CONFIG_MACH_XIAOMI_LAVENDER*/
 	}
 	pr_err("%s: read vendor id: 0x%x expected id 0x%x:\n",
 			__func__, vendorid, s_ctrl->sensordata->vendor_id_info->vendor_id);
 
 	return rc;
 }
-#endif
+#endif /*CONFIG_MACH_LONGCHEER*/
 
 static uint16_t msm_sensor_id_by_mask(struct msm_sensor_ctrl_t *s_ctrl,
 	uint16_t chipid)
@@ -622,7 +622,7 @@ int msm_sensor_match_vcm_id(struct msm_sensor_ctrl_t *s_ctrl)
 	}
 	return rc;
 }
-#endif
+#endif /*CONFIG_MACH_MI*/
 
 static struct msm_sensor_ctrl_t *get_sctrl(struct v4l2_subdev *sd)
 {
@@ -686,7 +686,7 @@ static long msm_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 		if (is_compat_task())
 			rc = s_ctrl->func_tbl->sensor_config32(s_ctrl, argp);
 		else
-#endif
+#endif /*CONFIG_COMPAT*/
 			rc = s_ctrl->func_tbl->sensor_config(s_ctrl, argp);
 		return rc;
 	case VIDIOC_MSM_SENSOR_GET_AF_STATUS:
@@ -1256,7 +1256,7 @@ DONE:
 
 	return rc;
 }
-#endif
+#endif /*CONFIG_COMPAT*/
 
 int msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl, void __user *argp)
 {
