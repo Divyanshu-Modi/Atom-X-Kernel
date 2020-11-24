@@ -412,8 +412,9 @@ static void pd_locator_work(struct work_struct *work)
 	}
 	pdqw->notifier->notifier_call(pdqw->notifier, LOCATOR_UP, data);
 
-err:
+err_servloc_send_msg:
 	kfree(data->domain_list);
+err_init_servloc:
 	kfree(data);
 	kfree(pdqw);
 }
