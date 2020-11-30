@@ -66,7 +66,7 @@ void wlan_report_log_completion(uint32_t is_fatal,
 static inline void wlan_report_log_completion(uint32_t is_fatal,
 		uint32_t indicator,
 		uint32_t reason_code,
-		uint8_t ring_id)
+		unit8_t ring_id)
 {
 	return;
 }
