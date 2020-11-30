@@ -1241,12 +1241,8 @@ int mdss_dsi_reg_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 			ret = ctrl_pdata->check_read_status(sctrl_pdata);
 	} else {
 		pr_err("%s: Read status register returned error\n", __func__);
-#ifdef CONFIG_MACH_LONGCHEER
-		if ((strstr(g_lcd_id, "nt36672") != NULL) || (strstr(g_lcd_id, "nt36672a") != NULL) || (strstr(g_lcd_id, "td4320") != NULL))
-			ESD_TE_status = true;
-#endif
 	}
-
+	
 	mdss_dsi_clk_ctrl(ctrl_pdata, ctrl_pdata->dsi_clk_handle,
 			  MDSS_DSI_ALL_CLKS, MDSS_DSI_CLK_OFF);
 	pr_debug("%s: Read register done with ret: %d\n", __func__, ret);
