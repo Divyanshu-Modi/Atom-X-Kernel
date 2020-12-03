@@ -4395,7 +4395,6 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 #endif
 	input_set_capability(rmi4_data->input_dev, EV_KEY, KEY_WAKEUP);
 	input_set_capability(rmi4_data->input_dev, EV_KEY, KEY_DOUBLE_TAP);
-	rmi4_data->input_dev->event =synaptics_gesture_switch;
 
 	INIT_WORK(&rmi4_data->fb_notify_work, tp_fb_notifier_resume_work);
 
