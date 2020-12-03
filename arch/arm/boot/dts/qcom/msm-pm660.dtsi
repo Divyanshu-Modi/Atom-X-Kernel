@@ -679,7 +679,7 @@
 			qcom,pmic-misc = <&pm660_misc>;
 			qcom,misc-clk-trim-error-reg = <0xf3>;
 			qcom,actuator-type = "lra";
-			qcom,play-mode = "buffer";
+			qcom,play-mode = "direct";
 			qcom,vmax-mv = <2204>;
 			qcom,ilim-ma = <800>;
 #ifdef CONFIG_MACH_XIAOMI_LAVENDER			
