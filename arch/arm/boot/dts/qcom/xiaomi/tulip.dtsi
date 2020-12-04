@@ -12,5 +12,4 @@
 
 #include "common/common-sdm660-base.dtsi"
 #include "common/common-sdm636.dtsi"
-#include "xiaomi-sdm660-common.dtsi"
 #include "tulip/tulip-base.dtsi"

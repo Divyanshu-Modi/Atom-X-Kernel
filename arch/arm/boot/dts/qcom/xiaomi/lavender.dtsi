@@ -10,6 +10,5 @@
  * GNU General Public License for more details.
  */
 #include "common/common-sdm660-base.dtsi"
-#include "xiaomi-sdm660-common.dtsi"
 #include "lavender/lavender-base.dtsi"
 #include "common/common-sdm660-thermal.dtsi"
