@@ -24,7 +24,7 @@
 
 #include "mdss_mdp.h"
 
-#define DEF_PCC 235
+#define DEF_PCC 220
 #define DEF_PA 0xff
 #define DEF_SAT 270
 #define PCC_ADJ 0x80
