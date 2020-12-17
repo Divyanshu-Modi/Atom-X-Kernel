@@ -1,30 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
- *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SDFAT_FS_H
-#define _SDFAT_FS_H
+#ifndef _EXFAT_FS_H
+#define _EXFAT_FS_H
 
 #include <linux/types.h>
 #include <linux/magic.h>
 #include <asm/byteorder.h>
 
-/*----------------------------------------------------------------------*/
-/*  Constant & Macro Definitions                                        */
-/*----------------------------------------------------------------------*/
 #ifndef MSDOS_SUPER_MAGIC
 #define MSDOS_SUPER_MAGIC       0x4d44          /* MD */
 #endif
@@ -33,11 +18,11 @@
 #define EXFAT_SUPER_MAGIC       (0x2011BAB0UL)
 #endif /* EXFAT_SUPER_MAGIC */
 
-#ifndef SDFAT_SUPER_MAGIC
-#define SDFAT_SUPER_MAGIC       (0x5EC5DFA4UL)
-#endif /* SDFAT_SUPER_MAGIC */
+#ifndef EXFAT_SUPER_MAGIC
+#define EXFAT_SUPER_MAGIC       (0x5EC5DFA4UL)
+#endif /* EXFAT_SUPER_MAGIC */
 
-#define SDFAT_ROOT_INO          1
+#define EXFAT_ROOT_INO          1
 
 /* FAT types */
 #define FAT12                   0x01    // FAT12
@@ -151,36 +136,7 @@
 /*
  * ioctl command
  */
-#define SDFAT_IOCTL_GET_VOLUME_ID	_IOR('r', 0x12, __u32)
-#define SDFAT_IOCTL_DFR_INFO		_IOC(_IOC_NONE, 'E', 0x13, sizeof(u32))
-#define SDFAT_IOCTL_DFR_TRAV		_IOC(_IOC_NONE, 'E', 0x14, sizeof(u32))
-#define SDFAT_IOCTL_DFR_REQ		_IOC(_IOC_NONE, 'E', 0x15, sizeof(u32))
-#define SDFAT_IOCTL_DFR_SPO_FLAG	_IOC(_IOC_NONE, 'E', 0x16, sizeof(u32))
-#define SDFAT_IOCTL_PANIC               _IOC(_IOC_NONE, 'E', 0x17, sizeof(u32))
-
-/*
- * ioctl command for debugging
- */
-
-/*
- * IOCTL code 'f' used by
- *   - file systems typically #0~0x1F
- *   - embedded terminal devices #128~
- *   - exts for debugging purpose #99
- * number 100 and 101 is available now but has possible conflicts
- *
- * NOTE : This is available only If CONFIG_SDFAT_DVBG_IOCTL is enabled.
- *
- */
-#define SDFAT_IOC_GET_DEBUGFLAGS       _IOR('f', 100, long)
-#define SDFAT_IOC_SET_DEBUGFLAGS       _IOW('f', 101, long)
-
-#define SDFAT_DEBUGFLAGS_INVALID_UMOUNT        0x01
-#define SDFAT_DEBUGFLAGS_ERROR_RW              0x02
-
-/*----------------------------------------------------------------------*/
-/*  On-Disk Type Definitions                                            */
-/*----------------------------------------------------------------------*/
+#define EXFAT_IOCTL_GET_VOLUME_ID	_IOR('r', 0x12, __u32)
 
 /* FAT12/16 BIOS parameter block (64 bytes) */
 typedef struct {
@@ -366,10 +322,8 @@ typedef struct {
 	__le16	access_date;		// aligned
 	__u8	create_time_ms;
 	__u8	modify_time_ms;
-	__u8	create_tz;
-	__u8	modify_tz;
-	__u8	access_tz;
-	__u8	reserved2[7];
+	__u8	access_time_ms;
+	__u8	reserved2[9];
 } FILE_DENTRY_T;
 
 /* EXFAT stream extension directory entry (32 bytes) */
@@ -420,4 +374,4 @@ typedef struct {
 	__u8	reserved[8];
 } VOLM_DENTRY_T;
 
-#endif /* _SDFAT_FS_H */
+#endif /* _EXFAT_FS_H */
