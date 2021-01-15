@@ -1,11 +1,10 @@
 #
 # Novatek NT36xxx touchscreen driver configuration
 #
-config TOUCHSCREEN_NT36xxx
-	bool "Novatek NT36xxx"
-	default y
+config TOUCHSCREEN_NVT_D2S
+	tristate "Novatek touchscreens NT36xxx"
 	help
-	  Say Y here if you have a Novatek NT36xxx touchscreen connected
-	  to your system.
-
-	  If unsure, say N.
+		Say Y here if you have a Novatek NT36xxx touchscreen connected
+		to your system.
+		
+		If unsure, say N.

@@ -4,4 +4,4 @@
 
 # Each configuration option enables a list of files.
 
-obj-y += nt36xxx.o nt36xxx_fw_update.o nt36xxx_ext_proc.o
+obj-$(CONFIG_TOUCHSCREEN_NVT_D2S) += nt36xxx.o nt36xxx_fw_update.o nt36xxx_ext_proc.o
