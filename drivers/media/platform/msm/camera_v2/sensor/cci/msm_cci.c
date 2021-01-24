@@ -32,7 +32,11 @@
 #define CYCLES_PER_MICRO_SEC_DEFAULT 4915
 #define CCI_MAX_DELAY 1000000
 
+#ifdef CONFIG_MACH_LONGCHEER
+#define CCI_TIMEOUT msecs_to_jiffies(800)
+#else
 #define CCI_TIMEOUT msecs_to_jiffies(100)
+#endif
 
 /* TODO move this somewhere else */
 #define MSM_CCI_DRV_NAME "msm_cci"
@@ -845,7 +849,7 @@ static int32_t msm_cci_i2c_read(struct v4l2_subdev *sd,
 	if (rc < 0) {
 		pr_err("%s:%d msm_cci_set_clk_param failed rc = %d\n",
 			__func__, __LINE__, rc);
-		return rc;
+		goto ERROR;
 	}
 
 	/*
