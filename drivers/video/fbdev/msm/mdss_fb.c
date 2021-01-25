@@ -50,9 +50,6 @@
 #include <linux/wakelock.h>
 #include <sync.h>
 #include <sw_sync.h>
-#ifdef CONFIG_MACH_XIAOMI_SDM660
-#include <linux/wakelock.h>
-#endif
 
 #include "mdss_dsi.h"
 #include "mdss_fb.h"
@@ -3548,14 +3545,6 @@ static int mdss_fb_register(struct msm_fb_data_type *mfd)
 	mdss_panel_debugfs_init(panel_info, panel_name);
 	pr_info("FrameBuffer[%d] %dx%d registered successfully!\n", mfd->index,
 					fbi->var.xres, fbi->var.yres);
-#ifdef CONFIG_MACH_XIAOMI_SDM660
-	if (panel_info->is_prim_panel) {
-		prim_fbi = fbi;
-		atomic_set(&prim_panel_is_on, false);
-		INIT_DELAYED_WORK(&prim_panel_work, prim_panel_off_delayed_work);
-		wake_lock_init(&prim_panel_wakelock, WAKE_LOCK_SUSPEND, "prim_panel_wakelock");
-	}
-#endif
 
 	if (panel_info->is_prim_panel) {
 		prim_fbi = fbi;
@@ -6193,60 +6182,3 @@ void mdss_fb_idle_pc(struct msm_fb_data_type *mfd)
 		sysfs_notify(&mfd->fbi->dev->kobj, NULL, "idle_power_collapse");
 	}
 }
-
-#ifdef CONFIG_MACH_XIAOMI_SDM660
-/*
- * mdss_prim_panel_fb_unblank() - Unblank primary panel FB
- * @timeout : >0 blank primary panel FB after timeout (ms)
- */
-int mdss_prim_panel_fb_unblank(int timeout)
-{
-	int ret = 0;
-	struct msm_fb_data_type *mfd = NULL;
-
-	if (prim_fbi) {
-		mfd = (struct msm_fb_data_type *)prim_fbi->par;
-		ret = wait_event_timeout(mfd->resume_wait_q,
-				!atomic_read(&mfd->resume_pending),
-				msecs_to_jiffies(WAIT_RESUME_TIMEOUT));
-		if (!ret) {
-			pr_info("Primary fb resume timeout\n");
-			return -ETIMEDOUT;
-		}
-#ifdef CONFIG_FRAMEBUFFER_CONSOLE
-		console_lock();
-#endif
-		if (!lock_fb_info(prim_fbi)) {
-#ifdef CONFIG_FRAMEBUFFER_CONSOLE
-			console_unlock();
-#endif
-			return -ENODEV;
-		}
-		if (prim_fbi->blank == FB_BLANK_UNBLANK) {
-			unlock_fb_info(prim_fbi);
-#ifdef CONFIG_FRAMEBUFFER_CONSOLE
-			console_unlock();
-#endif
-			return 0;
-		}
-		wake_lock(&prim_panel_wakelock);
-		ret = fb_blank(prim_fbi, FB_BLANK_UNBLANK);
-		if (!ret) {
-			atomic_set(&prim_panel_is_on, true);
-			if (timeout > 0)
-				schedule_delayed_work(&prim_panel_work, msecs_to_jiffies(timeout));
-			else
-				wake_unlock(&prim_panel_wakelock);
-		} else
-			wake_unlock(&prim_panel_wakelock);
-		unlock_fb_info(prim_fbi);
-#ifdef CONFIG_FRAMEBUFFER_CONSOLE
-		console_unlock();
-#endif
-		return ret;
-	}
-
-	pr_err("primary panel is not existed\n");
-	return -EINVAL;
-}
-#endif

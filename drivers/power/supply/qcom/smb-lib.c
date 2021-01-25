@@ -587,11 +587,6 @@ static int smblib_request_dpdm(struct smb_charger *chg, bool enable)
 	if (chg->pr_swap_in_progress)
 		return 0;
 
-#ifdef CONFIG_MACH_LONGCHEER
-	if (chg->pr_swap_in_progress)
-		return 0;
-#endif
-
 	/* fetch the DPDM regulator */
 	if (!chg->dpdm_reg && of_get_property(chg->dev->of_node,
 				"dpdm-supply", NULL)) {
@@ -663,9 +658,6 @@ static const struct apsd_result *smblib_update_usb_type(struct smb_charger *chg)
 		 */
 		if (!(apsd_result->pst == POWER_SUPPLY_TYPE_USB_FLOAT &&
 			chg->real_charger_type == POWER_SUPPLY_TYPE_USB))
-#ifdef CONFIG_MACH_LONGCHEER
-		{
-#endif
 		chg->real_charger_type = apsd_result->pst;
     chg->usb_psy_desc.type = apsd_result->pst;
 	}
@@ -1279,9 +1271,6 @@ static int smblib_hvdcp_hw_inov_dis_vote_callback(struct votable *votable,
 	struct smb_charger *chg = data;
 	int rc;
 
-	#if (defined (CONFIG_MACH_LONGCHEER)
-	disable = 0;
-	#endif
 	if (disable) {
 		/*
 		 * the pulse count register get zeroed when autonomous mode is
@@ -3380,7 +3369,6 @@ int smblib_get_charge_current(struct smb_charger *chg,
 		pr_info("QC2.0 set icl to 1.5A\n");
 		return 0;
 	}
-#endif
 
 	if (non_compliant) {
 		switch (apsd_result->bit) {

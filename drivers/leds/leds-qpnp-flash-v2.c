@@ -1743,7 +1743,8 @@ static int qpnp_flash_led_parse_each_led_dt(struct qpnp_flash_led *led,
 	{
 
  		  fnode->cdev.flags |= LED_KEEP_TRIGGER;
-	}#endif
+	}
+#endif
 
 	rc = led_classdev_register(&led->pdev->dev, &fnode->cdev);
 	if (rc < 0) {

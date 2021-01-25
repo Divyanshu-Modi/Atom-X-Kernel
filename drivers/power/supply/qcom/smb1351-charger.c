@@ -3209,13 +3209,6 @@ static int smb1351_parallel_charger_probe(struct i2c_client *client,
 		return -ENODEV;
 	}
 
-#ifdef CONFIG_MACH_LONGCHEER
-	if (hwc_check_global) {
-		pr_err("Global hasn't smb1350 ragulator,return\n");
-		return -ENODEV;
-	}
-#endif
-
 	chip->usb_suspended_status = of_property_read_bool(node,
 					"qcom,charging-disabled");
 	rc = of_property_read_u32(node, "qcom,float-voltage-mv",
@@ -3406,17 +3399,6 @@ static void __exit smb1351_charger_exit(void)
 late_initcall(smb1351_charger_init);
 module_exit(smb1351_charger_exit);
 
-
-static void __exit smb1351_charger_exit(void)
-{
-	i2c_del_driver(&smb1351_charger_driver);
-}
-
-late_initcall(smb1351_charger_init);
-module_exit(smb1351_charger_exit);
-#else
-module_i2c_driver(smb1351_charger_driver);
-#endif
 MODULE_DESCRIPTION("smb1351 Charger");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("i2c:smb1351-charger");

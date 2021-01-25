@@ -485,83 +485,10 @@ err:
 	return count;
 }
 
-<<<<<<< HEAD
-=======
-static long tas2557_file_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-{
-	struct tas2557_priv *pTAS2557 = file->private_data;
-	int ret = 0;
-
-	mutex_lock(&pTAS2557->file_lock);
-
-	switch (cmd) {
-	case SMARTPA_SPK_DAC_VOLUME:
-	{
-	}
-	break;
-
-	case SMARTPA_SPK_POWER_ON:
-	{
-		tas2557_enable(pTAS2557, true);
-	}
-	break;
-
-	case SMARTPA_SPK_POWER_OFF:
-	{
-		tas2557_enable(pTAS2557, false);
-	}
-	break;
-
-	case SMARTPA_SPK_SWITCH_PROGRAM:
-	{
-		if ((pTAS2557->mpFirmware->mnConfigurations > 0)
-			&& (pTAS2557->mpFirmware->mnPrograms > 0))
-			tas2557_set_program(pTAS2557, arg, -1);
-	}
-	break;
-
-	case SMARTPA_SPK_SWITCH_CONFIGURATION:
-	{
-		if ((pTAS2557->mpFirmware->mnConfigurations > 0)
-			&& (pTAS2557->mpFirmware->mnPrograms > 0))
-			tas2557_set_config(pTAS2557, arg);
-	}
-	break;
-
-	case SMARTPA_SPK_SWITCH_CALIBRATION:
-	{
-		if ((pTAS2557->mpFirmware->mnConfigurations > 0)
-			&& (pTAS2557->mpFirmware->mnPrograms > 0))
-			tas2557_set_calibration(pTAS2557, arg);
-	}
-	break;
-
-	case SMARTPA_SPK_SET_SAMPLERATE:
-	{
-		tas2557_set_sampling_rate(pTAS2557, arg);
-	}
-	break;
-
-	case SMARTPA_SPK_SET_BITRATE:
-	{
-		tas2557_set_bit_rate(pTAS2557, arg);
-	}
-	break;
-	}
-
-	mutex_unlock(&pTAS2557->file_lock);
-	return ret;
-}
-
->>>>>>> d4c396ba53e5 (Sound: update from jasmine)
 static const struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = tas2557_file_read,
 	.write = tas2557_file_write,
-<<<<<<< HEAD
-=======
-	.unlocked_ioctl = tas2557_file_unlocked_ioctl,
->>>>>>> d4c396ba53e5 (Sound: update from jasmine)
 	.open = tas2557_file_open,
 	.release = tas2557_file_release,
 };

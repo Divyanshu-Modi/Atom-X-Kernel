@@ -3375,10 +3375,5 @@ int mdss_dsi_panel_init(struct device_node *node,
 	msm_lcd_name_create_sysfs();
 	msm_whitepoint_create_sysfs();
 
-#ifdef CONFIG_MACH_LONGCHEER
-	ctrl_pdata_whitepoint = ctrl_pdata;
-	msm_lcd_name_create_sysfs();
-	msm_whitepoint_create_sysfs();
-#endif
 	return 0;
 }

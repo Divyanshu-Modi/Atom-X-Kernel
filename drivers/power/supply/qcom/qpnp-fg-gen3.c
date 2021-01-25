@@ -1104,22 +1104,6 @@ static int __init hwc_setup(char *s)
 
 __setup("androidboot.hwc=", hwc_setup);
 
-#ifdef CONFIG_MACH_LONGCHEER
-static int __init hwc_setup(char *s)
-{
-	if (strcmp(s, "India") == 0)
-		hwc_check_india = 1;
-	else
-		hwc_check_india = 0;
-	if (strcmp(s, "Global") == 0)
-		hwc_check_global = 1;
-	else
-		hwc_check_global = 0;
-	return 1;
-}
-__setup("androidboot.hwc=", hwc_setup);
-#endif
-
 static int fg_get_batt_profile(struct fg_chip *chip)
 {
 	struct device_node *node = chip->dev->of_node;
@@ -2906,6 +2890,7 @@ static void status_change_work(struct work_struct *work)
 	chip->charge_status = prop.intval;
 	rc = power_supply_get_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_CHARGE_TYPE, &prop);
+			
 	if (rc < 0) {
 		pr_err("Error in getting charge type, rc=%d\n", rc);
 		goto out;
@@ -2919,10 +2904,9 @@ static void status_change_work(struct work_struct *work)
 		goto out;
 	}
 
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
 	chip->charge_done = prop.intval;
 	fg_cycle_counter_update(chip);
-	fg_cap_learning_update(chip);
+	fg_cap_learning_update(chip);	
 #if defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 	if (chip->charge_done && !chip->report_full) {
 					 chip->report_full = true;
@@ -4644,14 +4628,6 @@ static int fg_hw_init(struct fg_chip *chip)
 	rc = fg_sram_write(chip,4,0,buf,2,FG_IMA_DEFAULT);
 	if(rc < 0)
 		pr_err("Error in configuring Sram,rc = %d\n",rc);
-
-#ifdef CONFIG_MACH_LONGCHEER
-	buf[0] = 0x33;
-	buf[1] = 0x3;
-	rc = fg_sram_write(chip, 4, 0, buf, 2, FG_IMA_DEFAULT);
-	if (rc < 0)
-		pr_err("Error in configuring Sram, rc = %d\n", rc);
-#endif
 
 	return 0;
 }

@@ -26,6 +26,7 @@ DEFINE_MSM_MUTEX(msm_eeprom_mutex);
 #ifdef CONFIG_COMPAT
 static struct v4l2_file_operations msm_eeprom_v4l2_subdev_fops;
 #endif
+
 struct vendor_eeprom s_vendor_eeprom[CAMERA_VENDOR_EEPROM_COUNT_MAX];
 #ifdef CONFIG_MACH_XIAOMI_TULIP
 extern char sensor_fusion_id[512];
@@ -326,10 +327,11 @@ ERROR:
 }
 
 #ifdef CONFIG_MACH_XIAOMI_TULIP
-static int set_s5k2l7_fuse_id_from_eeprom(uint8_t *memptr) {
+static int set_s5k2l7_fuse_id_from_eeprom(uint8_t *memptr)
+{
 
 	char s_fuse_id_temp[80] = {0};
-	if((memptr[S5K2L7_SENSOR_ID_ADD] == S5K2L7_SENSOR_ID)){
+	if (memptr[S5K2L7_SENSOR_ID_ADD] == S5K2L7_SENSOR_ID) {
 		sprintf(s_fuse_id_temp,"back: %04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x\n",
 					memptr[S5K2L7_SENSOR_FUSE_ID_START + 0],
 					memptr[S5K2L7_SENSOR_FUSE_ID_START + 1],
@@ -1695,13 +1697,6 @@ static int msm_eeprom_config32(struct msm_eeprom_ctrl_t *e_ctrl,
 		rc = eeprom_config_read_cal_data32(e_ctrl, argp);
 		break;
 
-#ifdef CONFIG_KERNEL_CUSTOM_FACTORY
-	case LAVENDER_CFG_EEPROM_WRITE_DATA:
-		pr_err("chb--%s E CFG_EEPROM_WRITE_DATA\n", __func__);
-		rc = eeprom_write_dualcam_cal_data(e_ctrl, argp);
-		break;
-#endif
-
 	case CFG_EEPROM_INIT:
 		if (e_ctrl->userspace_probe == 0) {
 			pr_err("%s:%d Eeprom already probed at kernel boot",
@@ -2142,7 +2137,6 @@ static uint8_t get_otp_vendor_module_id(struct msm_eeprom_ctrl_t *e_ctrl, const 
 			eeprom_name, module_id);
 	return ((uint8_t)module_id);
 }
-#endif
 
 static int msm_eeprom_platform_probe(struct platform_device *pdev)
 {

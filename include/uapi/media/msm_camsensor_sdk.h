@@ -301,10 +301,6 @@ struct msm_sensor_id_info_t {
 	unsigned short sensor_id_mask;
 };
 
-<<<<<<< HEAD
-#ifdef CONFIG_MACH_LONGCHEER
-=======
->>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 enum msm_cci_i2c_master_t {
 	MSM_MASTER_0,
 	MSM_MASTER_1,
@@ -328,22 +324,6 @@ struct msm_vcm_id_info_t {
 	enum msm_camera_i2c_data_type data_type;
 	enum msm_cci_i2c_master_t cci_i2c_master;
 };
-<<<<<<< HEAD
-#endif
-
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
-struct msm_lens_id_info_t {
-	unsigned short eeprom_slave_addr;
-	unsigned short lens_id_addr;
-	enum msm_camera_i2c_reg_addr_type addr_type;
-	unsigned short lens_id;
-	enum msm_camera_i2c_data_type data_type;
-	enum msm_cci_i2c_master_t cci_i2c_master;
-};
-#endif
-=======
-
->>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 
 struct msm_camera_sensor_slave_info {
 	char sensor_name[32];
@@ -356,18 +336,8 @@ struct msm_camera_sensor_slave_info {
 	enum i2c_freq_mode_t i2c_freq_mode;
 	enum msm_camera_i2c_reg_addr_type addr_type;
 	struct msm_sensor_id_info_t sensor_id_info;
-<<<<<<< HEAD
-#if defined(CONFIG_MACH_LONGCHEER) && !defined(CONFIG_MACH_XIAOMI_WAYNE)
 	struct msm_vendor_id_info_t vendor_id_info;
 	struct msm_vcm_id_info_t vcm_id_info;
-#endif
-#ifdef CONFIG_MACH_XIAOMI_LAVENDER
-	struct msm_lens_id_info_t lens_id_info;
-#endif
-=======
-	struct msm_vendor_id_info_t vendor_id_info;
-	struct msm_vcm_id_info_t vcm_id_info;
->>>>>>> 09a9937a1946 (camera: Import xiaomi changes)
 	struct msm_sensor_power_setting_array power_setting_array;
 	unsigned char  is_init_params_valid;
 	struct msm_sensor_init_params sensor_init_params;
@@ -376,7 +346,6 @@ struct msm_camera_sensor_slave_info {
 #ifdef CONFIG_MACH_XIAOMI_WAYNE
 	struct msm_vendor_id_info_t vendor_id_info;
 	struct msm_vcm_id_info_t vcm_id_info;
-	struct msm_lens_id_info_t lens_id_info;
 #endif
 };
 

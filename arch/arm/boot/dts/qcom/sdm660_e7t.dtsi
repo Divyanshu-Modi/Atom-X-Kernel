@@ -429,7 +429,7 @@
 			reg = <0x0 0xA0000000 0x0 0x00400000>;
 			label = "pstore_reserve_mem";
     	};
-    };		
+    };	
 
 	bluetooth: bt_wcn3990 {
 		compatible = "qca,wcn3990";
