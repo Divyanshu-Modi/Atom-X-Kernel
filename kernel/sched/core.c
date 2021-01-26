@@ -1221,9 +1221,10 @@ void set_cpus_allowed_common(struct task_struct *p, const struct cpumask *new_ma
 static const struct cpumask *get_adjusted_cpumask(const struct task_struct *p,
 	const struct cpumask *req_mask)
 {
-	/* Force all performance-critical kthreads onto the big cluster */
-	if (p->flags & PF_PERF_CRITICAL)
-		return cpu_perf_mask;
+	/* Don't allow perf-critical threads to have non-perf affinities */
+	if ((p->flags & PF_PERF_CRITICAL) && new_mask != cpu_lp_mask &&
+		new_mask != cpu_perf_mask)
+		return -EINVAL;
 
 	return req_mask;
 }
