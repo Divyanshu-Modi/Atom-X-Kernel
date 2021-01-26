@@ -121,3 +121,14 @@ android/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+
+#
+# sh and files
+#
+master.sh
+Upstream.sh
+/out
+/tulip
+/whyred
+/lavender
+/wayne
