@@ -67,8 +67,6 @@ int notrace unwind_frame(struct stackframe *frame)
 	frame->pc = *(unsigned long *)(fp - 4);
 #endif
 
-	kasan_enable_current();
-
 	return 0;
 }
 #endif
