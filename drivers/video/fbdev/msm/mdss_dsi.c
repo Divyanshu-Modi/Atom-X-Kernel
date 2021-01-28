@@ -731,6 +731,8 @@ static int mdss_dsi_panel_power_ctrl(struct mdss_panel_data *pdata,
 		if (mdss_dsi_is_panel_on_lp(pdata))
 			ret = mdss_dsi_panel_power_lp(pdata, false);
 		else
+			ret = mdss_dsi_panel_power_on(pdata);
+		break;		
 	case MDSS_PANEL_POWER_LP1:
 	case MDSS_PANEL_POWER_LP2:
 		ret = mdss_dsi_panel_power_lp(pdata, true);
