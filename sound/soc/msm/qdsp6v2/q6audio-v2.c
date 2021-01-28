@@ -752,10 +752,6 @@ int q6audio_is_digital_pcm_interface(u16 port_id)
 	case AFE_PORT_ID_INT5_MI2S_TX:
 	case AFE_PORT_ID_INT6_MI2S_RX:
 	case AFE_PORT_ID_INT6_MI2S_TX:
-#ifdef CONFIG_ELLIPTCLABS
-	/* TODO: Define a new PSEUDOPORT */
-	case AFE_PORT_ID_PSEUDOPORT_01:
-#endif
 	case AFE_PORT_ID_SECONDARY_MI2S_RX_1:
 	case AFE_PORT_ID_SECONDARY_MI2S_RX_2:
 	case AFE_PORT_ID_SECONDARY_MI2S_RX_3:

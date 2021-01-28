@@ -39,10 +39,6 @@
 #include <sound/hwdep.h>
 #include <sound/q6adm-v2.h>
 #include <sound/apr_audio-v2.h>
-#ifdef CONFIG_ELLIPTICLABS
-#include <sound/apr_elliptic.h>
-#include <elliptic/elliptic_mixer_controls.h>
-#endif
 
 #ifdef CONFIG_ELLIPTCLABS
 /* ELUS Begin */
@@ -3503,18 +3499,6 @@ static const struct snd_kcontrol_new channel_mixer_controls[] = {
 	.private_value = (unsigned long)&(struct soc_multi_mixer_control)
 		{.shift = MSM_FRONTEND_DAI_MULTIMEDIA2, .rshift = 2,}
 	},
-#ifdef CONFIG_MACH_LONGCHEER
-	{
-	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
-	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
-	.name = "MultiMedia2 Output Channel4",
-	.info = msm_pcm_channel_weight_info,
-	.get = msm_pcm_channel_weight_get,
-	.put = msm_pcm_channel_weight_put,
-	.private_value = (unsigned long)&(struct soc_multi_mixer_control)
-		{.shift = MSM_FRONTEND_DAI_MULTIMEDIA2, .rshift = 3,}
-	},
-#endif
 	{
 	.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
 	.access = SNDRV_CTL_ELEM_ACCESS_READWRITE,
@@ -20865,6 +20849,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 #ifdef CONFIG_ELLIPTCLABS
 	{"INT0_MI2S_RX", NULL, "INT0_MI2S_DL_HL"},
 #endif
+	
 	/* connect to INT4_MI2S_DL_HL since same pcm_id */
 	{"INT0_MI2S_RX_DL_HL", "Switch", "INT4_MI2S_DL_HL"},
 	{"INT0_MI2S_RX", NULL, "INT0_MI2S_RX_DL_HL"},

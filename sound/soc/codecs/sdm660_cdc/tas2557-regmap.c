@@ -56,7 +56,7 @@
 #include "tiload.h"
 #endif
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static int btas2557 = 1;
 #endif
@@ -71,7 +71,7 @@ static int tas2557_change_book_page(
 {
 	int nResult = 0;
 
-	if ((pTAS2557->mnCurrentBook == nBook)
+	if ((pTAS2557->mnCurrentBook == nBook) 
 		&& pTAS2557->mnCurrentPage == nPage)
 		goto end;
 
@@ -139,7 +139,7 @@ static int tas2557_dev_read(
 				TAS2557_PAGE_REG(nRegister));
 	}
 
-	nResult = tas2557_change_book_page(pTAS2557,
+	nResult = tas2557_change_book_page(pTAS2557, 
 				TAS2557_BOOK_ID(nRegister),
 				TAS2557_PAGE_ID(nRegister));
 	if (nResult >= 0) {
@@ -848,7 +848,7 @@ static int tas2557_i2c_probe(struct i2c_client *pClient,
 
 	return nResult;
 err:
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 	btas2557 = 0;
 #endif
@@ -880,7 +880,7 @@ static const struct i2c_device_id tas2557_i2c_id[] = {
 	{}
 };
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 int smartpa_is_tas2557(void)
 {
@@ -918,7 +918,7 @@ MODULE_AUTHOR("Texas Instruments Inc.");
 MODULE_DESCRIPTION("TAS2557 I2C Smart Amplifier driver");
 MODULE_LICENSE("GPL v2");
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 EXPORT_SYMBOL(smartpa_is_tas2557);
 #endif

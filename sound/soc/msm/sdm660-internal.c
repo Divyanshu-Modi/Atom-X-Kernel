@@ -53,9 +53,9 @@ enum {
 	SLIM_MAX,
 };
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
-static int smartpa_ti;
+static int smartpa_ti = 0;
 #endif
 
 /*TDM default offset currently only supporting TDM_RX_0 and TDM_TX_0 */
@@ -191,7 +191,7 @@ static int msm_int_mclk0_event(struct snd_soc_dapm_widget *w,
 static int msm_int_mi2s_snd_startup(struct snd_pcm_substream *substream);
 static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream);
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 extern int smartpa_is_tas2557(void);
 #endif
@@ -1371,6 +1371,7 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 	btn_low[4] = 500;
 	btn_high[4] = 500;
 #endif
+
 	return msm_int_wcd_cal;
 }
 
@@ -2800,6 +2801,7 @@ static struct snd_soc_dai_link msm_int_be_dai[] = {
 	},
 };
 
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 
 static struct snd_soc_dai_link msm_mi2s_be_dai_links_ti[] = {
@@ -3204,8 +3206,8 @@ static struct snd_soc_dai_link msm_mi2s_be_dai_links[] = {
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
 	#ifdef CONFIG_SND_SOC_TAS2557
-		.codec_name = "tas2557.6-004c",
-		.codec_dai_name = "tas2557 ASI1",
+		.codec_name = "msm-stub-codec.1",
+		.codec_dai_name = "msm-stub-tx",
 	#elif defined(CONFIG_SND_SOC_TFA98XX)
 		.codec_name = "tfa98xx.6-0034",
 		.codec_dai_name = "tfa98xx-aif",
@@ -3533,6 +3535,7 @@ static struct snd_soc_dai_link msm_int_dai_links[
 ARRAY_SIZE(msm_int_dai) +
 ARRAY_SIZE(msm_int_wsa_dai) +
 ARRAY_SIZE(msm_int_be_dai) +
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 ARRAY_SIZE(msm_mi2s_be_dai_links_nxp) +
 #elif defined(CONFIG_SND_SOC_MAX98937)
@@ -3598,17 +3601,17 @@ static void msm_int_dt_parse_cap_info(struct platform_device *pdev,
 		 MICBIAS_EXT_BYP_CAP : MICBIAS_NO_EXT_BYP_CAP);
 }
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static void set_smartpa_ti(int btas2557)
 {
-	static char binited;
-	if (0 == binited)
+	static char binited = 0;
+	if(0 == binited)
 	{
 		smartpa_ti = btas2557;
 		binited = 1;
 	}
-
+	
 }
 #endif
 
@@ -3618,7 +3621,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 	struct snd_soc_card *card = &sdm660_card;
 	struct snd_soc_dai_link *dailink;
 	int len1;
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 	int btas2557 = smartpa_is_tas2557();
 
@@ -3642,7 +3645,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 				  "qcom,mi2s-audio-intf")) {
 
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
-		if(0 == btas2557)
+		if(0 == btas2557)				  
 		{
 			memcpy(dailink + len1,
 				   msm_mi2s_be_dai_links_nxp,
@@ -3792,7 +3795,7 @@ int msm_int_cdc_init(struct platform_device *pdev,
 	return 0;
 }
 
-//2017.12.07 wsy add for ti and nxp compatible
+
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 module_param(smartpa_ti, int, 0444);
 #endif

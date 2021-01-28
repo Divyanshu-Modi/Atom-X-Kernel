@@ -641,7 +641,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			elliptic_process_apr_payload(data->payload);
 		else
 			pr_err("[EXPORT_SYMBOLLUS]: payload ptr is Invalid");
-		/* ELUS End */
+		/* ELUS End */	
 #endif
 	} else if (data->payload_size) {
 		uint32_t *payload;
@@ -1854,6 +1854,7 @@ afe_ultrasound_state_t elus_afe = {
 	.ptr_state= &this_afe.state,
 	.ptr_wait= this_afe.wait,
 	.timeout_ms= TIMEOUT_MS,
+
 	};
 EXPORT_SYMBOL(elus_afe);
 /* ELUS End */

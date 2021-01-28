@@ -809,7 +809,6 @@ static int max989xx_calib_save (uint32_t calib_value, int ch)
 }
 #endif
 
-#ifdef CONFIG_DEBUG_FS
 static inline bool rdc_check_valid(uint32_t rdc, int ch)
 {
 	int rdc_min, rdc_max;
@@ -831,12 +830,6 @@ static inline bool rdc_check_valid(uint32_t rdc, int ch)
 	pr_info("%s: rdc=%d invalid, [%d, %d] \n", __func__, rdc, rdc_min, rdc_max);
 	return false;
 }
-#else
-static inline bool rdc_check_valid(uint32_t rdc, int ch)
-{
-	return false;
-}
-#endif
 
 #ifdef CONFIG_DEBUG_FS
 static ssize_t max989xx_dbgfs_calibrate_read(struct file *file,
@@ -1388,9 +1381,9 @@ static int max98927_dai_hw_params(struct snd_pcm_substream *substream,
 				pcm_mode_config = MAX98937_PCM_Mode_Config;
 				pcm_sample_rate_setup_1 = MAX98937_PCM_Sample_rate_setup_1;
 				pcm_sample_rate_setup_2 = MAX98937_PCM_Sample_rate_setup_2;
- 				pr_info("max98937 %s: format supported", __func__);
+ 				pr_info("max98937 %s: format supported",__func__);
 			} else {
-				pr_info("max98927 %s: format supported", __func__);
+				pr_info("max98927 %s: format supported",__func__);
 			}
 			switch (snd_pcm_format_width(params_format(params))) {
 					case 16:
@@ -1615,6 +1608,7 @@ static int max98927_stream_mute(struct snd_soc_dai *codec_dai, int mute, int str
 			*(payload+1) = max98927->ref_RDC[MAX98927R];
 			*(payload+2) = max98927->adsp_mode;
 			afe_dsm_set_calib((uint8_t *)payload);
+
 			mutex_unlock(&dsm_lock);
 			pr_info("%s ------ enable max98927 capture\n", __func__);
 		}
@@ -1745,7 +1739,7 @@ static int max98927_spk_gain_put(struct snd_kcontrol *kcontrol,
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
 	int i;
-	pr_info("max98927_spk_gain_put: %d\n", sel);
+	pr_info("max98927_spk_gain_put: %d\n",sel);
 
 	if (sel < ((1 << MAX98927_Speaker_Gain_Width) - 1)) {
 		for(i = 0; i < MAX_CHANNEL_NUM; i++){
@@ -1769,7 +1763,7 @@ static int max98927_spk_gain_put_l(struct snd_kcontrol *kcontrol,
 	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
-	pr_info("max98927_spk_gain_put_l: %d\n", sel);
+	pr_info("max98927_spk_gain_put_l: %d\n",sel);
 
 	if (sel < ((1 << MAX98927_Speaker_Gain_Width) - 1)) {
 		if(i2c_states & MAX98927_CH0){
@@ -1792,7 +1786,7 @@ static int max98927_spk_gain_put_r(struct snd_kcontrol *kcontrol,
 	struct snd_soc_codec *codec = snd_soc_kcontrol_codec(kcontrol);
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
-	pr_info("max98927_spk_gain_put_r: %d\n", sel);
+	pr_info("max98927_spk_gain_put_r: %d\n",sel);
 
 	if (sel < ((1 << MAX98927_Speaker_Gain_Width) - 1)) {
 		if(i2c_states & MAX98927_CH1){
@@ -1853,7 +1847,7 @@ static int max98927_digital_gain_put(struct snd_kcontrol *kcontrol,
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
 
-	pr_info("max98927_digital_gain_put: %d\n", sel);
+	pr_info("max98927_digital_gain_put: %d\n",sel);
 
 	if (sel <= ((1 << MAX98927_AMP_VOL_WIDTH) - 1)) {
 		max98927_wrap_update_bits(max98927, MAX98927_AMP_volume_control,
@@ -1870,7 +1864,7 @@ static int max98927_digital_gain_put_l(struct snd_kcontrol *kcontrol,
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
 
-	pr_info("max98927_digital_gain_put_l: %d\n", sel);
+	pr_info("max98927_digital_gain_put_l: %d\n",sel);
 
 	if (sel <= ((1 << MAX98927_AMP_VOL_WIDTH) - 1)) {
 		if(i2c_states & MAX98927_CH0){
@@ -1889,7 +1883,7 @@ static int max98927_digital_gain_put_r(struct snd_kcontrol *kcontrol,
 	struct max989xx_priv *max98927 = snd_soc_codec_get_drvdata(codec);
 	unsigned int sel = ucontrol->value.integer.value[0];
 
-	pr_info("max98927_digital_gain_put_r: %d\n", sel);
+	pr_info("max98927_digital_gain_put_r: %d\n",sel);
 
 	if (sel <= ((1 << MAX98927_AMP_VOL_WIDTH) - 1)) {
 		if(i2c_states & MAX98927_CH1){
@@ -2556,6 +2550,7 @@ static const struct snd_kcontrol_new max98927_snd_controls[] = {
 	SOC_SINGLE_EXT_TLV("Right Speaker Volume", MAX98927_Speaker_Gain,
 		0, (1<<MAX98927_Speaker_Gain_Width)-1, 0,
 		max98927_spk_gain_get_r, max98927_spk_gain_put_r, max98927_spk_tlv),
+
 	SOC_SINGLE_EXT_TLV("Digital Gain", MAX98927_AMP_volume_control,
 		0, (1<<MAX98927_AMP_VOL_WIDTH)-1, 0,
 		max98927_digital_gain_get, max98927_digital_gain_put, max98927_digital_tlv),
@@ -2642,6 +2637,7 @@ static const struct snd_kcontrol_new max98927_snd_controls[] = {
 		0, 1, 0, max98927_right_channel_enable_get, max98927_right_channel_enable_set),
 	SOC_SINGLE_EXT("Speaker Force Close", MAX98927_Global_Enable,
 		0, 1, 0, max98927_speaker_force_close_get, max98927_speaker_force_close_set),
+
 	SOC_ENUM_EXT("Receiver Mix Mode", max98927_enum[5],
 		max98927_receiver_mix_mode_get, max98927_receiver_mix_mode_put),
 
@@ -2762,7 +2758,7 @@ static int check_max98927_presence(struct regmap* regmap)
 		msleep(delay_array_msec[i]);
 	}
 
-	for (i = 0; i < ARRAY_SIZE(delay_array_msec); i++) {
+ 	for (i = 0; i < ARRAY_SIZE(delay_array_msec); i++) {
 		rc = regmap_read(regmap, MAX98937_REV_ID, &reg);
 		if (!rc) {
 			if ((reg & 0x40) != 0x00){
@@ -2786,17 +2782,17 @@ static int max98927_parse_dt(struct max989xx_priv *max98927,
 	struct device_node *dNode = dev->of_node;
 	int value, ret;
 
-	max98927->spk_gain		= 5;
+   	max98927->spk_gain		= 5;
 	max98927->digital_gain	= 56;
-	max98927->spk_safe_gain		= 1;
+  	max98927->spk_safe_gain		= 1;
 	max98927->digital_safe_gain	= 44;
-	max98927->adsp_mode		= 0;
-	max98927->dsm_enable	= false;
+    max98927->adsp_mode		= 0;
+	max98927->dsm_enable  	= false;
 	max98927->factory_test  = false;
 	max98927->rcv_mix_mode  = false;
 	max98927->safe_gain		= false;
 
-	if (!of_property_read_u32(dNode, "mono_stereo_mode", &value)) {
+ 	if (!of_property_read_u32(dNode, "mono_stereo_mode", &value)) {
 		if (value > 3) {
 			pr_err("only support max to 2 channel!\n");
 			value  = 0;
@@ -2811,7 +2807,7 @@ static int max98927_parse_dt(struct max989xx_priv *max98927,
 		max98927->interleave_mode = value;
 	}
 
-	if (!of_property_read_u32(dNode, "safe_gain", &value)) {
+ 	if (!of_property_read_u32(dNode, "safe_gain", &value)) {
 		if (value > 1) {
 			pr_info("safe_gain number is wrong:\n");
 		}
@@ -2819,7 +2815,7 @@ static int max98927_parse_dt(struct max989xx_priv *max98927,
 	}
 
 #if MANUAL_DVDD_ENABLE
-	if (!max98927->i2c_pull) {
+ 	if (!max98927->i2c_pull) {
 		max98927->i2c_pull = devm_regulator_get(dev, "i2c-pull");
 		if (IS_ERR(max98927->i2c_pull)) {
 			pr_err("%s: regulator i2c_pull get failed\n ", __func__);
@@ -2863,43 +2859,43 @@ static int max98927_parse_dt(struct max989xx_priv *max98927,
 		/* return ret; */
 	}
 #endif
-	if (id == MAX98927L) {
-		max98927->reset_gpio_l= of_get_named_gpio(dNode, "maxim,98927-reset-gpio", 0);
-		/* pr_info("max98927_reset:%d------\n", max98927->reset_gpio_l); */
+    if (id == MAX98927L) {
+        max98927->reset_gpio_l= of_get_named_gpio(dNode, "maxim,98927-reset-gpio", 0);
+        /* pr_info("max98927_reset:%d------\n", max98927->reset_gpio_l); */
 
-		if (max98927->reset_gpio_l < 0){
-			pr_err("%s - get int error\n", __func__);
-			return -ENODEV;
-		}
-		ret = gpio_request(max98927->reset_gpio_l, "max_98927_reset");
-		if (ret) {
-			pr_err("failed to request rest gpio %d error:%d\n",
-				    max98927->reset_gpio_l, ret);
-			/* gpio_free(max98927->reset_gpio_l); */
-			return ret;
-		}
-		gpio_direction_output(max98927->reset_gpio_l, 0);
-		msleep(1);
-		gpio_direction_output(max98927->reset_gpio_l, 1);
-	} else {
-		max98927->reset_gpio_r= of_get_named_gpio(dNode, "maxim,98927-reset-gpio", 0);
-		/* pr_info("max98927_reset:%d------\n", max98927->reset_gpio_l); */
+        if (max98927->reset_gpio_l < 0){
+            pr_err("%s - get int error\n", __func__);
+            return -ENODEV;
+        }
+        ret = gpio_request(max98927->reset_gpio_l, "max_98927_reset");
+        if (ret) {
+            pr_err("failed to request rest gpio %d error:%d\n",
+                    max98927->reset_gpio_l, ret);
+            /* gpio_free(max98927->reset_gpio_l); */
+            return ret;
+        }
+        gpio_direction_output(max98927->reset_gpio_l, 0);
+        msleep(1);
+        gpio_direction_output(max98927->reset_gpio_l, 1);
+    } else {
+        max98927->reset_gpio_r= of_get_named_gpio(dNode, "maxim,98927-reset-gpio", 0);
+        /* pr_info("max98927_reset:%d------\n", max98927->reset_gpio_l); */
 
-		if (max98927->reset_gpio_r < 0){
-			pr_err("%s - get int error\n", __func__);
-			return -ENODEV;
-		}
-		ret = gpio_request(max98927->reset_gpio_r, "max_98927_reset");
-		if (ret) {
-			pr_err("failed to request rest gpio %d error:%d\n",
-				    max98927->reset_gpio_r, ret);
-			/* gpio_free(max98927->reset_gpio_l); */
-			return ret;
-		}
-		gpio_direction_output(max98927->reset_gpio_r, 0);
-		msleep(1);
-		gpio_direction_output(max98927->reset_gpio_r, 1);
-	}
+        if (max98927->reset_gpio_r < 0){
+            pr_err("%s - get int error\n", __func__);
+            return -ENODEV;
+        }
+        ret = gpio_request(max98927->reset_gpio_r, "max_98927_reset");
+        if (ret) {
+            pr_err("failed to request rest gpio %d error:%d\n",
+                    max98927->reset_gpio_r, ret);
+            /* gpio_free(max98927->reset_gpio_l); */
+            return ret;
+        }
+        gpio_direction_output(max98927->reset_gpio_r, 0);
+        msleep(1);
+        gpio_direction_output(max98927->reset_gpio_r, 1);
+    }
 
 	/* msleep(5); */
 	return 0;
@@ -2955,11 +2951,11 @@ static int max98927_i2c_probe(struct i2c_client *i2c,
 				presence = (1 << id->driver_data);
 				max98927->bIsMax98937[id->driver_data] = MAX98937_ID;
 
-				for (i = 0; i < ARRAY_SIZE(max98937_reg_channel_map[idx]); i++)
+ 				for (i = 0; i < ARRAY_SIZE(max98937_reg_channel_map[idx]); i++)
 					regmap_write(max98927->regmap[id->driver_data],
 							max98937_reg_channel_map[idx][i][0], max98937_reg_channel_map[idx][i][1]);
 
-				for (i = 0; i < ARRAY_SIZE(max98937_reg_common_map); i++)
+ 				for (i = 0; i < ARRAY_SIZE(max98937_reg_common_map); i++)
 					regmap_write(max98927->regmap[id->driver_data],
 							max98937_reg_common_map[i][0], max98937_reg_common_map[i][1]);
 				break;

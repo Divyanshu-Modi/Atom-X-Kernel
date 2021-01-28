@@ -66,7 +66,7 @@
 /* Add for get headset state tsx 10/19 */
 struct switch_dev sdev;
 static int det_extn_cable_en;
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 /*Add for selfie stick not work  tangshouxing 9/6*/
 static void wcd_enable_mbhc_supply(struct wcd_mbhc *mbhc,
 			enum wcd_mbhc_plug_type plug_type);
@@ -628,10 +628,10 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 
 	pr_debug("%s: enter insertion %d hph_status %x\n",
 		 __func__, insertion, mbhc->hph_status);
-
+	
 	/* Add for get headset state tsx 10/19 */
 	switch_set_state(&sdev,insertion);
-
+	
 	if (!insertion) {
 		/* Report removal */
 		mbhc->hph_status &= ~jack_type;
@@ -909,7 +909,7 @@ static void wcd_mbhc_find_plug_and_report(struct wcd_mbhc *mbhc,
 						SND_JACK_HEADPHONE);
 			if (mbhc->current_plug == MBHC_PLUG_TYPE_HEADSET)
 				wcd_mbhc_report_plug(mbhc, 0, SND_JACK_HEADSET);
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 			/*
 			* calculate impedance detection
 			* If Zl and Zr > 20k then it is special accessory
@@ -953,7 +953,7 @@ static void wcd_mbhc_find_plug_and_report(struct wcd_mbhc *mbhc,
 		wcd_mbhc_report_plug(mbhc, 1, jack_type);
 	} else if (plug_type == MBHC_PLUG_TYPE_HIGH_HPH) {
 		if (mbhc->mbhc_cfg->detect_extn_cable) {
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 		 /*Add for selfie stick not work  tangshouxing 9/6*/
 		    if (mbhc->impedance_detect) {
 			mbhc->mbhc_cb->compute_impedance(mbhc,
@@ -994,7 +994,7 @@ static void wcd_mbhc_find_plug_and_report(struct wcd_mbhc *mbhc,
 						 3);
 			wcd_mbhc_hs_elec_irq(mbhc, WCD_MBHC_ELEC_HS_INS,
 					     true);
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 		 }
 #endif
 		} else {
@@ -1126,19 +1126,19 @@ static bool wcd_is_special_headset(struct wcd_mbhc *mbhc)
 					__func__);
 			break;
 		}
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 		/*Add for selfie stick not work  tangshouxing 9/6*/
 		if (mbhc->impedance_detect) {
 			mbhc->mbhc_cb->compute_impedance(mbhc,
 			&mbhc->zl, &mbhc->zr);
 			if ((mbhc->zl > 20000) && (mbhc->zr > 20000)) {
 				pr_debug("%s: Selfie stick detected\n",__func__);
-				break;
+				break;	
 			}else if ((mbhc->zl < 64) && (mbhc->zr > 20000)) {
 				ret = true;
 				mbhc->micbias_enable = true;
 				pr_debug("%s: Maybe special headset detected\n",__func__);
-				break;
+				break;	
 			}
 		}
 #endif
@@ -1348,6 +1348,7 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 			}
 	        	pr_debug("%s,btn_result=%d,hs_comp_res=%d,rc=%d\n",__func__,btn_result,hs_comp_res,rc);
 		   }
+
 	   }
 	 }
     WCD_MBHC_RSC_UNLOCK(mbhc);
@@ -1573,12 +1574,9 @@ correct_plug_type:
 	 * detect_plug-type or in above while loop, no need to report again
 	 */
 	if (!wrk_complete && ((plug_type == MBHC_PLUG_TYPE_HEADSET) ||
-	    (plug_type == MBHC_PLUG_TYPE_ANC_HEADPHONE))&& (mbhc->current_plug != MBHC_PLUG_TYPE_NONE)) {
+	    (plug_type == MBHC_PLUG_TYPE_ANC_HEADPHONE))&& (mbhc->current_plug != MBHC_PLUG_TYPE_NONE)) { 
 		pr_debug("%s: plug_type:0x%x already reported\n",
 			 __func__, mbhc->current_plug);
-#ifdef CONFIG_MACH_LONGCHEER
-		if (mbhc->current_plug != MBHC_PLUG_TYPE_NONE)
-#endif
 		goto enable_supply;
 	}
 
@@ -1612,7 +1610,7 @@ enable_supply:
 	WCD_MBHC_RSC_LOCK(mbhc);
 	if (mbhc->mbhc_cb->mbhc_micbias_control)
 		wcd_mbhc_update_fsm_source(mbhc, plug_type);
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
 	else{
 	      /*Add for selfie stick not work  tangshouxing 9/6*/
 	      if (mbhc->impedance_detect) {
@@ -2039,7 +2037,7 @@ static irqreturn_t wcd_mbhc_hs_rem_irq(int irq, void *data)
 			 * Maybe special headset,not allow report headphone
 			 */
 			pr_debug("%s: Maybe headset plug in,r1=%d,r2=%d\n", __func__,mbhc->zr,mbhc->zl);
-			if (((mbhc->zl<64)&&(mbhc->zr<64))||((mbhc->zl<64)&&(mbhc->zr>20000)))
+			if(((mbhc->zl<64)&&(mbhc->zr<64))||((mbhc->zl<64)&&(mbhc->zr>20000)))
 				goto exit;
 					else
 				goto report_unplug;
@@ -2357,18 +2355,6 @@ static int wcd_mbhc_initialise(struct wcd_mbhc *mbhc)
 	/* Add for get headset state tsx 10/19 */
 	sdev.name = "h2w";
 	if(switch_dev_register(&sdev)<0) 
-	    pr_err("%s,register headset switch fail\n",__func__);
-
-#ifdef CONFIG_MACH_LONGCHEER
-	/* Add for get headset state tsx 10/19 */
-	sdev.name = "h2w";
-	if (switch_dev_register(&sdev) < 0)
-		pr_err("%s,register headset switch fail\n", __func__);
-#endif
-
-	/* Add for get headset state tsx 10/19 */
-	sdev.name = "h2w";
-	if (switch_dev_register(&sdev)<0)
 	    pr_err("%s,register headset switch fail\n",__func__);
 
 	/* enable HS detection */
