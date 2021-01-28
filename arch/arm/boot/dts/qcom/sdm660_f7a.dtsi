@@ -1237,7 +1237,7 @@
 
 	cpubw: qcom,cpubw {
 		compatible = "qcom,devbw";
-		governor = "bw_hwmon";
+		governor = "bw_hwmon";		
 		qcom,src-dst-ports = <1 512>;
 		qcom,active-only;
 		qcom,bw-tbl =
@@ -1255,7 +1255,7 @@
 			<  5931 /* 1555 MHz */ >,
 			<  6881 /* 1804 MHz */ >;
 	};
-
+	
 	bwmon: qcom,cpu-bwmon {
 		compatible = "qcom,bimc-bwmon4";
 		reg = <0x01008000 0x300>, <0x01001000 0x200>;
