@@ -128,8 +128,8 @@ Android.bp
 #
 # sh and files
 #
-master.sh
-Upstream.sh
+Allrounder.sh
+upstream.sh
 /out
 /tulip
 /whyred
