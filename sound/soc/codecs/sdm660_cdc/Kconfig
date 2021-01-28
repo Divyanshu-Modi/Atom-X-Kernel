@@ -6,6 +6,7 @@ config SND_SOC_TAS2557
 	tristate "Texas Instruments TAS2557 SmartAmp(R)"
 
 config SOUND_CONTROL
+    default y if XIAOMI_MACH_LONGCHEER
 	bool "Sound Control for msm89xx"
 
 if SND_SOC_TAS2557

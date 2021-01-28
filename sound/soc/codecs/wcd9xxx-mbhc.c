@@ -400,10 +400,10 @@ static bool __wcd9xxx_switch_micbias(struct wcd9xxx_mbhc *mbhc,
 		    restartpolling)
 			wcd9xxx_pause_hs_polling(mbhc);
 
-		snd_soc_update_bits(codec, WCD9XXX_A_MAD_ANA_CTRL,
-				    0x10, 0x10);
-		snd_soc_update_bits(codec, WCD9XXX_A_LDO_H_MODE_1,
-				    0x20, 0x20);
+			snd_soc_update_bits(codec, WCD9XXX_A_MAD_ANA_CTRL,
+					    0x10, 0x10);
+			snd_soc_update_bits(codec, WCD9XXX_A_LDO_H_MODE_1,
+					    0x20, 0x20);
 		/* Reprogram thresholds */
 		if (d->micb_mv != VDDIO_MICBIAS_MV) {
 			cfilt_k_val =
@@ -3676,7 +3676,7 @@ irqreturn_t wcd9xxx_dce_handler(int irq, void *data)
 	    WCD9XXX_MBHC_CAL_BTN_DET_PTR(mbhc->mbhc_cfg->calibration);
 	short btnmeas[NBTNMEAS + 1];
 	short dce[NBTNMEAS + 1], sta;
-	s32 mv[NBTNMEAS + 1], mv_s[NBTNMEAS + 1];
+	s32 mv[NBTNMEAS + 1], mv_s[NBTNMEAS + 1];;
 	struct snd_soc_codec *codec = mbhc->codec;
 	struct wcd9xxx_core_resource *core_res = mbhc->resmgr->core_res;
 	int n_btn_meas = d->n_btn_meas;
