@@ -846,6 +846,7 @@ config INPUT_STMVL53L0
 
 config ELLIPTCLABS
 	tristate "CONFIG_ELLIPTCLABS fake proximity sensor support"
+	default y if MACH_XIAOMI_LAVENDER || MACH_XIAOMI_WAYNE
 	help
 	  Say Y here if you want to use  elliptclabs' algothrim
 	  for proximity sensor
