@@ -1016,7 +1016,7 @@ static long snd_rawmidi_kernel_read1(struct snd_rawmidi_substream *substream,
 			if (copy_to_user(userbuf + result,
 					 runtime->buffer + appl_ptr, count1))
 				mutex_unlock(&runtime->realloc_mutex);			
-				err = -EFAULT;
+			err = -EFAULT;
 			spin_lock_irqsave(&runtime->lock, flags);
 			if (err)
 				goto out;
