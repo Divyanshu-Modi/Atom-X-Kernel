@@ -1204,9 +1204,11 @@ emul:
 			bit0 = get_fpr32(fpr, 0) & 0x1;
 			switch (MIPSInst_RS(ir)) {
 			case bc1eqz_op:
+				MIPS_FPU_EMU_INC_STATS(bc1eqz);
 				cond = bit0 == 0;
 				break;
 			case bc1nez_op:
+				MIPS_FPU_EMU_INC_STATS(bc1nez);
 				cond = bit0 != 0;
 				break;
 			}

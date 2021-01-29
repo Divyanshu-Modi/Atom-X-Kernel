@@ -15,7 +15,6 @@ struct timespec;
 struct compat_timespec;
 
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-
 /*
  * For CONFIG_THREAD_INFO_IN_TASK kernels we need <asm/current.h> for the
  * definition of current, but for !CONFIG_THREAD_INFO_IN_TASK kernels,
