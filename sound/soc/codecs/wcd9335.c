@@ -14385,7 +14385,7 @@ static int tasha_probe(struct platform_device *pdev)
 	}
 	/* Update codec register default values */
 	tasha_update_reg_defaults(tasha);
-	queue_delayed_work(system_power_efficient_wq, &tasha->tasha_add_child_devices_work);
+	schedule_work(&tasha->tasha_add_child_devices_work);
 	tasha_get_codec_ver(tasha);
 
 	dev_info(&pdev->dev, "%s: Tasha driver probe done\n", __func__);
