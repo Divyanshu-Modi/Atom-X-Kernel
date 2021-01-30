@@ -39,12 +39,11 @@ static void mmc_pwrseq_simple_set_gpios_value(struct mmc_pwrseq_simple *pwrseq,
 		if (!values)
 			return;
 
-		for (i = 0; i < nvalues; i++
+		for (i = 0; i < nvalues; i++)
 			values[i] = value;
 
 		gpiod_set_array_value_cansleep(nvalues, reset_gpios->desc, values);
 		kfree(values);
-			reset_gpios->ndescs, reset_gpios->desc, values);
 	}
 }
 
