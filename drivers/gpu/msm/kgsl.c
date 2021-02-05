@@ -266,7 +266,7 @@ kgsl_mem_entry_create(void)
 		/* put this ref in the caller functions after init */
 		kref_get(&entry->refcount);
 	}
-	atomic_set(&entry->map_count, 0);	
+	atomic_set(&entry->map_count, 0);
 	return entry;
 }
 #ifdef CONFIG_DMA_SHARED_BUFFER
@@ -924,7 +924,7 @@ static struct kgsl_process_private *kgsl_process_private_new(
 			 * each process struct to avoid overflowing the
 			 * reference counter which can lead to use-after-free.
 			 */
-			put_pid(cur_pid);			
+			put_pid(cur_pid);
 			return private;
 		}
 	}
@@ -4254,8 +4254,8 @@ static void kgsl_gpumem_vm_open(struct vm_area_struct *vma)
 
 	if (kgsl_mem_entry_get(entry) == 0)
 		vma->vm_private_data = NULL;
-		
-	atomic_inc(&entry->map_count);		
+
+	atomic_inc(&entry->map_count);
 }
 
 static int
@@ -4373,8 +4373,8 @@ static unsigned long _gpu_set_svm_region(struct kgsl_process_private *private,
 	}
 
 	entry->memdesc.gpuaddr = (uint64_t) addr;
-	spin_unlock(&entry->memdesc.lock);	
-	
+	spin_unlock(&entry->memdesc.lock);
+
 	entry->memdesc.pagetable = private->pagetable;
 
 	ret = kgsl_mmu_map(private->pagetable, &entry->memdesc);
@@ -4443,7 +4443,6 @@ static unsigned long _search_range(struct kgsl_process_private *private,
 		result = _gpu_set_svm_region(private, entry, cpu, len);
 		if (!IS_ERR_VALUE(result))
 			break;
-
 		/*
 		 * _gpu_set_svm_region will return -EBUSY if we tried to set up
 		 * SVM on an object that already has a GPU address. If

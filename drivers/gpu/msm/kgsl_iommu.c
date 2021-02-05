@@ -269,7 +269,7 @@ static void kgsl_setup_qdss_desc(struct kgsl_device *device)
 		KGSL_CORE_ERR("Failed to read gpu qdss dts entry\n");
 		return;
 	}
-	
+
 	spin_lock_init(&gpu_qdss_desc.lock);
 	gpu_qdss_desc.flags = 0;
 	gpu_qdss_desc.priv = 0;
