@@ -191,7 +191,6 @@ struct workqueue_struct *glink_pkt_wq;
 static int num_glink_pkt_ports;
 
 #define GLINK_PKT_IPC_LOG_PAGE_CNT 2
-static void *glink_pkt_ilctxt;
 
 enum {
 	GLINK_PKT_STATUS = 1U << 0,

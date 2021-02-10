@@ -35,8 +35,6 @@
 	pr_err(x); \
 } while (0)
 
-static void *glink_ssr_log_ctx;
-
 /* Global restart counter */
 static uint32_t sequence_number;
 
