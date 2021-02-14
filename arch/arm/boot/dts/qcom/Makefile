@@ -219,7 +219,7 @@ sdm660-mtp-overlay.dtbo-base := sdm660-mtp_f7a.dtb
 else
 dtb-$(CONFIG_MACH_XIAOMI_LAVENDER) := sdm660-mtp_f7a.dtb
 dtb-$(CONFIG_MACH_XIAOMI_TULIP) := sdm636-mtp_e7t.dtb
-dtb-$(CONFIG_MACH_XIAOMI_WAYNE) := sdm660-mtp_wayne.dtb sdm660-mtp_jasmine.dtb
+dtb-$(CONFIG_MACH_XIAOMI_JASWAY) := sdm660-mtp_wayne.dtb sdm660-mtp_jasmine.dtb
 dtb-$(CONFIG_MACH_XIAOMI_WHYRED) := sdm636-mtp_e7s.dtb
 endif
 else

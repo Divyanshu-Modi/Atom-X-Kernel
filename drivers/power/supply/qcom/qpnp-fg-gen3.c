@@ -412,7 +412,7 @@ static bool fg_sram_dump;
  int hwc_check_india;
  int hwc_check_global;
 extern bool is_poweroff_charge;
-#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined (CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined (CONFIG_MACH_XIAOMI_JASWAY)
 extern int rradc_die;
 #endif
 /* All getters HERE */
@@ -831,7 +831,7 @@ static int fg_get_msoc_raw(struct fg_chip *chip, int *val)
 
 #define FULL_CAPACITY	100
 #define FULL_SOC_RAW	255
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_JASWAY)
 #define FULL_SOC_REPORT_THR 250
 #endif
 static int fg_get_msoc(struct fg_chip *chip, int *msoc)
@@ -841,7 +841,7 @@ static int fg_get_msoc(struct fg_chip *chip, int *msoc)
 	rc = fg_get_msoc_raw(chip, msoc);
 	if (rc < 0)
 		return rc;
-#if defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_JASWAY) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 	/*
        * To have better endpoints for 0 and 100, it is good to tune the
        * calculation discarding values 0 and 255 while rounding off. Rest
@@ -872,7 +872,7 @@ static int fg_get_msoc(struct fg_chip *chip, int *msoc)
 	 */
 	if (*msoc == FULL_SOC_RAW)
 		*msoc = 100;
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_JASWAY)
 	/*
 	 * if raw msoc is >= 250 (now actual msoc is 98%), we report 1
 	 * more percent to optimze recharge soc to 100% to improve user
@@ -2874,7 +2874,7 @@ static void status_change_work(struct work_struct *work)
 			struct fg_chip, status_change_work);
 	union power_supply_propval prop = {0, };
 	int rc, batt_temp;
-#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_JASWAY)
 	int msoc = 0;
 #endif
 
@@ -2910,7 +2910,7 @@ static void status_change_work(struct work_struct *work)
 	chip->charge_done = prop.intval;
 	fg_cycle_counter_update(chip);
 	fg_cap_learning_update(chip);	
-#if defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#if defined(CONFIG_MACH_XIAOMI_JASWAY) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 	if (chip->charge_done && !chip->report_full) {
 					 chip->report_full = true;
 			 } else if (!chip->charge_done && chip->report_full) {
@@ -4442,7 +4442,7 @@ static int fg_hw_init(struct fg_chip *chip)
 	if (chip->dt.delta_soc_thr > 0 && chip->dt.delta_soc_thr < 100) {
 		fg_encode(chip->sp, FG_SRAM_DELTA_MSOC_THR,
 			chip->dt.delta_soc_thr, buf);
-		#if defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+		#if defined(CONFIG_MACH_XIAOMI_JASWAY) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 		buf[0] = 0x8;
 		#endif
 		rc = fg_sram_write(chip,

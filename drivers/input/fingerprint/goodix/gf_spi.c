@@ -768,7 +768,7 @@ static int gf_probe(struct platform_device *pdev)
 	int status = -EINVAL;
 	unsigned long minor;
 	int i;
-#if defined CONFIG_MACH_XIAOMI_LAVENDER || defined CONFIG_MACH_XIAOMI_WAYNE
+#if defined CONFIG_MACH_XIAOMI_LAVENDER || defined CONFIG_MACH_XIAOMI_JASWAY
 	struct regulator *vreg;
 #endif
 
@@ -787,7 +787,7 @@ static int gf_probe(struct platform_device *pdev)
 	gf_dev->wait_finger_down = false;
 	INIT_WORK(&gf_dev->work, notification_work);
 
-#if defined CONFIG_MACH_XIAOMI_LAVENDER || defined CONFIG_MACH_XIAOMI_WAYNE
+#if defined CONFIG_MACH_XIAOMI_LAVENDER || defined CONFIG_MACH_XIAOMI_JASWAY
 	vreg = regulator_get(&gf_dev->spi->dev,"vcc_ana");
 	if (!vreg) {
 		dev_err(&gf_dev->spi->dev, "Unable to get vdd_ana\n");

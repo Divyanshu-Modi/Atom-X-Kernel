@@ -28,7 +28,7 @@ enum {
 	RS_REASON_EVENT_KPANIC,
 	RS_REASON_EVENT_NORMAL,
 	RS_REASON_EVENT_OTHER,
-#ifdef CONFIG_MACH_XIAOMI_WAYNE	
+#ifdef CONFIG_MACH_XIAOMI_JASWAY	
 	RS_REASON_EVENT_DVE,
 	RS_REASON_EVENT_DVL,
 	RS_REASON_EVENT_DVK,
@@ -88,10 +88,6 @@ typedef enum {
 
 void set_poweroff_reason(int poweroff_reason);
 unsigned int get_powerup_reason(void);
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
-int is_abnormal_powerup(void);
-#else
 bool is_abnormal_powerup(void);
-#endif
 void set_powerup_reason(unsigned int powerup_reason);
 #endif

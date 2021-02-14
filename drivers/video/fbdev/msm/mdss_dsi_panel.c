@@ -44,20 +44,15 @@ char g_lcd_id[128];
 struct mdss_dsi_ctrl_pdata *ctrl_pdata_whitepoint;
 EXPORT_SYMBOL(g_lcd_id);
 
+extern bool enable_gesture_mode;
 #ifdef CONFIG_MACH_XIAOMI_LAVENDER
 #define TP_RESET_GPIO 66
-extern bool enable_gesture_mode;
 extern bool synaptics_gesture_enable_flag;
 #endif
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
-extern bool enable_gesture_mode;
-#endif
 #ifdef CONFIG_MACH_XIAOMI_TULIP
-extern bool enable_gesture_mode;
 extern bool focal_gesture_mode;
 #endif
 #ifdef CONFIG_MACH_XIAOMI_WHYRED
-extern bool enable_gesture_mode;
 extern bool synaptics_gesture_func_on;
 #endif
 
@@ -605,7 +600,7 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 keep_lcd_and_tp_reset:
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
 		printk(KERN_ERR "[lcd][tp][gesture] keep lcd_reset and tp_reset gpio to high.\n");
-#elif defined(CONFIG_MACH_XIAOMI_WAYNE)
+#elif defined(CONFIG_MACH_XIAOMI_JASWAY)
 		if(enable_gesture_mode)
 			printk("gesture mode keep reset gpio to high.\n");
 #elif defined(CONFIG_MACH_XIAOMI_WHYRED)

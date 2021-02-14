@@ -82,7 +82,7 @@ static const char *reset_reasons[RS_REASON_MAX] = {
 	[RS_REASON_EVENT_KPANIC]        = "kpanic",
 	[RS_REASON_EVENT_NORMAL]        = "reboot",
 	[RS_REASON_EVENT_OTHER]         = "other",
-#ifdef CONFIG_MACH_XIAOMI_WAYNE	
+#ifdef CONFIG_MACH_XIAOMI_JASWAY	
 	[RS_REASON_EVENT_DVE]		= "dm_verity_enforcing",
 	[RS_REASON_EVENT_DVL]		= "dm_verity_logging",
 	[RS_REASON_EVENT_DVK]		= "dm_verity_keysclear",
@@ -139,7 +139,7 @@ static ssize_t powerup_reason_show(struct kobject *kobj,
 		reset_reason_index = find_first_bit((unsigned long *)&reset_reason,
 				sizeof(reset_reason)*BITS_PER_BYTE);
 		if (reset_reason_index < RS_REASON_MAX && reset_reason_index >= 0) {
-#ifdef CONFIG_MACH_XIAOMI_WAYNE	
+#ifdef CONFIG_MACH_XIAOMI_JASWAY	
 			if (reset_reason_index == RS_REASON_EVENT_FASTBOOT)
 				reset_reason_index = RS_REASON_EVENT_NORMAL;
 #endif				

@@ -39,10 +39,10 @@ menu "Xiaomi board selection"
 		help
 		  Support for Xiaomi Redmi Note 5 (Pro)
 
-	config MACH_XIAOMI_WAYNE
-		bool "Xiaomi wayne board"
+	config MACH_XIAOMI_JASWAY
+		bool "Xiaomi wayne and jasmine board"
 		select MACH_LONGCHEER
 		help
-		  Support for Xiaomi MI 6X variant
+		  Support for Xiaomi MI 6X and MI A2 variant
 
 endmenu

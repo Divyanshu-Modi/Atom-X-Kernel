@@ -116,7 +116,7 @@ static struct step_chg_cfg step_chg_config = {
  * range data must be in increasing ranges and shouldn't overlap.
  * Gaps are okay
  */
-#if defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_JASWAY)
 static struct jeita_fcc_cfg jeita_fcc_config = {
 	.psy_prop	= POWER_SUPPLY_PROP_TEMP,
 	.prop_name	= "BATT_TEMP",
@@ -307,7 +307,7 @@ reschedule:
 	return (STEP_CHG_HYSTERISIS_DELAY_US - elapsed_us + 1000);
 }
 
-#if defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_JASWAY)
 extern union power_supply_propval lct_therm_lvl_reserved;
 extern int LctIsInVideo;
 extern int hwc_check_india;
@@ -321,7 +321,7 @@ static int handle_jeita(struct step_chg_info *chip)
 	u64 elapsed_us;
 	int temp = 1;
 
-#if defined(CONFIG_MACH_XIAOMI_WAYNE)
+#if defined(CONFIG_MACH_XIAOMI_JASWAY)
 	if (hwc_check_india) {
 		pr_err("lct video LctIsInVideo=%d, lct_therm_lvl_reserved=%d\n",
 					LctIsInVideo, lct_therm_lvl_reserved.intval);

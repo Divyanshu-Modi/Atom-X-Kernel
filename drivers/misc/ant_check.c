@@ -87,7 +87,7 @@ static ssize_t ant_state_show(struct class *class,
 	pr_err("Macle ant_state_show state = %d, custome_state=%d\n", global_ant_info->ant_check_state, state);
 	return sprintf(buf, "%d\n", state);
 }
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 static ssize_t ant_state_store(struct class *class,
 				struct class_attribute *attr, 
 					const char *buf,size_t size)
@@ -110,7 +110,7 @@ static ssize_t ant_state_store(struct class *class,
 }
 #endif
 
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 static struct class_attribute ant_state =
 	__ATTR(ant_state, S_IRUGO, ant_state_show, ant_state_store);
 #else
@@ -200,7 +200,7 @@ static int ant_probe(struct platform_device *pdev)
 
 		ant_info->irq = gpio_to_irq(ant_info->irq_gpio);
 		pr_err("Macle irq = %d\n", ant_info->irq);
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 		rc = request_irq(ant_info->irq,
 #else		
 		rc = devm_request_threaded_irq(&pdev->dev, ant_info->irq, NULL,
@@ -211,7 +211,7 @@ static int ant_probe(struct platform_device *pdev)
 			pr_err("ant_probe: request_irq fail rc=%d\n", rc);
 			goto err_irq;
 		}
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 		printk("D2S CN disable ant irq");
 		disable_irq(ant_info->irq);
 #else
@@ -229,7 +229,7 @@ static int ant_probe(struct platform_device *pdev)
 	   global_ant_info = ant_info;
        return 0;
 err_irq:
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 	disable_irq(ant_info->irq);
 #else
 	disable_irq_wake(ant_info->irq);
@@ -255,7 +255,7 @@ static int ant_remove(struct platform_device *pdev)
 	class_destroy(ant->ant_sys_class);
 #endif
 	pr_err("ant_remove\n");
-#ifdef CONFIG_MACH_XIAOMI_WAYNE
+#ifdef CONFIG_MACH_XIAOMI_JASWAY
 	disable_irq(ant->irq);
 #else
 	disable_irq_wake(ant->irq);
