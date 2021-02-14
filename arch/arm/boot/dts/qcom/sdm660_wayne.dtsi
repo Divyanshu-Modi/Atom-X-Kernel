@@ -308,17 +308,17 @@
 					dev = "/dev/block/platform/soc/c0c4000.sdhci/by-name/vendor";
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
-					fsmgr_flags = "wait,verify";
+					fsmgr_flags = "wait";
 					status = "ok";
 				};
-				system {
-					compatible = "android,system";
-					dev = "/dev/block/platform/soc/c0c4000.sdhci/by-name/system";
-					type = "ext4";
-					mnt_flags = "ro,barrier=1,discard";
-					fsmgr_flags = "wait,verify";
-					status = "ok";
-				};
+		    	system {
+			    	compatible = "android,system";
+			    	dev = "/dev/block/platform/soc/c0c4000.sdhci/by-name/system";
+			    	type = "ext4";
+				    mnt_flags = "ro,barrier=1";
+		     		fsmgr_flags = "wait";
+			    	status = "ok";
+			};
 			};
 		};
 	};
@@ -421,13 +421,13 @@
 		       reg = <0 0x9f800000 0 0x00001000>;
 		       label = "dfps_data_mem";
 		};
-		
+
 		ramoops_mem: ramoops_region@b0000000 {
 			compatible = "removed-dma-pool";
 			no-map;
 			reg = <0 0xA0000000 0 0x00400000>;
 		};
-    };		
+	};
 
 	bluetooth: bt_wcn3990 {
 		compatible = "qca,wcn3990";
@@ -916,7 +916,7 @@
 		qcom,low-hyst-temp = <10>;
 		qcom,high-hyst-temp = <5>;
 		qcom,polling-interval = <100>;
-		
+
 		ea0: ea0 {
 			sensor = <&sensor_information1>;
 		};
@@ -1166,7 +1166,7 @@
 			<  5931 /* 1555 MHz */ >,
 			<  6881 /* 1804 MHz */ >;
 	};
-	
+
 	bwmon: qcom,cpu-bwmon {
 		compatible = "qcom,bimc-bwmon4";
 		reg = <0x01008000 0x300>, <0x01001000 0x200>;
@@ -1428,6 +1428,7 @@
 			< 1958400 >,
 			< 2150400 >,
 			< 2208000 >,
+			< 2457600 >;
 	};
 
 	sdhc_1: sdhci@c0c4000 {
@@ -2550,7 +2551,7 @@
 
 		qcom,coresight-jtagmm-cpu = <&CPU7>;
 	};
-	
+
 	ramoops {
 		compatible = "ramoops";
 		memory-region = <&ramoops_mem>;

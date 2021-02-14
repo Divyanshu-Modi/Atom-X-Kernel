@@ -14,7 +14,7 @@
 
 /dts-v1/;
 
-#include "sdm660_jasway.dtsi"
+#include "sdm660_wayne.dtsi"
 #include "sdm660-mtp_jasway.dtsi"
 //#include "sdm660-external-codec.dtsi"
 #include "sdm660-internal-codec.dtsi"
