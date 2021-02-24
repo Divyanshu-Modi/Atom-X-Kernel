@@ -119,6 +119,7 @@ comment "CPU frequency scaling drivers"
 config DSBOOST
 	tristate "Dynamic SchedTune Boosting on events"
 	depends on DYNAMIC_STUNE_BOOST
+	depends on !CPU_BOOST	
 	help
 	  This driver attempts to improve responsiveness on mobile devices
 	  with Dynamic SchedTune Boosting support. Boosts are applied on
