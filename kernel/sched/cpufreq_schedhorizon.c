@@ -31,8 +31,11 @@ unsigned long boosted_cpu_util(int cpu);
 #define UP_RATE_LIMIT_US			(500)
 #define DOWN_RATE_LIMIT_US			(20000)
 
-static unsigned int default_efficient_freq[] = {0};
-static unsigned int default_up_delay[] = {0};
+static unsigned int default_efficient_freq_lp[] = {0};
+static unsigned int default_up_delay_lp[] = {0};
+
+static unsigned int default_efficient_freq_hp[] = {0};
+static unsigned int default_up_delay_hp[] = {0};
 
 struct sugov_tunables {
 	struct gov_attr_set attr_set;
@@ -640,7 +643,8 @@ static ssize_t efficient_freq_store(struct gov_attr_set *attr_set,
 	    tunables->efficient_freq = new_efficient_freq;
 	    tunables->nefficient_freq = new_num;
 	    tunables->current_step = 0;
-	    if (old != default_efficient_freq)
+	    if (old != default_efficient_freq_lp
+	     && old != default_efficient_freq_hp)
 	        kfree(old);
 	}
 
@@ -661,7 +665,8 @@ static ssize_t up_delay_store(struct gov_attr_set *attr_set,
 	    tunables->up_delay = new_up_delay;
 	    tunables->nup_delay = new_num;
 	    tunables->current_step = 0;
-	    if (old != default_up_delay)
+	    if (old != default_up_delay_lp
+	     && old != default_up_delay_hp)
 	        kfree(old);
 	}
 
@@ -794,11 +799,17 @@ static struct sugov_tunables *sugov_tunables_alloc(struct sugov_policy *sg_polic
 			global_tunables = tunables;
 	}
 
-	tunables->efficient_freq = default_efficient_freq;
-	tunables->nefficient_freq = ARRAY_SIZE(default_efficient_freq);
-	tunables->up_delay = default_up_delay;
-	tunables->nup_delay = ARRAY_SIZE(default_up_delay);
-
+	if (cpumask_test_cpu(sg_policy->policy->cpu, cpu_lp_mask)) {
+	tunables->efficient_freq = default_efficient_freq_lp;
+	tunables->nefficient_freq = ARRAY_SIZE(default_efficient_freq_lp);
+	tunables->up_delay = default_up_delay_lp;
+	tunables->nup_delay = ARRAY_SIZE(default_up_delay_lp);
+	} else {
+	tunables->efficient_freq = default_efficient_freq_hp;
+	tunables->nefficient_freq = ARRAY_SIZE(default_efficient_freq_hp);
+	tunables->up_delay = default_up_delay_hp;
+	tunables->nup_delay = ARRAY_SIZE(default_up_delay_hp);
+	}
 	return tunables;
 }
 
