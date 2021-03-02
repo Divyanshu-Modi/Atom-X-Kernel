@@ -1,5 +1,5 @@
 /* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -67,9 +67,10 @@
 				qcom,pon-type = <3>;
 				qcom,pull-up = <1>;
 				qcom,support-reset = <1>;
-				qcom,s1-timer = <4480>;
-				qcom,s2-timer = <1000>;
+				qcom,s1-timer = <3072>;
+				qcom,s2-timer = <2000>;
 				qcom,s2-type = <1>;
+				qcom,use-bark;
 			};
 		};
 
@@ -589,13 +590,14 @@
 			qcom,fg-cutoff-voltage = <3400>;
 			qcom,fg-chg-term-current = <200>;
 			qcom,fg-sys-term-current = <300>;
-			qcom,fg-recharge-voltage = <4320>;
+			qcom,fg-recharge-voltage = <4350>;
 			qcom,fg-esr-timer-awake = <96 96>;
 			qcom,fg-esr-timer-asleep = <256 256>;
 			qcom,fg-esr-timer-charging = <0 96>;
 			qcom,cycle-counter-en;
 			qcom,fg-jeita-thresholds = <0 15 45 60>;
 			qcom,fg-jeita-hyst-temp = <0>;
+			qcom,battery-thermal-coefficients = [d2 50 ff];			
 			status = "okay";
 
 			qcom,fg-batt-soc@4000 {

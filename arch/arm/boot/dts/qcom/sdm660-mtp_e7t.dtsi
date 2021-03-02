@@ -150,21 +150,24 @@
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
 	qcom,mdss-dsi-bl-min-level = <1>;
 	qcom,mdss-dsi-bl-max-level = <4095>;
+	qcom,mdss-brightness-max-level = <4095>;	
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 };
 
 &dsi_nt36672a_e7t_shenchao_fhdplus_video {
-        qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
-        qcom,mdss-dsi-bl-min-level = <1>;
-        qcom,mdss-dsi-bl-max-level = <4095>;
-        qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
+    qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
+    qcom,mdss-dsi-bl-min-level = <1>;
+    qcom,mdss-dsi-bl-max-level = <4095>;
+    qcom,mdss-brightness-max-level = <4095>;        
+    qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 };
 
 &dsi_ft8719_e7t_boe_fhdplus_video {
-        qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
-        qcom,mdss-dsi-bl-min-level = <1>;
-        qcom,mdss-dsi-bl-max-level = <4095>;
-        qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
+    qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
+    qcom,mdss-dsi-bl-min-level = <1>;
+    qcom,mdss-dsi-bl-max-level = <4095>;
+	qcom,mdss-brightness-max-level = <4095>;    
+    qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 };
 
 &dsi_td4320_boe_fhdplus_video {

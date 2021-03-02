@@ -1,5 +1,5 @@
 /* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -67,9 +67,10 @@
 				qcom,pon-type = <3>;
 				qcom,pull-up = <1>;
 				qcom,support-reset = <1>;
-				qcom,s1-timer = <4480>;
-				qcom,s2-timer = <1000>;
+				qcom,s1-timer = <3072>;
+				qcom,s2-timer = <2000>;
 				qcom,s2-type = <1>;
+				qcom,use-bark;
 			};
 		};
 
@@ -172,7 +173,6 @@
 		pm660_coincell: qcom,coincell@2800 {
 			compatible = "qcom,qpnp-coincell";
 			reg = <0x2800 0x100>;
-			qcom,charge-enable = <0>;
 		};
 
 		pm660_rtc: qcom,pm660_rtc {
@@ -587,13 +587,14 @@
 			qcom,fg-cutoff-voltage = <3400>;
 			qcom,fg-chg-term-current = <200>;
 			qcom,fg-sys-term-current = <300>;
-			qcom,fg-recharge-voltage = <4340>;
+			qcom,fg-recharge-voltage = <4350>;
 			qcom,fg-esr-timer-awake = <96 96>;
 			qcom,fg-esr-timer-asleep = <256 256>;
 			qcom,fg-esr-timer-charging = <0 96>;
 			qcom,cycle-counter-en;
 			qcom,fg-jeita-thresholds = <0 15 45 60>;
 			qcom,fg-jeita-hyst-temp = <0>;
+			qcom,battery-thermal-coefficients = [d2 50 ff];			
 			status = "okay";
 
 			qcom,fg-batt-soc@4000 {
@@ -672,7 +673,7 @@
 			compatible = "qcom,qpnp-haptic";
 			reg = <0xc000 0x100>;
 			interrupts = <0x1 0xc0 0x0 IRQ_TYPE_EDGE_BOTH>,
-				     <0x1 0xc0 0x1 IRQ_TYPE_EDGE_BOTH>;
+					<0x1 0xc0 0x1 IRQ_TYPE_EDGE_BOTH>;
 			interrupt-names = "sc-irq", "play-irq";
 			qcom,pmic-revid = <&pm660_revid>;
 			qcom,pmic-misc = <&pm660_misc>;
@@ -695,7 +696,7 @@
 			qcom,lra-high-z = "opt1";
 			qcom,lra-auto-res-mode = "none";
 			qcom,lra-calibrate-at-eop = <0>;
-			qcom,lra-hw-auto-resonance;
+			qcom,correct-lra-drive-freq;
 		};
 	};
 };

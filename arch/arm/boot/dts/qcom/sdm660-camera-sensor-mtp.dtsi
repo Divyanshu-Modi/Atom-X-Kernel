@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -143,7 +143,7 @@
 			"sensor_cam_mclk","sensor_gpio_reset";
 		qcom,cam-power-seq-cfg-val = <0 1 1 1 1 24000000 1>;
 		qcom,cam-power-seq-delay =	  <1 1 1 1 1 1 10>;
-
+	
 		qcom,sensor-position = <0>;
 		qcom,sensor-mode = <0>;
 		qcom,cci-master = <0>;
@@ -160,7 +160,7 @@
 		compatible = "qcom,eeprom";
 		qcom,i2c-freq-mode = <1>;
 		qcom,slave-addr = <0xA0>;
-		qcom,num-blocks = <1>;
+		qcom,num-blocks = <1>;	
 
 		qcom,page0 = <0 0x0000 2 0x00 1 0>;
 		qcom,poll0 = <0 0x0 2 0x0 1 0>;
@@ -178,7 +178,7 @@
 		pinctrl-0 = <&cam_sensor_mclk3_active
 				 &cam_sensor_front_iris_active>;
 		pinctrl-1 = <&cam_sensor_mclk3_suspend
-				 &cam_sensor_front_iris_suspend>;
+				 &cam_sensor_front_iris_suspend>;				 
 		gpios = <&tlmm 35 0>,
 			<&tlmm 52 0>,
 			<&tlmm 50 0>;
@@ -193,11 +193,11 @@
 			"sensor_clk","sensor_gpio";
 		qcom,cam-power-seq-val = "sensor_gpio_reset","cam_vana", "cam_vdig","cam_vio","sensor_gpio_vaf",
 			"sensor_cam_mclk","sensor_gpio_reset";
-
+		
 		qcom,cam-power-seq-cfg-val = <0 1 1 1 1 24000000 1>;
 		qcom,cam-power-seq-delay =	  <1 1 1 1 1 1 10>;
-
-
+		
+	
 		qcom,sensor-position = <0>;
 		qcom,sensor-mode = <0>;
 		qcom,cci-master = <1>;
@@ -206,7 +206,7 @@
 			<&clock_mmss MMSS_CAMSS_MCLK3_CLK>;
 		clock-names = "cam_src_clk", "cam_clk";
 		qcom,clock-rates = <24000000 0>;
-	};
+	};	
 
 	eeprom2: qcom,eeprom@2 {
 		cell-index = <2>;
@@ -214,7 +214,7 @@
 		compatible = "qcom,eeprom";
 		qcom,i2c-freq-mode = <1>;
 		qcom,slave-addr = <0xA2>;
-		qcom,num-blocks = <1>;
+		qcom,num-blocks = <1>;	
 
 		qcom,page0 = <0 0x0000 2 0x00 1 0>;
 		qcom,poll0 = <0 0x0 2 0x0 1 0>;
@@ -246,7 +246,7 @@
 			"sensor_cam_mclk","sensor_gpio_reset";
 		qcom,cam-power-seq-cfg-val = <0 1 1 1 24000000 1>;
 		qcom,cam-power-seq-delay =	  <1 1 1 1 1 10>;
-
+	
 		qcom,sensor-position = <0>;
 		qcom,sensor-mode = <0>;
 		qcom,cci-master = <1>;
@@ -255,7 +255,7 @@
 			<&clock_mmss MMSS_CAMSS_MCLK1_CLK>;
 		clock-names = "cam_src_clk", "cam_clk";
 		qcom,clock-rates = <24000000 0>;
-	};
+	};	
 
 	qcom,camera@0 {
 		cell-index = <0>;
@@ -299,6 +299,7 @@
 		clock-names = "cam_src_clk", "cam_clk";
 		qcom,clock-rates = <24000000 0>;
 	};
+//imx486
 	qcom,camera@1 {
 		cell-index = <1>;
 		compatible = "qcom,camera";
@@ -308,6 +309,8 @@
 		qcom,mount-angle = <90>;
 		qcom,led-flash-src = <&led_flash0>;
 		qcom,actuator-src = <&actuator1>;
+		//qcom,ois-src = <&ois0>;
+		//qcom,eeprom-src = <&eeprom1 &eeprom4>;
 		qcom,eeprom-src = <&eeprom1>;
 		cam_vio-supply = <&pm660_l11>;
 		cam_vana-supply = <&cam_avdd_gpio_regulator>;
@@ -321,7 +324,7 @@
 		pinctrl-0 = <&cam_sensor_mclk3_active
 				 &cam_sensor_front_iris_active>;
 		pinctrl-1 = <&cam_sensor_mclk3_suspend
-				 &cam_sensor_front_iris_suspend>;
+				 &cam_sensor_front_iris_suspend>;				 
 		gpios = <&tlmm 35 0>,
 			<&tlmm 52 0>,
 			<&tlmm 50 0>;

@@ -1,5 +1,5 @@
 /* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -26,9 +26,6 @@
 	qcom,pmic-id = <0x0001001b 0x0101011a 0x0 0x0>,
 			<0x0001001b 0x0201011a 0x0 0x0>,
 			<0x0001001b 0x0102001a 0x0 0x0>;
-
-       
-
 };
 
 &tavil_snd {
@@ -79,7 +76,7 @@
 		qcom,src-sel = <2>; /* Special Function 1 */
 		qcom,invert = <0>; /* Invert */
 		qcom,master-en = <1>; /* Enable GPIO */
-	        status = "ok";
+	    status = "ok";
 	};
 };
 
@@ -122,21 +119,10 @@
 
 	dbmdx {
 		compatible = "dspg,dbmdx-codec";
-#if 0//def CUSTOMER_PLATFORM
-		status = "okay";
-		qcom,use-pinctrl;
-		pinctrl-names = "dbmdx_default", "dbmdx_sleep";
-		pinctrl-0 = <&dbmdx_active>;
-		pinctrl-1 = <&dbmdx_sleep>;
-		sv-gpio = <&tlmm 42 0>; /* VOICE_INT */
-		wakeup-gpio = <&tlmm 132 0>; /* VOICE_WAKE */
-		reset-gpio = <&pm8004_mpps 4 0>; /* VOICE_RST */
-#else
 		status = "okay";
 		reset-gpio = <&tlmm 63 0>; /* sensor header J53 connector */
 		sv-gpio = <&tlmm 65 0>;
 		wakeup-gpio = <&tlmm 0 0>;
-#endif
 		auto_buffering = <1>;
 		multi-interface-support = <1>;
 		cd-interfaces = <&dbmd4_spi >;
@@ -161,11 +147,6 @@
 			     0x0000 3000000 0 4800000>;
 		va-mic-config = <0xf041 0x1044 0x0008>;
 		va-mic-mode = <4>;
-/*
-		digital_mic_digital_gain = <0x14>;
-		analog_mic_analog_gain = <0x3>;
-		analog_mic_digital_gain = <0x14>;
-*/
 		master-clk-rate = <32768>;
 		/* constant-clk-rate = <32768>; */
 		firmware_id = <0xdbd4>;

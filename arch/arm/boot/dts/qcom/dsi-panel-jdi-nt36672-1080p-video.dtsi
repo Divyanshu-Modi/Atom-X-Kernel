@@ -1,5 +1,5 @@
 /* Copyright (c) 2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -72,14 +72,6 @@
             05 01 00 00 14 00 02 28 00
             05 01 00 00 78 00 02 10 00
         ];
-		qcom,mdss-dsi-ce-on-command = [
-		];
-		qcom,mdss-dsi-ce-off-command = [
-		];
-		qcom,mdss-dsi-srgb-on-command = [
- 		];
-		qcom,mdss-dsi-srgb-off-command = [
-		];
 		qcom,mdss-dsi-cabc-on-command = [
             15 01 00 00 00 00 02 FF 23
             15 00 00 00 00 00 02 07 20
@@ -109,71 +101,16 @@
             15 01 00 00 00 00 02 FF 10
 			15 01 00 00 00 00 02 55 00
 		];
-		qcom,mdss-dsi-gamma0-command = [
-		];
-		qcom,mdss-dsi-gamma1-command = [
-		];
-		qcom,mdss-dsi-gamma2-command = [
-		];
-		qcom,mdss-dsi-gamma3-command = [
-		];
-		qcom,mdss-dsi-gamma4-command = [
-		];
-		qcom,mdss-dsi-gamma5-command = [
-		];
-		qcom,mdss-dsi-gamma6-command = [
-		];
-		qcom,mdss-dsi-gamma7-command = [
-		];
-		qcom,mdss-dsi-gamma8-command = [
-		];
-		qcom,mdss-dsi-gamma9-command = [
-		];
-		qcom,mdss-dsi-gamma10-command = [
-		];
-		qcom,mdss-dsi-gamma11-command = [
-		];
-		qcom,mdss-dsi-gamma12-command = [
-		];
-		qcom,mdss-dsi-gamma13-command = [
-		];
-		qcom,mdss-dsi-gamma14-command = [
-		];
-		qcom,mdss-dsi-gamma15-command = [
-		];
-		qcom,mdss-dsi-gamma16-command = [
-		];
-		qcom,mdss-dsi-gamma17-command = [
-		];
-		qcom,mdss-dsi-gamma18-command = [
-		];
-		qcom,mdss-dsi-gamma19-command = [
-		];
-		qcom,mdss-dsi-gamma20-command = [
-		];
-		qcom,mdss-dsi-gamma21-command = [
-		];
-		qcom,mdss-dsi-gamma22-command = [
-		];
-		qcom,mdss-dsi-gamma23-command = [
-		];
-		qcom,mdss-dsi-gamma24-command = [
-		];
+
 		qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-off-command-state = "dsi_hs_mode";
-		qcom,mdss-dsi-ce-on-command-state = "dsi_hs_mode";
-		qcom,mdss-dsi-ce-off-command-state = "dsi_hs_mode";
-		qcom,mdss-dsi-srgb-on-command-state = "dsi_hs_mode";
-		qcom,mdss-dsi-srgb-off-command-state = "dsi_hs_mode";
 		qcom,mdss-dsi-cabc-on-command-state = "dsi_hs_mode";
 		qcom,mdss-dsi-cabc-off-command-state = "dsi_hs_mode";
-		qcom,mdss-dsi-gamma-command-state = "dsi_hs_mode";
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
 		qcom,mdss-dsi-reset-sequence = <1 1>, <0 5>, <1 15>;
 		qcom,mdss-dsi-tx-eot-append;
 		qcom,mdss-dsi-post-init-delay = <1>;
 		
-		/*qcom,esd-check-enabled;*/
 		qcom,mdss-dsi-panel-status-command = [06 01 00 01 05 00 01 0A];
 		qcom,mdss-dsi-panel-status-command-state = "dsi_hs_mode";
 		qcom,mdss-dsi-panel-status-check-mode = "reg_read";
