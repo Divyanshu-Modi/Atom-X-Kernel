@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -362,7 +362,7 @@ struct qpnp_hap {
 	u32				init_drive_period_code;
 	u32				timeout_ms;
 	u32				time_required_to_generate_back_emf_us;
-	u32				vmax_default_mv;
+	u32				vmax_default_mv;	
 	u32				vmax_mv;
 	u32				ilim_ma;
 	u32				sc_deb_cycles;
@@ -385,7 +385,7 @@ struct qpnp_hap {
 	u8				wave_shape;
 	u8				wave_samp[QPNP_HAP_WAV_SAMP_LEN];
 	u8				wave_samp_two[QPNP_HAP_WAV_SAMP_LEN];
-	u8				wave_samp_three[QPNP_HAP_WAV_SAMP_LEN];
+	u8				wave_samp_three[QPNP_HAP_WAV_SAMP_LEN];	
 	u8				shadow_wave_samp[QPNP_HAP_WAV_SAMP_LEN];
 	u8				brake_pat[QPNP_HAP_BRAKE_PAT_LEN];
 	u8				sc_count;
@@ -568,14 +568,13 @@ static int qpnp_hap_mod_enable(struct qpnp_hap *hap, bool on)
 				break;
 			}
 		}
-		pr_info("zjl %s  11 val == %d\n", __func__, val);
+
 		if (i >= QPNP_HAP_MAX_RETRIES)
 			pr_debug("Haptics Busy. Force disable\n");
 	}
 
 	val = on ? QPNP_HAP_EN_BIT : 0;
 	rc = qpnp_hap_write_reg(hap, QPNP_HAP_EN_CTL_REG(hap->base), val);
-	pr_info("zjl %s  end val == %d\n", __func__, val);
 	if (rc < 0)
 		return rc;
 
@@ -1053,8 +1052,8 @@ static int qpnp_hap_parse_buffer_dt(struct qpnp_hap *hap)
 	} else {
 		memcpy(hap->wave_samp, prop->value, QPNP_HAP_WAV_SAMP_LEN);
 	}
-	
-		prop = of_find_property(pdev->dev.of_node,
+
+	prop = of_find_property(pdev->dev.of_node,
 			"qcom,wave-samples-two", &temp);
 	if (!prop || temp != QPNP_HAP_WAV_SAMP_LEN) {
 		pr_err("Invalid wave samples, use default");
@@ -1063,8 +1062,8 @@ static int qpnp_hap_parse_buffer_dt(struct qpnp_hap *hap)
 	} else {
 		memcpy(hap->wave_samp_two, prop->value, QPNP_HAP_WAV_SAMP_LEN);
 	}
-	
-		prop = of_find_property(pdev->dev.of_node,
+
+	prop = of_find_property(pdev->dev.of_node,
 			"qcom,wave-samples-three", &temp);
 	if (!prop || temp != QPNP_HAP_WAV_SAMP_LEN) {
 		pr_err("Invalid wave samples, use default");
@@ -1073,7 +1072,7 @@ static int qpnp_hap_parse_buffer_dt(struct qpnp_hap *hap)
 	} else {
 		memcpy(hap->wave_samp_three, prop->value, QPNP_HAP_WAV_SAMP_LEN);
 	}
-	
+
 	return 0;
 }
 
@@ -1675,7 +1674,7 @@ static ssize_t qpnp_hap_hi_z_period_show(struct device *dev,
 	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
 	struct qpnp_hap *hap = container_of(timed_dev, struct qpnp_hap,
 					 timed_dev);
-	char *str = NULL;
+	char *str;
 
 	switch (hap->ares_cfg.lra_high_z) {
 	case QPNP_HAP_LRA_HIGH_Z_NONE:
@@ -1873,7 +1872,7 @@ static struct device_attribute qpnp_hap_attrs[] = {
 	__ATTR(vtg_level, 0664, qpnp_hap_vmax_show, qpnp_hap_vmax_store),
 	__ATTR(vtg_default, 0444, qpnp_hap_vmax_default, NULL),
 	__ATTR(vtg_max, 0444, qpnp_hap_vmax_max, NULL),
-	__ATTR(vtg_min, 0444, qpnp_hap_vmax_min, NULL),
+	__ATTR(vtg_min, 0444, qpnp_hap_vmax_min, NULL),	
 };
 
 static int calculate_lra_code(struct qpnp_hap *hap)
@@ -2293,7 +2292,7 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 
 	mutex_lock(&hap->lock);
 
-		if (time_ms == 0) {
+	if (time_ms == 0) {
 		/* disable haptics */
 		hrtimer_cancel(&hap->hap_timer);
 		hap->state = 0;
@@ -2304,44 +2303,35 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 
 	if (time_ms < 10)
 		time_ms = 10;
-		
+
 #if defined(CONFIG_MACH_XIAOMI_TULIP)
+    pr_debug("zjl hasfasda E7T haptic  =%d\n",time_ms);
+#elif defined(CONFIG_MACH_XIAOMI_LAVENDER)
+    pr_debug("zjl hasfasda F7A haptic  =%d\n",time_ms);
+#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
+    pr_debug("zjl hasfasda E7S haptic  =%d\n",time_ms);
+#elif defined(CONFIG_MACH_XIAOMI_JASWAY)
+    pr_debug("zjl hasfasda D2S haptic  =%d\n",time_ms);
+#endif /*XIAOMI HAPTICS*/
+
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 	vmax_mv = hap->vmax_mv;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
-#elif defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#endif /*XIAOMI HAPTICS*/
 
-    pr_info("zjl hasfasda F7A haptic  =%d\n",time_ms);
-
- 	vmax_mv = hap->vmax_mv;
-	qpnp_hap_vmax_config(hap, vmax_mv, false);
-#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
-
-    pr_info("zjl hasfasda E7S haptic  =%d\n",time_ms);
-
- 	vmax_mv = hap->vmax_mv;
-	qpnp_hap_vmax_config(hap, vmax_mv, false);
-#elif defined(CONFIG_MACH_XIAOMI_JASWAY)
-    pr_info("zjl hasfasda D2S haptic  =%d\n",time_ms);
-#endif
-    if ((time_ms >= 30)||(time_ms != 11)||(time_ms != 15)||(time_ms != 20))
-	{
+    if ((time_ms >= 30)||(time_ms != 11)||(time_ms != 15)||(time_ms != 20)) {
 	vmax_mv = 2204;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
 	hap->play_mode = QPNP_HAP_DIRECT;
-    }
-	else
-	{
+    } else {
 	hap->play_mode = QPNP_HAP_BUFFER;
 	qpnp_hap_parse_buffer_dt(hap);
-	    if (time_ms == 20)
-		{
+	    if (time_ms == 20) {
 		qpnp_hap_buffer_config(hap, hap->wave_samp_three, true);
-		}else if(time_ms == 15)
-		{
+		} else if (time_ms == 15) {
 		qpnp_hap_buffer_config(hap, hap->wave_samp_two, true);
-		}else if(time_ms == 11)
-		{
-		qpnp_hap_buffer_config(hap, hap->wave_samp, true);
+		} else if(time_ms == 11) {
+		qpnp_hap_buffer_config(hap, hap->wave_samp, true);   
 		}
 
 	vmax_mv = 2204;
@@ -2349,7 +2339,7 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 
 	hap->play_mode = QPNP_HAP_BUFFER;
 	hap->wave_shape = QPNP_HAP_WAV_SQUARE;
-	}
+    }
 	qpnp_hap_mod_enable(hap, false);
 	qpnp_hap_play_mode_config(hap);
 
@@ -2364,15 +2354,16 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 			pr_err("Unable to do auto mode config\n");
 			mutex_unlock(&hap->lock);
 			return;
-			}
 		}
+	}
+
 	time_ms = (time_ms > hap->timeout_ms ? hap->timeout_ms : time_ms);
 	hap->play_time_ms = time_ms;
 	hap->state = 1;
-	pr_info("zjl aaa  haptic  =%d\n",time_ms);
+
 	hrtimer_start(&hap->hap_timer,
 		ktime_set(time_ms / 1000, (time_ms % 1000) * 1000000),
-		HRTIMER_MODE_REL);			
+		HRTIMER_MODE_REL);    
 	mutex_unlock(&hap->lock);
 	schedule_work(&hap->work);
 }
@@ -2433,9 +2424,9 @@ int qpnp_hap_play_byte(u8 data, bool on)
 	pr_debug("data=0x%x duty_per=%d\n", data, duty_percent);
 
 	rc = qpnp_hap_set(hap, true);
-pr_info("%s  zjl f   asd  7 \n", __func__);
+
 	return rc;
-}  
+}
 EXPORT_SYMBOL(qpnp_hap_play_byte);
 
 /* worker to opeate haptics */
@@ -2928,11 +2919,11 @@ static int qpnp_hap_parse_dt(struct qpnp_hap *hap)
 	}
 
 	hap->vmax_mv = QPNP_HAP_VMAX_MAX_MV;
-	hap->vmax_default_mv = QPNP_HAP_VMAX_MAX_MV;
+	hap->vmax_default_mv = QPNP_HAP_VMAX_MAX_MV;	
 	rc = of_property_read_u32(pdev->dev.of_node, "qcom,vmax-mv", &temp);
 	if (!rc) {
 		hap->vmax_mv = temp;
-		hap->vmax_default_mv = temp;
+		hap->vmax_default_mv = temp;		
 	} else if (rc != -EINVAL) {
 		pr_err("Unable to read vmax\n");
 		return rc;
