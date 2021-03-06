@@ -63,17 +63,15 @@ ifeq ($(CONFIG_COMPAT_VDSO), y)
   endif
 endif
 
-ifeq ($(cc-name),clang)
-# This is a workaround for https://bugs.llvm.org/show_bug.cgi?id=30792.
-# TODO: revert when this is fixed in LLVM.
-KBUILD_CFLAGS	+= -mno-implicit-float
 ifeq ($(CONFIG_ARCH_SDM660), y)
+ifeq ($(cc-name),clang)
 KBUILD_CFLAGS	+= -mcpu=cortex-a53
-endif
 else
-KBUILD_CFLAGS	+= -mgeneral-regs-only
+KBUILD_CFLAGS	+= -mcpu=cortex-a73.cortex-a53
 endif
-KBUILD_CFLAGS	+= $(lseinstr) $(vdso32)
+endif
+
+KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(vdso32)
 KBUILD_CFLAGS	+= -fno-pic
 KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
 KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
