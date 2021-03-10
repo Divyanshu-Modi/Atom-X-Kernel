@@ -362,8 +362,10 @@ struct qpnp_hap {
 	u32				init_drive_period_code;
 	u32				timeout_ms;
 	u32				time_required_to_generate_back_emf_us;
-	u32				vmax_default_mv;	
 	u32				vmax_mv;
+	u32				vtg_min;
+	u32				vtg_max;
+	u32				vtg_default;	
 	u32				ilim_ma;
 	u32				sc_deb_cycles;
 	u32				int_pwm_freq_khz;
@@ -385,7 +387,7 @@ struct qpnp_hap {
 	u8				wave_shape;
 	u8				wave_samp[QPNP_HAP_WAV_SAMP_LEN];
 	u8				wave_samp_two[QPNP_HAP_WAV_SAMP_LEN];
-	u8				wave_samp_three[QPNP_HAP_WAV_SAMP_LEN];	
+	u8				wave_samp_three[QPNP_HAP_WAV_SAMP_LEN];
 	u8				shadow_wave_samp[QPNP_HAP_WAV_SAMP_LEN];
 	u8				brake_pat[QPNP_HAP_BRAKE_PAT_LEN];
 	u8				sc_count;
@@ -575,6 +577,7 @@ static int qpnp_hap_mod_enable(struct qpnp_hap *hap, bool on)
 
 	val = on ? QPNP_HAP_EN_BIT : 0;
 	rc = qpnp_hap_write_reg(hap, QPNP_HAP_EN_CTL_REG(hap->base), val);
+
 	if (rc < 0)
 		return rc;
 
@@ -890,12 +893,12 @@ static int qpnp_hap_vmax_config(struct qpnp_hap *hap, int vmax_mv,
 	if (hap->pmic_subtype != PM660_SUBTYPE)
 		overdrive = false;
 
-	if (vmax_mv < QPNP_HAP_VMAX_MIN_MV)
-		vmax_mv = QPNP_HAP_VMAX_MIN_MV;
-	else if (vmax_mv > QPNP_HAP_VMAX_MAX_MV)
-		vmax_mv = QPNP_HAP_VMAX_MAX_MV;
+	if (vmax_mv < hap->vtg_min)
+		vmax_mv = hap->vtg_min;
+	else if (vmax_mv > hap->vtg_max)
+		vmax_mv = hap->vtg_max;
 
-	val = (vmax_mv / QPNP_HAP_VMAX_MIN_MV) << QPNP_HAP_VMAX_SHIFT;
+	val = (vmax_mv / hap->vtg_min) << QPNP_HAP_VMAX_SHIFT;
 	if (overdrive)
 		val |= QPNP_HAP_VMAX_OVD_BIT;
 	rc = qpnp_hap_masked_write_reg(hap, QPNP_HAP_VMAX_REG(hap->base),
@@ -1052,7 +1055,7 @@ static int qpnp_hap_parse_buffer_dt(struct qpnp_hap *hap)
 	} else {
 		memcpy(hap->wave_samp, prop->value, QPNP_HAP_WAV_SAMP_LEN);
 	}
-
+	
 	prop = of_find_property(pdev->dev.of_node,
 			"qcom,wave-samples-two", &temp);
 	if (!prop || temp != QPNP_HAP_WAV_SAMP_LEN) {
@@ -1062,7 +1065,7 @@ static int qpnp_hap_parse_buffer_dt(struct qpnp_hap *hap)
 	} else {
 		memcpy(hap->wave_samp_two, prop->value, QPNP_HAP_WAV_SAMP_LEN);
 	}
-
+	
 	prop = of_find_property(pdev->dev.of_node,
 			"qcom,wave-samples-three", &temp);
 	if (!prop || temp != QPNP_HAP_WAV_SAMP_LEN) {
@@ -1802,40 +1805,48 @@ static ssize_t qpnp_hap_vmax_store(struct device *dev,
 	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
 	struct qpnp_hap *hap = container_of(timed_dev, struct qpnp_hap,
 					 timed_dev);
-	int vmax_mv, rc;
+	int data, rc;
 
-	rc = kstrtoint(buf, 10, &vmax_mv);
+	rc = kstrtoint(buf, 10, &data);
 	if (rc)
 		return rc;
 
-	hap->vmax_mv = vmax_mv;
-	rc = qpnp_hap_vmax_config(hap, vmax_mv, true);
-	if (rc < 0)
+	hap->vmax_mv = data;
+	rc = qpnp_hap_vmax_config(hap, hap->vmax_mv, true);
+	if (rc)
 		return rc;
 
 	return count;
 }
 
-static ssize_t qpnp_hap_vmax_default(struct device *dev,
+static ssize_t qpnp_hap_min_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
 	struct qpnp_hap *hap = container_of(timed_dev, struct qpnp_hap,
 					 timed_dev);
 
-	return snprintf(buf, PAGE_SIZE, "%d\n", hap->vmax_default_mv);
+	return snprintf(buf, PAGE_SIZE, "%d\n", hap->vtg_min);
 }
 
-static ssize_t qpnp_hap_vmax_max(struct device *dev,
+static ssize_t qpnp_hap_max_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%d\n", QPNP_HAP_VMAX_MAX_MV);
+	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
+	struct qpnp_hap *hap = container_of(timed_dev, struct qpnp_hap,
+					 timed_dev);
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", hap->vtg_max);
 }
 
-static ssize_t qpnp_hap_vmax_min(struct device *dev,
+static ssize_t qpnp_hap_default_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	return snprintf(buf, PAGE_SIZE, "%d\n", QPNP_HAP_VMAX_MIN_MV);
+	struct timed_output_dev *timed_dev = dev_get_drvdata(dev);
+	struct qpnp_hap *hap = container_of(timed_dev, struct qpnp_hap,
+					 timed_dev);
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", hap->vtg_default);
 }
 
 /* sysfs attributes */
@@ -1870,9 +1881,9 @@ static struct device_attribute qpnp_hap_attrs[] = {
 		qpnp_hap_override_auto_mode_store),
 	__ATTR(vmax_mv, 0664, qpnp_hap_vmax_show, qpnp_hap_vmax_store),
 	__ATTR(vtg_level, 0664, qpnp_hap_vmax_show, qpnp_hap_vmax_store),
-	__ATTR(vtg_default, 0444, qpnp_hap_vmax_default, NULL),
-	__ATTR(vtg_max, 0444, qpnp_hap_vmax_max, NULL),
-	__ATTR(vtg_min, 0444, qpnp_hap_vmax_min, NULL),	
+	__ATTR(vtg_min, 0664, qpnp_hap_min_show, NULL),
+	__ATTR(vtg_max, 0664, qpnp_hap_max_show, NULL),
+	__ATTR(vtg_default, 0664, qpnp_hap_default_show, NULL),
 };
 
 static int calculate_lra_code(struct qpnp_hap *hap)
@@ -2199,7 +2210,7 @@ static int qpnp_hap_auto_mode_config(struct qpnp_hap *hap, int time_ms)
 			ares_cfg.calibrate_at_eop = -EINVAL;
 		}
 
-		vmax_mv = hap->vmax_mv;
+		vmax_mv = hap->vtg_max;
 		rc = qpnp_hap_vmax_config(hap, vmax_mv, true);
 		if (rc < 0)
 			return rc;
@@ -2304,22 +2315,10 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 	if (time_ms < 10)
 		time_ms = 10;
 
-#if defined(CONFIG_MACH_XIAOMI_TULIP)
-    pr_debug("zjl hasfasda E7T haptic  =%d\n",time_ms);
-#elif defined(CONFIG_MACH_XIAOMI_LAVENDER)
-    pr_debug("zjl hasfasda F7A haptic  =%d\n",time_ms);
-#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
-    pr_debug("zjl hasfasda E7S haptic  =%d\n",time_ms);
-#elif defined(CONFIG_MACH_XIAOMI_JASWAY)
-    pr_debug("zjl hasfasda D2S haptic  =%d\n",time_ms);
-#endif /*XIAOMI HAPTICS*/
-
-#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 	vmax_mv = hap->vmax_mv;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
-#endif /*XIAOMI HAPTICS*/
 
-    if ((time_ms >= 30)||(time_ms != 11)||(time_ms != 15)||(time_ms != 20)) {
+    if ((time_ms >= 30) || (time_ms != 11) || (time_ms != 15) || (time_ms != 20)) {
 	vmax_mv = 2204;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
 	hap->play_mode = QPNP_HAP_DIRECT;
@@ -2330,8 +2329,8 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 		qpnp_hap_buffer_config(hap, hap->wave_samp_three, true);
 		} else if (time_ms == 15) {
 		qpnp_hap_buffer_config(hap, hap->wave_samp_two, true);
-		} else if(time_ms == 11) {
-		qpnp_hap_buffer_config(hap, hap->wave_samp, true);   
+		} else if (time_ms == 11) {
+		qpnp_hap_buffer_config(hap, hap->wave_samp, true);
 		}
 
 	vmax_mv = 2204;
@@ -2339,7 +2338,7 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 
 	hap->play_mode = QPNP_HAP_BUFFER;
 	hap->wave_shape = QPNP_HAP_WAV_SQUARE;
-    }
+	}
 	qpnp_hap_mod_enable(hap, false);
 	qpnp_hap_play_mode_config(hap);
 
@@ -2363,7 +2362,7 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 
 	hrtimer_start(&hap->hap_timer,
 		ktime_set(time_ms / 1000, (time_ms % 1000) * 1000000),
-		HRTIMER_MODE_REL);    
+		HRTIMER_MODE_REL);
 	mutex_unlock(&hap->lock);
 	schedule_work(&hap->work);
 }
@@ -2426,7 +2425,7 @@ int qpnp_hap_play_byte(u8 data, bool on)
 	rc = qpnp_hap_set(hap, true);
 
 	return rc;
-}
+}    
 EXPORT_SYMBOL(qpnp_hap_play_byte);
 
 /* worker to opeate haptics */
@@ -2918,16 +2917,40 @@ static int qpnp_hap_parse_dt(struct qpnp_hap *hap)
 		return rc;
 	}
 
-	hap->vmax_mv = QPNP_HAP_VMAX_MAX_MV;
-	hap->vmax_default_mv = QPNP_HAP_VMAX_MAX_MV;	
+	hap->vtg_min = QPNP_HAP_VMAX_MIN_MV;
+	rc = of_property_read_u32(pdev->dev.of_node, "qcom,vtg-min", &temp);
+	if (!rc) {
+		hap->vtg_min = temp;
+	} else if (rc != -EINVAL) {
+		pr_err("Unable to read vtg_min\n");
+		return rc;
+	}
+
+	hap->vtg_max = QPNP_HAP_VMAX_MAX_MV;
+	rc = of_property_read_u32(pdev->dev.of_node, "qcom,vtg-max", &temp);
+	if (!rc) {
+		hap->vtg_max = temp;
+	} else if (rc != -EINVAL) {
+		pr_err("Unable to read vtg_max\n");
+		return rc;
+	}
+
+	hap->vmax_mv = hap->vtg_max;
 	rc = of_property_read_u32(pdev->dev.of_node, "qcom,vmax-mv", &temp);
 	if (!rc) {
 		hap->vmax_mv = temp;
-		hap->vmax_default_mv = temp;		
 	} else if (rc != -EINVAL) {
 		pr_err("Unable to read vmax\n");
 		return rc;
 	}
+
+	if (hap->vmax_mv < hap->vtg_min) {
+		hap->vmax_mv = hap->vtg_min;
+	} else if (hap->vmax_mv > hap->vtg_max) {
+		hap->vmax_mv = hap->vtg_max;
+	}
+
+	hap->vtg_default = hap->vmax_mv;
 
 	hap->ilim_ma = QPNP_HAP_ILIM_MIN_MV;
 	rc = of_property_read_u32(pdev->dev.of_node, "qcom,ilim-ma", &temp);
