@@ -1,5 +1,5 @@
 /* Copyright (c) 2011-2017, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -26,7 +26,6 @@ DEFINE_MSM_MUTEX(msm_eeprom_mutex);
 #ifdef CONFIG_COMPAT
 static struct v4l2_file_operations msm_eeprom_v4l2_subdev_fops;
 #endif
-
 struct vendor_eeprom s_vendor_eeprom[CAMERA_VENDOR_EEPROM_COUNT_MAX];
 #ifdef CONFIG_MACH_XIAOMI_TULIP
 extern char sensor_fusion_id[512];
@@ -327,11 +326,10 @@ ERROR:
 }
 
 #ifdef CONFIG_MACH_XIAOMI_TULIP
-static int set_s5k2l7_fuse_id_from_eeprom(uint8_t *memptr)
-{
+static int set_s5k2l7_fuse_id_from_eeprom(uint8_t *memptr) {
 
 	char s_fuse_id_temp[80] = {0};
-	if (memptr[S5K2L7_SENSOR_ID_ADD] == S5K2L7_SENSOR_ID) {
+	if((memptr[S5K2L7_SENSOR_ID_ADD] == S5K2L7_SENSOR_ID)){
 		sprintf(s_fuse_id_temp,"back: %04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x%04x\n",
 					memptr[S5K2L7_SENSOR_FUSE_ID_START + 0],
 					memptr[S5K2L7_SENSOR_FUSE_ID_START + 1],
@@ -826,14 +824,12 @@ static int msm_eeprom_config(struct msm_eeprom_ctrl_t *e_ctrl,
 		CDBG("%s E CFG_EEPROM_GET_MM_INFO\n", __func__);
 		rc = msm_eeprom_get_cmm_data(e_ctrl, cdata);
 		break;
-
 #ifdef CONFIG_KERNEL_CUSTOM_FACTORY
 	case LAVENDER_CFG_EEPROM_WRITE_DATA:
 		pr_err("chb--%s E CFG_EEPROM_WRITE_DATA\n", __func__);
 		rc = eeprom_write_dualcam_cal_data(e_ctrl, cdata);
 		break;
 #endif
-
 	case CFG_EEPROM_INIT:
 		if (e_ctrl->userspace_probe == 0) {
 			pr_err("%s:%d Eeprom already probed at kernel boot",
@@ -1696,7 +1692,12 @@ static int msm_eeprom_config32(struct msm_eeprom_ctrl_t *e_ctrl,
 		CDBG("%s E CFG_EEPROM_READ_CAL_DATA\n", __func__);
 		rc = eeprom_config_read_cal_data32(e_ctrl, argp);
 		break;
-
+#ifdef CONFIG_KERNEL_CUSTOM_FACTORY
+	case LAVENDER_CFG_EEPROM_WRITE_DATA:
+		pr_err("chb--%s E CFG_EEPROM_WRITE_DATA\n", __func__);
+		rc = eeprom_write_dualcam_cal_data(e_ctrl, argp);
+		break;
+#endif
 	case CFG_EEPROM_INIT:
 		if (e_ctrl->userspace_probe == 0) {
 			pr_err("%s:%d Eeprom already probed at kernel boot",
@@ -1758,221 +1759,17 @@ static long msm_eeprom_subdev_fops_ioctl32(struct file *file, unsigned int cmd,
 }
 
 #endif
-
-#ifdef CONFIG_MACH_XIAOMI_LAVENDER
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
 static camera_vendor_module_id lavender_s5k5e8_ofilm_i_get_otp_vendor_module_id
 	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	uint8_t INFO_NUM = 16;
-	uint8_t AWB_NUM = 8;
-	uint8_t LENSID_OFFSET = 9;
-	uint8_t SENSOR_OFFSET = 13;
-	uint8_t MODULE_OFFSET = 2;
-	uint8_t GROUP_MEMBER_NUM = 1 + INFO_NUM + AWB_NUM + 1;
-
-	uint32_t LSC_NUM = 360;
-	uint32_t FLAG_OFFSET ;
-
-	uint8_t mid=0;
-    uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-	for(i = 2; i >= 0; --i){
-		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
-		printk("i=%d flag offset %d\n", i, FLAG_OFFSET);
-		flag = buffer[FLAG_OFFSET];
-		if(0x55 != flag){
-			mid = MID_NULL;
-			pr_err("Invalid flag = 0x%x\n", flag);
-			continue;
-		}
-		lensid = buffer[FLAG_OFFSET + LENSID_OFFSET];
-		mid = buffer[FLAG_OFFSET + MODULE_OFFSET];
-		sensorid = buffer[FLAG_OFFSET + SENSOR_OFFSET];
-		printk("%s flag = 0x%x, mid = 0x%x, lensid = 0x%x, sensorid = 0x%x \n", __func__, flag, mid, lensid, sensorid);
-		break;
-	}
-	if((MID_OFILM != mid) || (SENSOR_S5K5E8 != sensorid))
-		mid = MID_NULL;
-	return mid;
-}
-
-static camera_vendor_module_id lavender_s5k5e8_sunny_ii_get_otp_vendor_module_id
-	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	uint8_t INFO_NUM = 16;
-	uint8_t AWB_NUM = 8;
-	uint8_t LENSID_OFFSET = 9;
-	uint8_t SENSOR_OFFSET = 13;
-	uint8_t MODULE_OFFSET = 2;
-	uint8_t GROUP_MEMBER_NUM = 1 + INFO_NUM + AWB_NUM + 1;
-
-	uint32_t LSC_NUM = 360;
-	uint32_t FLAG_OFFSET ;
-
-	uint8_t mid=0;
-	uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-	for(i = 2; i >= 0; --i){
-		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
-		printk("i=%d flag offset %d\n", i, FLAG_OFFSET);
-		flag = buffer[FLAG_OFFSET];
-		if(0x55 != flag){
-			mid = MID_NULL;
-			pr_err("Invalid flag = 0x%x\n", flag);
-			continue;
-		}
-		lensid = buffer[FLAG_OFFSET + LENSID_OFFSET];
-		mid = buffer[FLAG_OFFSET + MODULE_OFFSET];
-		sensorid = buffer[FLAG_OFFSET + SENSOR_OFFSET];
-		printk("%s flag = 0x%x, mid = 0x%x, lensid = 0x%x, sensorid = 0x%x \n", __func__, flag, mid, lensid, sensorid);
-		break;
-	}
-
-	if((MID_SUNNY != mid) || (SENSOR_S5K5E8 != sensorid))
-		mid = MID_NULL;
-	return mid;
-}
-static camera_vendor_module_id lavender_ov02a10_ofilm_i_get_otp_vendor_module_id
-	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-
-	uint8_t mid = 0;
-	uint8_t FLAG_OFFSET = 0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-
-	for(i = 2; i >= 0; --i){
-		flag = buffer[FLAG_OFFSET];
-		mid = buffer[FLAG_OFFSET + 1];
-		printk("%s flag = 0x%x, mid = 0x%x\n", __func__, flag, mid);
-		break;
-	}
-
-	if(MID_OFILM != mid)
-		mid = MID_NULL;
-	return mid;
-}
-
-static camera_vendor_module_id lavender_ov02a10_sunny_ii_get_otp_vendor_module_id
-	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-
-	uint8_t mid = 0;
-	uint8_t FLAG_OFFSET = 0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-
-	for(i = 2; i >= 0; --i){
-		flag = buffer[FLAG_OFFSET];
-		mid = buffer[FLAG_OFFSET + 1];
-		printk("%s flag = 0x%x, mid = 0x%x\n", __func__, flag, mid);
-		break;
-	}
-
-	if(MID_SUNNY != mid)
-		mid = MID_NULL;
-	return mid;
-}
-#endif
-
-#ifdef CONFIG_MACH_XIAOMI_WHYRED
-static camera_vendor_module_id whyred_s5k5e8_ofilm_i_get_otp_vendor_module_id
-	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	uint8_t INFO_NUM = 16;
-	uint8_t AWB_NUM = 8;
-	uint8_t LENSID_OFFSET = 9;
-	uint8_t SENSOR_OFFSET = 13;
-	uint8_t MODULE_OFFSET = 2;
-	uint8_t GROUP_MEMBER_NUM = 1 + INFO_NUM + AWB_NUM + 1;
-		
-	uint32_t LSC_NUM = 360;
-	uint32_t FLAG_OFFSET ;
-
-	uint8_t mid=0;
-    uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-	for(i = 2; i >= 0; --i){
-		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
-		printk("i=%d flag offset %d\n",i,FLAG_OFFSET);
-		flag = buffer[FLAG_OFFSET];
-		if(0x55 != flag){
-			mid = MID_NULL;
-			pr_err("Invalid flag = 0x%x\n",flag);
-			continue;
-		}
-		lensid = buffer[FLAG_OFFSET + LENSID_OFFSET];
-		mid = buffer[FLAG_OFFSET + MODULE_OFFSET];
-		sensorid = buffer[FLAG_OFFSET + SENSOR_OFFSET];
-		printk("%s flag = 0x%x, mid = 0x%x, lensid = 0x%x, sensorid = 0x%x \n", __func__, flag, mid, lensid, sensorid);
-		break;
-	}
-	if((MID_OFILM != mid) || (SENSOR_S5K5E8 != sensorid))
-		mid = MID_NULL;
-	return mid;
-}
-
-static camera_vendor_module_id whyred_s5k5e8_qtech_ii_get_otp_vendor_module_id
-	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	uint8_t INFO_NUM = 16;
-	uint8_t AWB_NUM = 8;
-	uint8_t LENSID_OFFSET = 9;
-	uint8_t SENSOR_OFFSET = 13;
-	uint8_t MODULE_OFFSET = 2;
-	uint8_t GROUP_MEMBER_NUM = 1 + INFO_NUM + AWB_NUM + 1;
-		
-	uint32_t LSC_NUM = 360;
-	uint32_t FLAG_OFFSET ;
-
-	uint8_t mid=0;
-	uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
-	uint8_t *buffer = e_ctrl->cal_data.mapdata;
-	int8_t i;
-
-	for(i = 2; i >= 0; --i){
-		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
-		printk("i=%d flag offset %d\n",i,FLAG_OFFSET);
-		flag = buffer[FLAG_OFFSET];
-		if(0x55 != flag){
-			mid = MID_NULL;
-			pr_err("Invalid flag = 0x%x\n",flag);
-			continue;
-		}
-		lensid = buffer[FLAG_OFFSET + LENSID_OFFSET];
-		mid = buffer[FLAG_OFFSET + MODULE_OFFSET];
-		sensorid = buffer[FLAG_OFFSET + SENSOR_OFFSET];
-		printk("%s flag = 0x%x, mid = 0x%x, lensid = 0x%x, sensorid = 0x%x \n", __func__, flag, mid, lensid, sensorid);
-		break;
-	}
-
-	if ((MID_QTECH != mid) || (SENSOR_S5K5E8 != sensorid))
-		mid = MID_NULL;
-	return mid;
-}
-#endif
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)
 static camera_vendor_module_id tulip_s5k5e8_ofilm_i_get_otp_vendor_module_id
 	(struct msm_eeprom_ctrl_t *e_ctrl)
+#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
+static camera_vendor_module_id whyred_s5k5e8_ofilm_i_get_otp_vendor_module_id
+	(struct msm_eeprom_ctrl_t *e_ctrl)
+#endif	
 {
 	uint8_t INFO_NUM = 16;
 	uint8_t AWB_NUM = 8;
@@ -1984,14 +1781,14 @@ static camera_vendor_module_id tulip_s5k5e8_ofilm_i_get_otp_vendor_module_id
 	uint32_t LSC_NUM = 360;
 	uint32_t FLAG_OFFSET ;
 
-	uint8_t mid=0;
-    uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
+	uint8_t mid = 0;
+    uint8_t lensid = 0;
+	uint8_t sensorid = 0;
+	uint8_t flag = 0;
 	uint8_t *buffer = e_ctrl->cal_data.mapdata;
 	int8_t i;
 
-	for(i = 2; i >= 0; --i){
+	for (i = 2; i >= 0; --i) {
 		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
 		printk("i=%d flag offset %d\n",i,FLAG_OFFSET);
 		flag = buffer[FLAG_OFFSET];
@@ -2006,13 +1803,20 @@ static camera_vendor_module_id tulip_s5k5e8_ofilm_i_get_otp_vendor_module_id
 		printk("%s flag = 0x%x, mid = 0x%x, lensid = 0x%x, sensorid = 0x%x \n", __func__, flag, mid, lensid, sensorid);
 		break;
 	}
-	if((MID_OFILM != mid) || (SENSOR_S5K5E8 != sensorid))
+	if ((MID_OFILM != mid) || (SENSOR_S5K5E8 != sensorid))
 		mid = MID_NULL;
 	return mid;
 }
-
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
+static camera_vendor_module_id lavender_s5k5e8_sunny_ii_get_otp_vendor_module_id
+	(struct msm_eeprom_ctrl_t *e_ctrl)
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)	
 static camera_vendor_module_id tulip_s5k5e8_qtech_ii_get_otp_vendor_module_id
 	(struct msm_eeprom_ctrl_t *e_ctrl)
+#elif defined(CONFIG_MACH_XIAOMI_WHYRED)	
+static camera_vendor_module_id whyred_s5k5e8_qtech_ii_get_otp_vendor_module_id
+	(struct msm_eeprom_ctrl_t *e_ctrl)
+#endif	
 {
 	uint8_t INFO_NUM = 16;
 	uint8_t AWB_NUM = 8;
@@ -2024,14 +1828,14 @@ static camera_vendor_module_id tulip_s5k5e8_qtech_ii_get_otp_vendor_module_id
 	uint32_t LSC_NUM = 360;
 	uint32_t FLAG_OFFSET ;
 
-	uint8_t mid=0;
-	uint8_t lensid=0;
-	uint8_t sensorid=0;
-	uint8_t flag=0;
+	uint8_t mid = 0;
+	uint8_t lensid = 0;
+	uint8_t sensorid = 0;
+	uint8_t flag = 0;
 	uint8_t *buffer = e_ctrl->cal_data.mapdata;
 	int8_t i;
 
-	for(i = 2; i >= 0; --i){
+	for (i = 2; i >= 0; --i) {
 		FLAG_OFFSET = LSC_NUM + i*GROUP_MEMBER_NUM;
 		printk("i=%d flag offset %d\n",i,FLAG_OFFSET);
 		flag = buffer[FLAG_OFFSET];
@@ -2047,52 +1851,66 @@ static camera_vendor_module_id tulip_s5k5e8_qtech_ii_get_otp_vendor_module_id
 		break;
 	}
 
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
+	if ((MID_SUNNY != mid) || (SENSOR_S5K5E8 != sensorid))
+#else	
 	if((MID_QTECH != mid) || (SENSOR_S5K5E8 != sensorid))
+#endif	
 		mid = MID_NULL;
 	return mid;
 }
+#endif
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_TULIP)
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
+static camera_vendor_module_id lavender_ov02a10_ofilm_i_get_otp_vendor_module_id
+	(struct msm_eeprom_ctrl_t *e_ctrl)
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)
 static camera_vendor_module_id tulip_ov02a10_ofilm_ii_get_otp_vendor_module_id
 	(struct msm_eeprom_ctrl_t *e_ctrl)
+#endif	
 {
-	
 	uint8_t mid = 0;
 	uint8_t FLAG_OFFSET = 0;	
-	uint8_t flag=0;
+	uint8_t flag = 0;
 	uint8_t *buffer = e_ctrl->cal_data.mapdata;
 	int8_t i;
 
 
-	for(i = 2; i >= 0; --i){
+	for (i = 2; i >= 0; --i) {
 		flag = buffer[FLAG_OFFSET];
 		mid = buffer[FLAG_OFFSET + 1];
 		printk("%s flag = 0x%x, mid = 0x%x\n",__func__,flag,mid);
 		break;
 	}
 
-	if(MID_OFILM != mid)
+	if (MID_OFILM != mid)
 		mid = MID_NULL;
 	return mid;
 }
 
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
+static camera_vendor_module_id lavender_ov02a10_sunny_ii_get_otp_vendor_module_id
+	(struct msm_eeprom_ctrl_t *e_ctrl)
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)	
 static camera_vendor_module_id tulip_ov02a10_sunny_i_get_otp_vendor_module_id
 	(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	
+#endif	
+{	
 	uint8_t mid = 0;
 	uint8_t FLAG_OFFSET = 0;	
-	uint8_t flag=0;
+	uint8_t flag = 0;
 	uint8_t *buffer = e_ctrl->cal_data.mapdata;
 	int8_t i;
 
 
-	for(i = 2; i >= 0; --i){
+	for (i = 2; i >= 0; --i) {
 		flag = buffer[FLAG_OFFSET];
 		mid = buffer[FLAG_OFFSET + 1];
 		printk("%s flag = 0x%x, mid = 0x%x\n",__func__,flag,mid);
 		break;
 	}
 
-	if(MID_SUNNY != mid)
+	if (MID_SUNNY != mid)
 		mid = MID_NULL;
 	return mid;
 }
@@ -2100,43 +1918,41 @@ static camera_vendor_module_id tulip_ov02a10_sunny_i_get_otp_vendor_module_id
 
 static uint8_t get_otp_vendor_module_id(struct msm_eeprom_ctrl_t *e_ctrl, const char *eeprom_name)
 {
-	camera_vendor_module_id module_id = MID_NULL;
-
-#ifdef CONFIG_MACH_XIAOMI_LAVENDER
-	if (strcmp(eeprom_name, "lavender_s5k5e8_ofilm_i") == 0)
+	camera_vendor_module_id module_id=MID_NULL;
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER)
+	if (strcmp(eeprom_name, "lavender_s5k5e8_ofilm_i") == 0) {
 		module_id = lavender_s5k5e8_ofilm_i_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "lavender_s5k5e8_sunny_ii") == 0)
+	} else if (strcmp(eeprom_name, "lavender_s5k5e8_sunny_ii") == 0) {
 		module_id = lavender_s5k5e8_sunny_ii_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "lavender_ov02a10_ofilm_i") == 0)
+	} else if (strcmp(eeprom_name, "lavender_ov02a10_ofilm_i") == 0) {
 		module_id = lavender_ov02a10_ofilm_i_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "lavender_ov02a10_sunny_ii") == 0)
+	} else if (strcmp(eeprom_name, "lavender_ov02a10_sunny_ii") == 0) {
 		module_id = lavender_ov02a10_sunny_ii_get_otp_vendor_module_id(e_ctrl);
-#endif
-
-#ifdef CONFIG_MACH_XIAOMI_TULIP
-	if (strcmp(eeprom_name, "tulip_s5k5e8_ofilm_i") == 0)
+	}
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)
+	if(strcmp(eeprom_name, "tulip_s5k5e8_ofilm_i") == 0) {
 		module_id = tulip_s5k5e8_ofilm_i_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "tulip_s5k5e8_qtech_ii") == 0)
+	} else if (strcmp(eeprom_name, "tulip_s5k5e8_qtech_ii") == 0) {
 		module_id = tulip_s5k5e8_qtech_ii_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "tulip_ov02a10_ofilm_ii") == 0)
+	} else if (strcmp(eeprom_name, "tulip_ov02a10_ofilm_ii") == 0) {
 		module_id = tulip_ov02a10_ofilm_ii_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "tulip_ov02a10_sunny_i") == 0)
+	} else if (strcmp(eeprom_name, "tulip_ov02a10_sunny_i") == 0) {
 		module_id = tulip_ov02a10_sunny_i_get_otp_vendor_module_id(e_ctrl);
-#endif
-
-#ifdef CONFIG_MACH_XIAOMI_WHYRED
-	if (strcmp(eeprom_name, "whyred_s5k5e8_ofilm_i") == 0)
+	}
+#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
+	if (strcmp(eeprom_name, "whyred_s5k5e8_ofilm_i") == 0) {
 		module_id = whyred_s5k5e8_ofilm_i_get_otp_vendor_module_id(e_ctrl);
-	else if (strcmp(eeprom_name, "whyred_s5k5e8_qtech_ii") == 0)
+	} else if (strcmp(eeprom_name, "whyred_s5k5e8_qtech_ii") == 0) {
 		module_id = whyred_s5k5e8_qtech_ii_get_otp_vendor_module_id(e_ctrl);
+	}
 #endif
 
-	if (module_id >= MID_MAX)
-		module_id = MID_NULL;
-	printk("%s %d eeprom_name=%s, module_id=0x%x\n", __func__, __LINE__,
+	if(module_id>=MID_MAX) module_id = MID_NULL;
+    	printk("%s %d eeprom_name=%s, module_id=0x%x\n",__func__,__LINE__, 
 			eeprom_name, module_id);
 	return ((uint8_t)module_id);
 }
+
 
 static int msm_eeprom_platform_probe(struct platform_device *pdev)
 {
@@ -2291,13 +2107,6 @@ static int msm_eeprom_platform_probe(struct platform_device *pdev)
 		s_vendor_eeprom[pdev->id].module_id = get_otp_vendor_module_id(e_ctrl, eb_info->eeprom_name);
 		strcpy(s_vendor_eeprom[pdev->id].eeprom_name, eb_info->eeprom_name);
 		}
-
-#ifdef CONFIG_MACH_LONGCHEER
-		if (eb_info->eeprom_name != NULL) {
-			s_vendor_eeprom[pdev->id].module_id = get_otp_vendor_module_id(e_ctrl, eb_info->eeprom_name);
-			strcpy(s_vendor_eeprom[pdev->id].eeprom_name, eb_info->eeprom_name);
-		}
-#endif
 
 		e_ctrl->is_supported |= msm_eeprom_match_crc(&e_ctrl->cal_data);
 
