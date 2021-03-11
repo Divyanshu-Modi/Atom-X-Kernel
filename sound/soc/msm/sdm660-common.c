@@ -1,5 +1,5 @@
 /* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -203,10 +203,10 @@ static struct wcd_mbhc_config mbhc_cfg = {
 	.swap_gnd_mic = NULL,
 	.hs_ext_micbias = true,
 	.key_code[0] = KEY_MEDIA,
-#if 0
-	.key_code[1] = KEY_VOLUMEUP,
-    .key_code[2] = KEY_VOLUMEDOWN,
-    .key_code[3] = KEY_VOICECOMMAND,
+#if 0//defined CONFIG_KERNEL_CUSTOM_D2S//2017.11.15 wsy edit for compatible ndef CONFIG_SND_SOC_TAS2557
+	.key_code[1] = KEY_VOLUMEUP,//KEY_VOICECOMMAND,
+    .key_code[2] = KEY_VOLUMEDOWN,//KEY_VOLUMEUP,
+    .key_code[3] = KEY_VOICECOMMAND,//KEY_VOLUMEDOWN,
 #else
 	.key_code[1] = BTN_1,
 	.key_code[2] = BTN_2,
@@ -238,7 +238,7 @@ static struct dev_config mi2s_rx_cfg[] = {
 };
 
 static struct dev_config mi2s_tx_cfg[] = {
-
+//2017.11.23 wsy edit for voice-speaker
 #if defined(CONFIG_SND_I2S_PRIMARY)	
 	[PRIM_MI2S] = {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
 #else
@@ -2579,7 +2579,7 @@ void msm_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 		if (ret < 0) {
 			pr_err("%s:clock disable failed for MI2S (%d); ret=%d\n",
 				__func__, index, ret);
-
+			mi2s_intf_conf[index].ref_cnt++;
 		}
 
 #if defined(CONFIG_SND_SOC_TAS2557) || defined(CONFIG_SND_I2S_PRIMARY)

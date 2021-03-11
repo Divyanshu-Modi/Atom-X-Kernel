@@ -1,7 +1,7 @@
 /*
 ** =============================================================================
 ** Copyright (c) 2016  Texas Instruments Inc.
-** Copyright (C) 2019 XiaoMi, Inc.
+** Copyright (C) 2021 XiaoMi, Inc.
 **
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU General Public License as published by the Free Software
@@ -56,7 +56,7 @@
 #include "tiload.h"
 #endif
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static int btas2557 = 1;
 #endif
@@ -845,7 +845,7 @@ static int tas2557_i2c_probe(struct i2c_client *pClient,
 
 	return nResult;
 err:
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 	btas2557 = 0;
 #endif
@@ -877,7 +877,7 @@ static const struct i2c_device_id tas2557_i2c_id[] = {
 	{}
 };
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 int smartpa_is_tas2557(void)
 {
@@ -915,7 +915,7 @@ MODULE_AUTHOR("Texas Instruments Inc.");
 MODULE_DESCRIPTION("TAS2557 I2C Smart Amplifier driver");
 MODULE_LICENSE("GPL v2");
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 EXPORT_SYMBOL(smartpa_is_tas2557);
 #endif

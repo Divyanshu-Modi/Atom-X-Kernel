@@ -1,5 +1,5 @@
 /* Copyright (c) 2015-2018, 2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -51,7 +51,7 @@ enum {
 	SLIM_MAX,
 };
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static int smartpa_ti = 0;
 #endif
@@ -189,7 +189,7 @@ static int msm_int_mclk0_event(struct snd_soc_dapm_widget *w,
 static int msm_int_mi2s_snd_startup(struct snd_pcm_substream *substream);
 static void msm_int_mi2s_snd_shutdown(struct snd_pcm_substream *substream);
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 extern int smartpa_is_tas2557(void);
 #endif
@@ -1318,7 +1318,7 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 		return NULL;
 
 #define S(X, Y) ((WCD_MBHC_CAL_PLUG_TYPE_PTR(msm_int_wcd_cal)->X) = (Y))
-	#if 1
+	#if 1//2017.11.15 wsy edit for compatible def CONFIG_SND_SOC_TAS2557
 	S(v_hs_max, 1600);
 	#else
 	S(v_hs_max, 1500);
@@ -1345,12 +1345,12 @@ static void *def_msm_int_wcd_mbhc_cal(void)
 	 * 210-290 == Button 2
 	 * 360-680 == Button 3
 	 */
-#if 1
+#if 1//2017.11.15 wsy edit for compatible def CONFIG_SND_SOC_TAS2557
 
 	btn_low[0] = 75;
 	btn_high[0] = 75;
-	btn_low[1] = 225;
-	btn_high[1] = 225;
+	btn_low[1] = 200;
+	btn_high[1] = 200;
 	btn_low[2] = 450;
 	btn_high[2] = 450;
 	btn_low[3] = 500;
@@ -2774,7 +2774,7 @@ static struct snd_soc_dai_link msm_int_be_dai[] = {
 	},
 };
 
-
+//2017.12.07 wsy edit for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 
 static struct snd_soc_dai_link msm_mi2s_be_dai_links_ti[] = {
@@ -3508,7 +3508,7 @@ static struct snd_soc_dai_link msm_int_dai_links[
 ARRAY_SIZE(msm_int_dai) +
 ARRAY_SIZE(msm_int_wsa_dai) +
 ARRAY_SIZE(msm_int_be_dai) +
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 ARRAY_SIZE(msm_mi2s_be_dai_links_nxp) +
 #elif defined(CONFIG_SND_SOC_MAX98937)
@@ -3574,7 +3574,7 @@ static void msm_int_dt_parse_cap_info(struct platform_device *pdev,
 		 MICBIAS_EXT_BYP_CAP : MICBIAS_NO_EXT_BYP_CAP);
 }
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 static void set_smartpa_ti(int btas2557)
 {
@@ -3594,7 +3594,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 	struct snd_soc_card *card = &sdm660_card;
 	struct snd_soc_dai_link *dailink;
 	int len1;
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 	int btas2557 = smartpa_is_tas2557();
 
@@ -3616,7 +3616,7 @@ static struct snd_soc_card *msm_int_populate_sndcard_dailinks(
 
 	if (of_property_read_bool(dev->of_node,
 				  "qcom,mi2s-audio-intf")) {
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 		if(0 == btas2557)				  
 		{
@@ -3768,7 +3768,7 @@ int msm_int_cdc_init(struct platform_device *pdev,
 	return 0;
 }
 
-
+//2017.12.07 wsy add for ti and nxp compatible
 #if defined(CONFIG_SND_SOC_TAS2557) && defined(CONFIG_SND_SOC_TFA98XX)
 module_param(smartpa_ti, int, 0444);
 #endif

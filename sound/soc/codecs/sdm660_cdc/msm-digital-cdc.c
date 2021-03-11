@@ -1,4 +1,5 @@
 /* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1375,7 +1376,6 @@ static ssize_t headphone_gain_store(struct kobject *kobj,
 
 		update_headphones_volume_boost(headphones_boost_l, headphones_boost_r);
 	}
-
 	return count;
 }
 
@@ -1389,6 +1389,7 @@ static ssize_t mic_gain_show(struct kobject *kobj,
 {
 	return snprintf(buf, PAGE_SIZE, "%d\n", mic_boost);
 }
+
 static ssize_t mic_gain_store(struct kobject *kobj,
 		struct kobj_attribute *attr, const char *buf, size_t count)
 {
@@ -1450,7 +1451,7 @@ static struct attribute *sound_control_attrs[] = {
 		&headphone_gain_attribute.attr,
 		&mic_gain_attribute.attr,
 		&speaker_gain_attribute.attr,
-		&earpiece_gain_attribute.attr,
+		&earpiece_gain_attribute.attr,		
 		NULL,
 };
 
@@ -1466,9 +1467,6 @@ static int msm_dig_cdc_soc_probe(struct snd_soc_codec *codec)
 	struct msm_dig_priv *msm_dig_cdc = dev_get_drvdata(codec->dev);
 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
 	int i, ret;
-
-/*zhiguang.su@MultiMedia.AudioDrv, 2017-03-27, add for debug*/
-pr_err("%s enter\n", __func__);
 
 #ifdef CONFIG_SOUND_CONTROL
 	sound_control_codec_ptr = codec;

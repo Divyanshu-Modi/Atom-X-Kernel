@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2019 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -257,7 +258,7 @@ static int msm_int_enable_sdw_cdc_clk(struct msm_sdw_priv *msm_sdw,
 		}
 	}
 rtn:
-	mutex_unlock(&msm_sdw->cdc_int_mclk1_mutex);
+	mutex_unlock(&msm_sdw->cdc_int_mclk1_mutex);  //modify by wangyibo at 20180517 for shutdown failed
 	return ret;
 }
 EXPORT_SYMBOL(msm_int_enable_sdw_cdc_clk);

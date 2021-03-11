@@ -1,0 +1,12 @@
+config SND_SOC_DBMDX
+	bool "DSPG Voice Trigger/Enhancement Chip"
+	depends on SND_SOC_SDM660_CDC	
+	default n
+	help
+		DSPG Voice Trigger/Enhancement Chip
+
+config SND_SOC_DBMDX_SND_CAPTURE
+	bool "DSPG Capture Device Support"
+	depends on SND_SOC_DBMDX
+	help
+		DSPG Capture Device Support

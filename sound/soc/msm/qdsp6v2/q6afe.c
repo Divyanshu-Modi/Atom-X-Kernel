@@ -1,5 +1,5 @@
 /* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1725,12 +1725,12 @@ int afe_dsm_ramp_dn_cfg(uint8_t *payload, uint32_t delay_in_ms)
  	uint32_t *params = (uint32_t *)payload;
 
 	*(params)		= 0;
-	*(params + 1)	= 3;
-	*(params + 2)	= 0x03000063;
-	*(params + 3)	= 5;
-	*(params + 4)	= 0x03000064;
-	*(params + 5)	= 500;
-	*(params + 6)	= 0x03000066;
+	*(params + 1)	= 3;                //three command will be sent
+	*(params + 2)	= 0x03000063;       // fade out time
+	*(params + 3)	= 5;                // 5ms
+	*(params + 4)	= 0x03000064;       // mute time
+	*(params + 5)	= 500;              // 5s mute time will make sure silence output till PA software shutdown.
+	*(params + 6)	= 0x03000066;       // start fade
 	*(params + 7)	= 1;
 
 	ret = afe_dsm_rx_set_params(payload, sizeof(uint32_t)*8);
@@ -1751,12 +1751,12 @@ int afe_dsm_pre_calib(uint8_t* payload)
 {
  	uint32_t *params = (uint32_t *)payload;
  	*(params)		= 0;
-	*(params + 1)	= 1;
-	*(params + 2)	= 0x03000001;
-	*(params + 3)	= 4;
+	*(params + 1)	= 1;               //count
+	*(params + 2)	= 0x03000001;     // enable flag
+	*(params + 3)	= 4;              // mode 0: disable, 1: enable, 2: bypass and pilot tone, 4: pilot tone only
 
 	afe_dsm_rx_set_params(payload, 4*sizeof(uint32_t));
-	usleep_range(1000*1000, 1000*1000 + 10);
+	usleep_range(1000*1000, 1000*1000 + 10);              //make the stable iv data
 	return 0;
 }
 
@@ -1764,9 +1764,9 @@ int afe_dsm_post_calib(uint8_t* payload)
 {
  	uint32_t *params = (uint32_t *)payload;
  	*(params)		= 0;
-	*(params + 1)	= 1;
-	*(params + 2)	= 0x03000001;
-	*(params + 3)	= 1;
+	*(params + 1)	= 1;               //count
+	*(params + 2)	= 0x03000001;     // enable flag
+	*(params + 3)	= 1;              // mode 0: disable, 1: enable, 2: bypass and pilot tone, 4: pilot tone only
     return afe_dsm_rx_set_params(payload, 4*sizeof(uint32_t));
 }
 
@@ -1854,7 +1854,7 @@ afe_ultrasound_state_t elus_afe = {
 	.ptr_state= &this_afe.state,
 	.ptr_wait= this_afe.wait,
 	.timeout_ms= TIMEOUT_MS,
-
+	//.ptr_ultrasound_calib_data= &this_afe.ultrasound_calib_data
 	};
 EXPORT_SYMBOL(elus_afe);
 /* ELUS End */

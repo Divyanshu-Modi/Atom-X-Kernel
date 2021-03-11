@@ -1292,7 +1292,7 @@ static int msm_compr_configure_dsp_for_playback
 	uint32_t stream_index;
 	union snd_codec_options *codec_options =
 		&(prtd->codec_param.codec.options);
-
+	
 	struct asm_softpause_params softpause = {
 		.enable = SOFT_PAUSE_ENABLE,
 		.period = SOFT_PAUSE_PERIOD,
