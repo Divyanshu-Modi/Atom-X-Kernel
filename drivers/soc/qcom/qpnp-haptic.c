@@ -2319,8 +2319,10 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
 
     if ((time_ms >= 30) || (time_ms != 11) || (time_ms != 15) || (time_ms != 20)) {
-	vmax_mv = 2204;
+
+	vmax_mv = hap->vmax_mv;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
+
 	hap->play_mode = QPNP_HAP_DIRECT;
     } else {
 	hap->play_mode = QPNP_HAP_BUFFER;
@@ -2331,9 +2333,9 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 		qpnp_hap_buffer_config(hap, hap->wave_samp_two, true);
 		} else if (time_ms == 11) {
 		qpnp_hap_buffer_config(hap, hap->wave_samp, true);
-		}
+		}		
 
-	vmax_mv = 2204;
+	vmax_mv = hap->vmax_mv;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
 
 	hap->play_mode = QPNP_HAP_BUFFER;
