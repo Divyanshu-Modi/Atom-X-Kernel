@@ -185,6 +185,7 @@ static void a5xx_check_features(struct adreno_device *adreno_dev)
 static void a5xx_platform_setup(struct adreno_device *adreno_dev)
 {
 	uint64_t addr;
+#ifdef CONFIG_ADRENO_CORESNAP
 	struct adreno_gpudev *gpudev = ADRENO_GPU_DEVICE(adreno_dev);
 
 	if (adreno_is_a505_or_a506(adreno_dev) || adreno_is_a508(adreno_dev)) {
@@ -208,6 +209,7 @@ static void a5xx_platform_setup(struct adreno_device *adreno_dev)
 		adreno_is_a509(adreno_dev)) {
 		gpudev->snapshot_data->sect_sizes->cp_merciu = 1024;
 	}
+#endif
 
 	/* Calculate SP local and private mem addresses */
 	addr = ALIGN(ADRENO_UCHE_GMEM_BASE + adreno_dev->gmem_size, SZ_64K);
@@ -331,8 +333,9 @@ static void a5xx_init(struct adreno_device *adreno_dev)
 
 	if (ADRENO_QUIRK(adreno_dev, ADRENO_QUIRK_CRITICAL_PACKETS))
 		a5xx_critical_packet_construct(adreno_dev);
-
+#ifdef CONFIG_ADRENO_CORESNAP
 	a5xx_crashdump_init(adreno_dev);
+#endif
 }
 
 static void a5xx_remove(struct adreno_device *adreno_dev)
@@ -3463,6 +3466,7 @@ static struct adreno_irq a5xx_irq = {
 	.mask = A5XX_INT_MASK,
 };
 
+#ifdef CONFIG_ADRENO_CORESNAP
 /*
  * Default size for CP queues for A5xx targets. You must
  * overwrite these value in platform_setup function for
@@ -3672,17 +3676,20 @@ static struct adreno_coresight a5xx_coresight = {
 	.count = ARRAY_SIZE(a5xx_coresight_registers),
 	.groups = a5xx_coresight_groups,
 };
+#endif
 
 struct adreno_gpudev adreno_a5xx_gpudev = {
 	.reg_offsets = &a5xx_reg_offsets,
 	.int_bits = a5xx_int_bits,
 	.ft_perf_counters = a5xx_ft_perf_counters,
 	.ft_perf_counters_count = ARRAY_SIZE(a5xx_ft_perf_counters),
-	.coresight = &a5xx_coresight,
 	.start = a5xx_start,
+#ifdef CONFIG_ADRENO_CORESNAP	
+	.coresight = &a5xx_coresight,
 	.snapshot = a5xx_snapshot,
-	.irq = &a5xx_irq,
 	.snapshot_data = &a5xx_snapshot_data,
+#endif	
+	.irq = &a5xx_irq,
 //	.irq_trace = trace_kgsl_a5xx_irq_status,
 	.num_prio_levels = KGSL_PRIORITY_MAX_RB_LEVELS,
 	.platform_setup = a5xx_platform_setup,
