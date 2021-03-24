@@ -5,6 +5,7 @@ config EXFAT_FS
 	select NLS_UTF8
 	select NLS_CODEPAGE_437
 	select NLS_ISO8859_1
+	depends on !SDFAT_FS
 	help
 	  If you want to use the exFAT file system, then you must say Y or M
 	  here to inlucde exFAT support. exFAT supports winnt short-name rule.
@@ -13,16 +14,17 @@ config EXFAT_FS
 	  To compile this as a module, choose M here: the module will be called
 	  exfat.
 
-if EXFAT_FS
 config EXFAT_DEFAULT_CODEPAGE
 	int "Default codepage for exFAT"
 	default 437
+	depends on EXFAT_FS
 	help
 	  This option should be set to the codepage of your exFAT filesystems.
 
 config EXFAT_DEFAULT_IOCHARSET
 	string "Default iocharset for exFAT"
 	default "utf8"
+	depends on EXFAT_FS
 	help
 	  Set this to the default input/output character set you'd
 	  like exFAT to use. It should probably match the character set
@@ -31,6 +33,7 @@ config EXFAT_DEFAULT_IOCHARSET
 
 config EXFAT_VIRTUAL_XATTR
 	bool "Virtual xattr support for exFAT"
+	depends on EXFAT_FS
 	default y
 	help
 	  To support virtual xattr.
@@ -38,7 +41,7 @@ config EXFAT_VIRTUAL_XATTR
 config EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
 	string "Default string for SELinux label"
 	default "u:object_r:exfat:s0"
-	depends on EXFAT_VIRTUAL_XATTR
+	depends on EXFAT_VIRTUAL_XATTR && EXFAT_FS
 	help
 	  Set this to the default string for SELinux label.
 	  Support for "u:object_r:exfat:s0" was added in Android Pie,
@@ -46,22 +49,21 @@ config EXFAT_VIRTUAL_XATTR_SELINUX_LABEL
 
 config EXFAT_DEBUG
 	bool "enable debug features"
+	depends on EXFAT_FS
 	default n
 	
-if EXFAT_DEBUG
-
 config EXFAT_DBG_MSG
 	bool "enable debug messages"
+	depends on EXFAT_DEBUG
 
 config EXFAT_DBG_BUGON
 	bool "enable strict BUG_ON() for debugging"
+	depends on EXFAT_DEBUG
 
 config EXFAT_DBG_WARNON
 	bool "enable strict WARN_ON() for debugging"
-
-endif # if EXFAT_DEBUG
+	depends on EXFAT_DEBUG
 
 config EXFAT_UEVENT
 	bool "enable uevent"
-
-endif # if EXFAT_FS
+	depends on EXFAT_FS
