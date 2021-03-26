@@ -187,15 +187,6 @@ config INPUT_APMPOWER
 	  To compile this driver as a module, choose M here: the
 	  module will be called apm-power.
 
-config INPUT_HALL_SENSOR_E7S
-     tristate "A workaround for e7s' issue of irq abnormit"
-     select INPUT_HALL_SENSOR
-     help
-       Say Y here if you have a hall sensor.
-       hall sensor support.
-
-       If unsure, say N.
-
 config INPUT_HALL_SENSOR
      tristate "hall sensor"
      help

@@ -15,19 +15,19 @@
 #include <linux/mutex.h>
 #include <linux/regulator/consumer.h>        
 #include <linux/fb.h>
-#ifdef CONFIG_INPUT_HALL_SENSOR_E7S
+#ifdef CONFIG_MACH_XIAOMI_WHYRED
 #include <linux/jiffies.h>
-#endif //INPUT_HALL_SENSOR_E7S
+#endif //MACH_XIAOMI_WHYRED
 
 #define KEY_HALL_OPEN                0x284
 #define KEY_HALL_CLOSE               0x285
 #define GPIO_HALL_EINT_PIN 107
 
-#ifdef CONFIG_INPUT_HALL_SENSOR_E7S
+#ifdef CONFIG_MACH_XIAOMI_WHYRED
 static struct delayed_work hall_irq_event_work;
 static struct workqueue_struct *hall_irq_event_wq;
 static void hall_irq_event_workfunc(struct work_struct *work);
-#endif //INPUT_HALL_SENSOR_E7S
+#endif //MACH_XIAOMI_WHYRED
 
 struct hall_switch_info
 {
@@ -42,7 +42,7 @@ struct hall_switch_info
 
 struct hall_switch_info *global_hall_info;
 
-#ifdef CONFIG_INPUT_HALL_SENSOR_E7S
+#ifdef CONFIG_MACH_XIAOMI_WHYRED
 static void hall_irq_event_workfunc(struct work_struct *work)
 {
 	int hall_gpio;
@@ -97,7 +97,7 @@ static irqreturn_t hall_interrupt(int irq, void *data)
 	}
         return IRQ_HANDLED;
 }
-#endif //INPUT_HALL_SENSOR_E7S
+#endif //MACH_XIAOMI_WHYRED
 
 static int hall_parse_dt(struct device *dev, struct hall_switch_info *pdata)
 {
@@ -261,6 +261,10 @@ static int hall_probe(struct platform_device *pdev)
 	        goto free_input_device;
 	}
 
+#ifdef CONFIG_MACH_XIAOMI_WHYRED
+	INIT_DELAYED_WORK(&hall_irq_event_work, hall_irq_event_workfunc);
+	hall_irq_event_wq = create_workqueue("hall_irq_event_wq");
+#endif //MACH_XIAOMI_WHYRED
        pr_err("hall_probe end\n");
 	hall_register_class_dev(hall_info);
 	   global_hall_info = hall_info;
