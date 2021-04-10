@@ -6186,6 +6186,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
 		{0x17, 0x90170110},
 		{0x1a, 0x03011020},
 		{0x21, 0x03211030}),
+	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+		ALC225_STANDARD_PINS,
+		{0x12, 0xb7a60130},
+		{0x17, 0x90170110}),
 	{}
 };
 
