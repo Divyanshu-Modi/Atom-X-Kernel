@@ -38,60 +38,55 @@ static unsigned int default_efficient_freq_hp[] = {0};
 static unsigned int default_up_delay_hp[] = {0};
 
 struct sugov_tunables {
-	struct gov_attr_set attr_set;
-	unsigned int up_rate_limit_us;
-	unsigned int down_rate_limit_us;
-	bool iowait_boost_enable;
-	unsigned int *efficient_freq;
-	int nefficient_freq;
-	unsigned int *up_delay;
-	int nup_delay;
-	int current_step;
+	struct			gov_attr_set attr_set;
+	unsigned int	up_rate_limit_us;
+	unsigned int	down_rate_limit_us;
+	bool			iowait_boost_enable;
+	unsigned int	*efficient_freq;
+	int				nefficient_freq;
+	unsigned int	*up_delay;
+	int				nup_delay;
+	int				current_step;
 };
 
 struct sugov_policy {
-	struct cpufreq_policy *policy;
-
-	struct sugov_tunables *tunables;
-	struct list_head tunables_hook;
-
-	raw_spinlock_t update_lock;  /* For shared policies */
-	u64 last_freq_update_time;
-	s64 min_rate_limit_ns;
-	s64 up_rate_delay_ns;
-	s64 down_rate_delay_ns;
-	unsigned int next_freq;
-	unsigned int cached_raw_freq;
-	unsigned long first_hp_request_time;
+	struct			cpufreq_policy *policy;
+	struct			sugov_tunables *tunables;
+	struct			list_head tunables_hook;
+	raw_spinlock_t	update_lock;  /* For shared policies */
+	u64				last_freq_update_time;
+	s64				min_rate_limit_ns;
+	s64				up_rate_delay_ns;
+	s64				down_rate_delay_ns;
+	unsigned int	next_freq;
+	unsigned int	cached_raw_freq;
+	unsigned long	first_hp_request_time;
 
 	/* The next fields are only needed if fast switch cannot be used. */
-	struct irq_work irq_work;
-	struct kthread_work work;
-	struct mutex work_lock;
-	struct kthread_worker worker;
-	struct task_struct *thread;
-	bool work_in_progress;
-
-	bool need_freq_update;
-
+	struct			irq_work irq_work;
+	struct			kthread_work work;
+	struct			mutex work_lock;
+	struct			kthread_worker worker;
+	struct			task_struct *thread;
+	bool			work_in_progress;
+	bool			need_freq_update;
 	/* Framebuffer callbacks */
-	struct notifier_block fb_notif;
-	bool is_panel_blank;
+	struct			notifier_block fb_notif;
+	bool			is_panel_blank;
 };
 
 struct sugov_cpu {
-	struct update_util_data update_util;
-	struct sugov_policy *sg_policy;
-
-	bool iowait_boost_pending;
-	unsigned int iowait_boost;
-	unsigned int iowait_boost_max;
-	u64 last_update;
-
+	struct			update_util_data update_util;
+	struct			sugov_policy *sg_policy;
+	unsigned int	cpu;
+	bool			iowait_boost_pending;
+	unsigned int	iowait_boost;
+	unsigned int	iowait_boost_max;
+	u64				last_update;
 	/* The fields below are only needed when sharing a policy. */
-	unsigned long util;
-	unsigned long max;
-	unsigned int flags;
+	unsigned long	util;
+	unsigned long	max;
+	unsigned int	flags;
 
 	/* The field below is for single-CPU policies only. */
 #ifdef CONFIG_NO_HZ_COMMON
@@ -463,13 +458,28 @@ static void sugov_update_shared(struct update_util_data *hook, u64 time,
 static void sugov_work(struct kthread_work *work)
 {
 	struct sugov_policy *sg_policy = container_of(work, struct sugov_policy, work);
+	unsigned int freq;
+	unsigned long flags;
+
+	/*
+	 * Hold sg_policy->update_lock shortly to handle the case where:
+	 * incase sg_policy->next_freq is read here, and then updated by
+	 * sugov_deferred_update() just before work_in_progress is set to false
+	 * here, we may miss queueing the new update.
+	 *
+	 * Note: If a work was queued after the update_lock is released,
+	 * sugov_work() will just be called again by kthread_work code; and the
+	 * request will be proceed before the sugov thread sleeps.
+	 */
+	raw_spin_lock_irqsave(&sg_policy->update_lock, flags);
+	freq = sg_policy->next_freq;
+	if (use_pelt())
+		sg_policy->work_in_progress = false;
+	raw_spin_unlock_irqrestore(&sg_policy->update_lock, flags);
 
 	mutex_lock(&sg_policy->work_lock);
-	__cpufreq_driver_target(sg_policy->policy, sg_policy->next_freq,
-				CPUFREQ_RELATION_L);
-	mutex_unlock(&sg_policy->work_lock);
-
-	sg_policy->work_in_progress = false;
+	__cpufreq_driver_target(sg_policy->policy, freq, CPUFREQ_RELATION_L);
+	mutex_unlock(&sg_policy->work_lock);	
 }
 
 static void sugov_irq_work(struct irq_work *irq_work)
@@ -478,19 +488,6 @@ static void sugov_irq_work(struct irq_work *irq_work)
 
 	sg_policy = container_of(irq_work, struct sugov_policy, irq_work);
 
-	/*
-	 * For RT and deadline tasks, the schedhorizon governor shoots the
-	 * frequency to maximum. Special care must be taken to ensure that this
-	 * kthread doesn't result in the same behavior.
-	 *
-	 * This is (mostly) guaranteed by the work_in_progress flag. The flag is
-	 * updated only at the end of the sugov_work() function and before that
-	 * the schedhorizon governor rejects all other frequency scaling requests.
-	 *
-	 * There is a very rare case though, where the RT thread yields right
-	 * after the work_in_progress flag is cleared. The effects of that are
-	 * neglected for now.
-	 */
 	queue_kthread_work(&sg_policy->worker, &sg_policy->work);
 }
 
@@ -824,10 +821,9 @@ static void sugov_tunables_save(struct cpufreq_policy *policy,
 
 	if (!cached) {
 		cached = kzalloc(sizeof(*tunables), GFP_KERNEL);
-		if (!cached) {
-			pr_warn("Couldn't allocate tunables for caching\n");
+		if (!cached)
 			return;
-		}
+
 		for_each_cpu(cpu, policy->related_cpus)
 			per_cpu(cached_tunables, cpu) = cached;
 	}
@@ -974,15 +970,15 @@ out:
 	return 0;
 
 fail:
+	kobject_put(&tunables->attr_set.kobj);
 	policy->governor_data = NULL;
 	sugov_tunables_free(tunables);
 
 stop_kthread:
 	sugov_kthread_stop(sg_policy);
-
-free_sg_policy:
 	mutex_unlock(&global_tunables_lock);
 
+free_sg_policy:
 	sugov_policy_free(sg_policy);
 
 disable_fast_switch:
