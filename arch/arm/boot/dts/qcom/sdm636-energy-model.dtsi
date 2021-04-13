@@ -12,49 +12,49 @@
 	cpus {
 		CPU0: cpu@0 {
 			clock-frequency = <1612800000>;
-			efficiency = <1024>;
+			efficiency = <615>;
 			#cooling-cells = <2>;
 			};
 			
 		CPU1: cpu@1 {
 			clock-frequency = <1612800000>;
-			efficiency = <1024>;
+			efficiency = <615>;
 			#cooling-cells = <2>;
 			};
 				
 		CPU2: cpu@2 {
 			clock-frequency = <1612800000>;
-			efficiency = <1024>;
+			efficiency = <615>;
 			#cooling-cells = <2>;
 			};
 			
 		CPU3: cpu@3 {	
 			clock-frequency = <1612800000>;
-			efficiency = <1024>;
+			efficiency = <615>;
 			#cooling-cells = <2>;
 			};
 						
 		CPU4: cpu@100 {
 			clock-frequency = <1804800000>;
-			efficiency = <1638>;
+			efficiency = <1024>;
 			#cooling-cells = <2>;
 			};
 			
 		CPU5: cpu@101 {
 			clock-frequency = <1804800000>;
-			efficiency = <1638>;
+			efficiency = <1024>;
 			#cooling-cells = <2>;
 			};
 			
 		CPU6: cpu@102 {
 			clock-frequency = <1804800000>;
-			efficiency = <1638>;
+			efficiency = <1024>;
 			#cooling-cells = <2>;
 			};
 			
 		CPU7: cpu@103 {
 			clock-frequency = <1804800000>;
-			efficiency = <1638>;
+			efficiency = <1024>;
 			#cooling-cells = <2>;
 			};
 	};
@@ -64,12 +64,12 @@
 
 		CPU_COST_0: core-cost0 {
 			busy-cost-data = <
-				633600	41
-				902400	70
-				1113600	83
-				1401600	146
-				1536000	158
-				1612800	228
+				633600	51
+				902400	74
+				1113600	88
+				1401600	148
+				1536000	162
+				1612800	182
 			>;
 			idle-cost-data = <
 				20 16 10 8
@@ -78,10 +78,10 @@
 
 		CPU_COST_1: core-cost1 {
 			busy-cost-data = <
-				1113600	307
-				1401600	485
-				1747200	857
-				1804800	883
+				1113600	292
+				1401600	368
+				1747200	562
+				1804800	559
 			>;
 			idle-cost-data = <
 				100 80 60 40
