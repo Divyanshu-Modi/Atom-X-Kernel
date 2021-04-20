@@ -374,13 +374,14 @@ POLLY_FLAGS	:= -mllvm -polly \
 		   -mllvm -polly-opt-fusion=max \
 		   -mllvm -polly-ast-use-context \
 		   -mllvm -polly-detect-keep-going \
-		   -mllvm -polly-vectorizer=stripmine
+		   -mllvm -polly-vectorizer=stripmine \
+		   -mllvm -polly-invariant-load-hoisting
 else
 POLLY_FLAGS	:=
 endif
 
 ifeq ($(cc-name),clang)
-OPT_FLAGS	:= -mcpu=cortex-a53+crypto+crc -funsafe-math-optimizations -ffast-math -fopenmp
+OPT_FLAGS	:= -funsafe-math-optimizations -ffast-math -fopenmp
 else
 OPT_FLAGS	:=
 endif
@@ -710,6 +711,15 @@ endif
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS	+= -Werror
+endif
+
+# Tell compiler to tune the performance of the code for a specified target processor
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS += -mcpu=cortex-a53 -march=armv8-a+crc+crypto
+KBUILD_AFLAGS += -mcpu=cortex-a53 -march=armv8-a+crc+crypto
+else
+KBUILD_CFLAGS += -mcpu=cortex-a73.cortex-a53 -march=armv8-a+crc+crypto
+KBUILD_AFLAGS += -mcpu=cortex-a73.cortex-a53 -march=armv8-a+crc+crypto
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
