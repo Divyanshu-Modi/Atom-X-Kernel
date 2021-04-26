@@ -2,19 +2,11 @@
  * Copyright (C) 2010 - 2017 Novatek, Inc.
  * Copyright (C) 2019 XiaoMi, Inc.
  *
+ * SPDX-License-Identifier: GPL-2.0 
+ *
  * $Revision: 20544 $
- * $Date: 2017-12-20 11:08:15 +0800 (周三, 20 十二月 2017) $
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
+ * $Date: 2017-12-20 11:08:15 +0800 (Wednesday, 20 December 2017) $
  */
 
 struct nvt_ts_mem_map {
