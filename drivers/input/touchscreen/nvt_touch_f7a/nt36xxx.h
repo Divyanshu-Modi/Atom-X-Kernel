@@ -46,9 +46,13 @@
 extern const uint16_t gesture_key_array[];
 #endif
 
+#ifndef CONFIG_BOOT_FW_UPDATE_NVT_F7A
+#define BOOT_UPDATE_FIRMWARE 0
+#else
 #define BOOT_UPDATE_FIRMWARE 1
 #define BOOT_UPDATE_FIRMWARE_NAME_TIANMA "novatek/tianma_nt36672a_miui_f7a.bin"
 #define BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO "novatek/shenchao_nt36672a_miui_f7a.bin"
+#endif
 
 #define TOUCH_STATE_WORKING    0x00
 #define TOUCH_STATE_UPGRADING  0x01

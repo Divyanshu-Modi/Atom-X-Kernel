@@ -38,9 +38,13 @@
 extern const uint16_t gesture_key_array[];
 #endif
 
+#ifndef CONFIG_BOOT_FW_UPDATE_NVT_D2S
+#define BOOT_UPDATE_FIRMWARE 0
+#else
 #define BOOT_UPDATE_FIRMWARE 1
 #define BOOT_UPDATE_FIRMWARE_NAME_TIANMA "novatek/tianma_nt36672_miui_d2s.bin"
 #define BOOT_UPDATE_FIRMWARE_NAME_JDI "novatek/jdi_nt36672_miui_d2s.bin"
+#endif
 
 struct nvt_ts_data {
 	struct i2c_client *client;

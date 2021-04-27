@@ -13,3 +13,11 @@ config TOUCHSCREEN_NVT_A
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called nvt.
+	  
+config BOOT_FW_UPDATE_NVT_A
+	tristate "boot firmware update function for novatek touchscreens"
+	depends on TOUCHSCREEN_NVT_A
+	help
+	  Say Y here if you want to enable boot firmware update.
+
+	  If unsure, say N.
