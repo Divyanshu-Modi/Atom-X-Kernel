@@ -2522,7 +2522,12 @@ void jbd2_journal_refile_buffer(journal_t *journal, struct journal_head *jh)
 /*
  * File inode in the inode list of the handle's transaction
  */
+#ifndef CONFIG_MACH_LONGCHEER
 int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode)
+#else
+int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode,
+		loff_t start_byte, loff_t end_byte)
+#endif
 {
 	transaction_t *transaction = handle->h_transaction;
 	journal_t *journal;
@@ -2534,6 +2539,7 @@ int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode)
 	jbd_debug(4, "Adding inode %lu, tid:%d\n", jinode->i_vfs_inode->i_ino,
 			transaction->t_tid);
 
+#ifndef CONFIG_MACH_LONGCHEER
 	/*
 	 * First check whether inode isn't already on the transaction's
 	 * lists without taking the lock. Note that this check is safe
@@ -2550,6 +2556,7 @@ int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode)
 	if (jinode->i_transaction == transaction ||
 	    jinode->i_next_transaction == transaction)
 		return 0;
+#endif
 
 	spin_lock(&journal->j_list_lock);
 
@@ -2578,6 +2585,25 @@ int jbd2_journal_file_inode(handle_t *handle, struct jbd2_inode *jinode)
 	jinode->i_transaction = transaction;
 	list_add(&jinode->i_list, &transaction->t_inode_list);
 done:
+#ifdef CONFIG_MACH_LONGCHEER
+	if (jinode->i_transaction == transaction) {
+		if (jinode->i_dirty_end) {
+			jinode->i_dirty_start = min(jinode->i_dirty_start, start_byte);
+			jinode->i_dirty_end = max(jinode->i_dirty_end, end_byte);
+		} else {
+			jinode->i_dirty_start = start_byte;
+			jinode->i_dirty_end = end_byte;
+		}
+	} else {
+		if (jinode->i_next_dirty_end) {
+			jinode->i_next_dirty_start = min(jinode->i_next_dirty_start, start_byte);
+			jinode->i_next_dirty_end = max(jinode->i_next_dirty_end, end_byte);
+		} else {
+			jinode->i_next_dirty_start = start_byte;
+			jinode->i_next_dirty_end = end_byte;
+		}
+	}
+#endif
 	spin_unlock(&journal->j_list_lock);
 
 	return 0;

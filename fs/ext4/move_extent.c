@@ -400,7 +400,12 @@ data_copy:
 
 	/* Even in case of data=writeback it is reasonable to pin
 	 * inode to transaction, to prevent unexpected data loss */
+#ifndef CONFIG_MACH_LONGCHEER
 	*err = ext4_jbd2_file_inode(handle, orig_inode);
+#else
+	*err = ext4_jbd2_file_inode(handle, orig_inode,
+					(loff_t)orig_page_offset << PAGE_SHIFT, replaced_size);
+#endif
 
 unlock_pages:
 	unlock_page(pagep[0]);

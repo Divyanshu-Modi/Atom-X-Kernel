@@ -190,14 +190,24 @@ static int journal_wait_on_commit_record(journal_t *journal,
  * use writepages() because with dealyed allocation we may be doing
  * block allocation in writepages().
  */
+#ifndef CONFIG_MACH_LONGCHEER
 static int journal_submit_inode_data_buffers(struct address_space *mapping)
+#else
+static int journal_submit_inode_data_buffers(struct address_space *mapping,
+		loff_t dirty_start, loff_t dirty_end)
+#endif
 {
 	int ret;
 	struct writeback_control wbc = {
 		.sync_mode =  WB_SYNC_ALL,
 		.nr_to_write = mapping->nrpages * 2,
+#ifndef CONFIG_MACH_LONGCHEER
 		.range_start = 0,
 		.range_end = i_size_read(mapping->host),
+#else
+		.range_start = dirty_start,
+		.range_end = dirty_end,
+#endif
 	};
 
 	ret = generic_writepages(mapping, &wbc);
@@ -221,6 +231,10 @@ static int journal_submit_data_buffers(journal_t *journal,
 
 	spin_lock(&journal->j_list_lock);
 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
+#ifdef CONFIG_MACH_LONGCHEER
+		loff_t dirty_start = jinode->i_dirty_start;
+		loff_t dirty_end = jinode->i_dirty_end;
+#endif
 		mapping = jinode->i_vfs_inode->i_mapping;
 		set_bit(__JI_COMMIT_RUNNING, &jinode->i_flags);
 		spin_unlock(&journal->j_list_lock);
@@ -231,7 +245,12 @@ static int journal_submit_data_buffers(journal_t *journal,
 		 * only allocated blocks here.
 		 */
 		trace_jbd2_submit_inode_data(jinode->i_vfs_inode);
+#ifndef CONFIG_MACH_LONGCHEER
 		err = journal_submit_inode_data_buffers(mapping);
+#else
+		err = journal_submit_inode_data_buffers(mapping, dirty_start,
+				dirty_end);
+#endif
 		if (!ret)
 			ret = err;
 		spin_lock(&journal->j_list_lock);
@@ -258,9 +277,18 @@ static int journal_finish_inode_data_buffers(journal_t *journal,
 	/* For locking, see the comment in journal_submit_data_buffers() */
 	spin_lock(&journal->j_list_lock);
 	list_for_each_entry(jinode, &commit_transaction->t_inode_list, i_list) {
+#ifdef CONFIG_MACH_LONGCHEER
+		loff_t dirty_start = jinode->i_dirty_start;
+		loff_t dirty_end = jinode->i_dirty_end;
+#endif
 		set_bit(__JI_COMMIT_RUNNING, &jinode->i_flags);
 		spin_unlock(&journal->j_list_lock);
+#ifndef CONFIG_MACH_LONGCHEER
 		err = filemap_fdatawait(jinode->i_vfs_inode->i_mapping);
+#else
+		err = filemap_fdatawait_range(jinode->i_vfs_inode->i_mapping, dirty_start,
+						dirty_end);
+#endif
 		if (err) {
 			/*
 			 * Because AS_EIO is cleared by
@@ -286,10 +314,20 @@ static int journal_finish_inode_data_buffers(journal_t *journal,
 		if (jinode->i_next_transaction) {
 			jinode->i_transaction = jinode->i_next_transaction;
 			jinode->i_next_transaction = NULL;
+#ifdef CONFIG_MACH_LONGCHEER
+			jinode->i_dirty_start = jinode->i_next_dirty_start;
+			jinode->i_dirty_end = jinode->i_next_dirty_end;
+			jinode->i_next_dirty_start = 0;
+			jinode->i_next_dirty_end = 0;
+#endif
 			list_add(&jinode->i_list,
 				&jinode->i_transaction->t_inode_list);
 		} else {
 			jinode->i_transaction = NULL;
+#ifdef CONFIG_MACH_LONGCHEER
+			jinode->i_dirty_start = 0;
+			jinode->i_dirty_end = 0;
+#endif
 		}
 	}
 	spin_unlock(&journal->j_list_lock);
@@ -396,6 +434,9 @@ void jbd2_journal_commit_transaction(journal_t *journal)
 	int csum_size = 0;
 	LIST_HEAD(io_bufs);
 	LIST_HEAD(log_bufs);
+#ifdef CONFIG_MACH_LONGCHEER
+	unsigned long commit_latency;
+#endif
 
 	if (jbd2_journal_has_csum_v2or3(journal))
 		csum_size = sizeof(struct jbd2_journal_block_tail);
@@ -781,6 +822,11 @@ start_journal_io:
 	J_ASSERT(commit_transaction->t_state == T_COMMIT);
 	commit_transaction->t_state = T_COMMIT_DFLUSH;
 	write_unlock(&journal->j_state_lock);
+#ifdef CONFIG_MACH_LONGCHEER
+	stats.run.rs_metadata_flushed = jiffies;
+	stats.run.rs_data_flushed = jbd2_time_diff(stats.run.rs_logging,
+					       stats.run.rs_metadata_flushed);
+#endif
 
 	/* 
 	 * If the journal is not located on the file system device,
@@ -885,6 +931,11 @@ start_journal_io:
 	J_ASSERT(commit_transaction->t_state == T_COMMIT_DFLUSH);
 	commit_transaction->t_state = T_COMMIT_JFLUSH;
 	write_unlock(&journal->j_state_lock);
+#ifdef CONFIG_MACH_LONGCHEER
+	stats.run.rs_committing = jiffies;
+	stats.run.rs_metadata_flushed = jbd2_time_diff(stats.run.rs_metadata_flushed,
+					       stats.run.rs_committing);
+#endif
 
 	if (!jbd2_has_feature_async_commit(journal)) {
 		err = journal_submit_commit_record(journal, commit_transaction,
@@ -922,6 +973,11 @@ start_journal_io:
 	J_ASSERT(commit_transaction->t_buffers == NULL);
 	J_ASSERT(commit_transaction->t_checkpoint_list == NULL);
 	J_ASSERT(commit_transaction->t_shadow_list == NULL);
+
+#ifdef CONFIG_MACH_LONGCHEER
+	stats.run.rs_committing = jbd2_time_diff(stats.run.rs_committing,
+					      jiffies);
+#endif
 
 restart_loop:
 	/*
@@ -1126,12 +1182,50 @@ restart_loop:
 
 	write_unlock(&journal->j_state_lock);
 
+#ifdef CONFIG_MACH_LONGCHEER
+	stats.run.rs_callback = jiffies;
+#endif
 	if (journal->j_commit_callback)
 		journal->j_commit_callback(journal, commit_transaction);
+#ifdef CONFIG_MACH_LONGCHEER
+	stats.run.rs_callback = jbd2_time_diff(stats.run.rs_callback,
+					      jiffies);
+#endif
 
 	trace_jbd2_end_commit(journal, commit_transaction);
 	jbd_debug(1, "JBD2: commit %d complete, head %d\n",
 		  journal->j_commit_sequence, journal->j_tail_sequence);
+
+#ifdef CONFIG_MACH_LONGCHEER
+	/*
+	 * Print detailed transaction commit time consuming info if it was requested
+	 */
+	if (stats.ts_requested) {
+		commit_latency = jbd2_time_diff(commit_transaction->t_requested, jiffies);
+		/*
+		 * Only print when latency more than 1s
+		 */
+		if (jiffies_to_msecs(commit_latency) > 1000)
+			printk(KERN_WARNING
+				"jbd2_journal_commit_transaction: commit_tid %d, commit_latency %u, wait %u, request_delay %u, "
+				"running %u, locked %u, flushing %u, data_flush %u, metadata_flush %u, logging %u, committing %u, "
+				"callback %u, handle_count %u, blocks %u, blocks_logged %u",
+				commit_transaction->t_tid,
+				jiffies_to_msecs(commit_latency),
+				jiffies_to_msecs(stats.run.rs_wait),
+				jiffies_to_msecs(stats.run.rs_request_delay),
+				jiffies_to_msecs(stats.run.rs_running),
+				jiffies_to_msecs(stats.run.rs_locked),
+				jiffies_to_msecs(stats.run.rs_flushing),
+				jiffies_to_msecs(stats.run.rs_data_flushed),
+				jiffies_to_msecs(stats.run.rs_metadata_flushed),
+				jiffies_to_msecs(stats.run.rs_logging),
+				jiffies_to_msecs(stats.run.rs_committing),
+				jiffies_to_msecs(stats.run.rs_callback),
+				stats.run.rs_handle_count, stats.run.rs_blocks,
+				stats.run.rs_blocks_logged);
+	}
+#endif
 
 	write_lock(&journal->j_state_lock);
 	spin_lock(&journal->j_list_lock);
