@@ -32,6 +32,9 @@
 #include <linux/regulator/of_regulator.h>
 #include <linux/input/qpnp-power-on.h>
 #include <linux/power_supply.h>
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+#include <asm/bootinfo.h>
+#endif
 
 #define PMIC_VER_8941           0x01
 #define PMIC_VERSION_REG        0x0105
@@ -66,6 +69,9 @@
 	((pon)->base + PON_OFFSET((pon)->subtype, 0xA, 0xC2))
 #define QPNP_POFF_REASON1(pon) \
 	((pon)->base + PON_OFFSET((pon)->subtype, 0xC, 0xC5))
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+#define QPNP_POFF_REASON2(pon)			((pon)->base + 0xD)
+#endif
 #define QPNP_PON_WARM_RESET_REASON2(pon)	((pon)->base + 0xB)
 #define QPNP_PON_OFF_REASON(pon)		((pon)->base + 0xC7)
 #define QPNP_FAULT_REASON1(pon)			((pon)->base + 0xC8)
@@ -474,6 +480,51 @@ static ssize_t qpnp_pon_dbc_store(struct device *dev,
 
 static DEVICE_ATTR(debounce_us, 0664, qpnp_pon_dbc_show, qpnp_pon_dbc_store);
 
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+static ssize_t qpnp_kpdpwr_reset_show(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct qpnp_pon *pon = dev_get_drvdata(dev);
+	int val;
+	int rc;
+
+	rc = regmap_read(pon->regmap, QPNP_PON_KPDPWR_S2_CNTL2(pon), &val);
+	if (rc) {
+		pr_err("Unable to read pon_dbc_ctl rc=%d\n", rc);
+		return rc;
+	}
+	val &= QPNP_PON_S2_RESET_ENABLE;
+	val = val >> 7;
+
+	return snprintf(buf, QPNP_PON_BUFFER_SIZE, "%d\n", val);
+}
+
+static ssize_t qpnp_kpdpwr_reset_store(struct device *dev,
+				struct device_attribute *attr,
+				const char *buf, size_t size)
+{
+	struct qpnp_pon *pon = dev_get_drvdata(dev);
+	u32 value;
+	int rc;
+
+	if (size > QPNP_PON_BUFFER_SIZE)
+		return -EINVAL;
+
+	rc = kstrtou32(buf, 10, &value);
+	if (rc)
+		return rc;
+
+	value = value << 7;
+	value &= QPNP_PON_S2_RESET_ENABLE;
+
+	rc = regmap_write(pon->regmap, QPNP_PON_KPDPWR_S2_CNTL2(pon), value);
+
+	return size;
+}
+
+static DEVICE_ATTR(kpdpwr_reset, 0664, qpnp_kpdpwr_reset_show, qpnp_kpdpwr_reset_store);
+#endif
+
 static int qpnp_pon_reset_config(struct qpnp_pon *pon,
 		enum pon_power_off_type type)
 {
@@ -630,6 +681,74 @@ int qpnp_pon_is_warm_reset(void)
 		return pon->warm_reset_reason1;
 }
 EXPORT_SYMBOL(qpnp_pon_is_warm_reset);
+
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+int qpnp_pon_is_ps_hold_reset(void)
+{
+	struct qpnp_pon *pon = sys_reset_dev;
+	int rc;
+	int reg = 0;
+
+	if (!pon)
+		return 0;
+
+	rc = regmap_read(pon->regmap, QPNP_POFF_REASON1(pon), &reg);
+	if (rc) {
+		dev_err(&pon->pdev->dev,
+				"Unable to read addr=%x, rc(%d)\n",
+				QPNP_POFF_REASON1(pon), rc);
+		return 0;
+	}
+
+	if (reg & (1<<POFF_REASON_EVENT_PS_HOLD))
+		return 1;
+
+	dev_info(&pon->pdev->dev,
+			"hw_reset reason1 is 0x%x\n",
+			reg);
+
+	rc = regmap_read(pon->regmap, QPNP_POFF_REASON2(pon), &reg);
+
+	dev_info(&pon->pdev->dev,
+			"hw_reset reason2 is 0x%x\n",
+			reg);
+	return 0;
+}
+EXPORT_SYMBOL(qpnp_pon_is_ps_hold_reset);
+
+int qpnp_pon_is_lpk(void)
+{
+	struct qpnp_pon *pon = sys_reset_dev;
+	int rc;
+	int reg = 0;
+
+	if (!pon)
+		return 0;
+
+	rc = regmap_read(pon->regmap, QPNP_POFF_REASON1(pon), &reg);
+	if (rc) {
+		dev_err(&pon->pdev->dev,
+				"Unable to read addr=%x, rc(%d)\n",
+				QPNP_POFF_REASON1(pon), rc);
+		return 0;
+	}
+
+	if (reg & (1<<POFF_REASON_EVENT_KPDPWR_N))
+		return 1;
+
+	dev_info(&pon->pdev->dev,
+			"hw_reset reason1 is 0x%x\n",
+			reg);
+
+	rc = regmap_read(pon->regmap, QPNP_POFF_REASON2(pon), &reg);
+
+	dev_info(&pon->pdev->dev,
+			"hw_reset reason2 is 0x%x\n",
+			reg);
+	return 0;
+}
+EXPORT_SYMBOL(qpnp_pon_is_lpk);
+#endif
 
 /**
  * qpnp_pon_wd_config - Disable the wd in a warm reset.
@@ -2169,6 +2288,9 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 				"PMIC@SID%d: Power-off reason: %s\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid,
 				qpnp_poff_reason[index]);
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+		set_poweroff_reason(index);
+#endif
 	}
 
 	if (pon->pon_trigger_reason == PON_SMPL ||
@@ -2341,6 +2463,14 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "sys file creation failed rc: %d\n", rc);
 		return rc;
 	}
+
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	rc = device_create_file(&pdev->dev, &dev_attr_kpdpwr_reset);
+	if (rc) {
+		dev_err(&pdev->dev, "sys file creation failed rc: %d\n", rc);
+		return rc;
+	}
+#endif
 
 	if (of_property_read_bool(pdev->dev.of_node,
 					"qcom,secondary-pon-reset")) {
