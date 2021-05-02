@@ -68,10 +68,9 @@
 				qcom,pon-type = <3>;
 				qcom,pull-up = <1>;
 				qcom,support-reset = <1>;
-				qcom,s1-timer = <3072>;
-				qcom,s2-timer = <2000>;
+				qcom,s1-timer = <4480>;
+				qcom,s2-timer = <1000>;
 				qcom,s2-type = <1>;
-				qcom,use-bark;
 			};
 		};
 
@@ -599,6 +598,7 @@
 			qcom,cycle-counter-en;
 			qcom,fg-jeita-thresholds = <0 15 45 60>;
 			qcom,fg-jeita-hyst-temp = <0>;
+			qcom,fg-auto-recharge-soc;
 			qcom,battery-thermal-coefficients = [d2 50 ff];
 			status = "okay";
 
