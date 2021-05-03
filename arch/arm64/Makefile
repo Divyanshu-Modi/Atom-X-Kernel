@@ -91,30 +91,15 @@ else
 KBUILD_CFLAGS	+= $(call cc-ifversion, -ge, 0500, -DCONFIG_ARCH_SUPPORTS_INT128)
 endif
 
-KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
-KBUILD_AFLAGS	+= $(call cc-option,-mabi=lp64)
-
 ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
 KBUILD_CPPFLAGS	+= -mbig-endian
-CHECKFLAGS	+= -D__AARCH64EB__s
 AS		+= -EB
 LD		+= -EB
-ifeq ($(ld-name),gold)
-LDFLAGS		+= -maarch64_elf64_be_vec
-else
-LDFLAGS		+= -maarch64elfb
-endif
 UTS_MACHINE	:= aarch64_be
 else
-CHECKFLAGS	+= -D__AARCH64EL__
 KBUILD_CPPFLAGS	+= -mlittle-endian
 AS		+= -EL
 LD		+= -EL
-ifeq ($(ld-name),gold)
-LDFLAGS		+= -maarch64_elf64_le_vec
-else
-LDFLAGS		+= -maarch64elf
-endif
 UTS_MACHINE	:= aarch64
 endif
 
