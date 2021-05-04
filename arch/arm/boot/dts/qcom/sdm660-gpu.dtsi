@@ -63,14 +63,15 @@
 		reg-names = "kgsl_3d0_reg_memory", "qfprom_memory";
 		interrupts = <0 300 0>;
 		interrupt-names = "kgsl_3d0_irq";
-		#cooling-cells = <2>;		
+		#cooling-cells = <2>;
 		qcom,id = <0>;
 
 		qcom,chipid = <0x05010200>;
 
 		qcom,initial-pwrlevel = <6>;
 
-		qcom,idle-timeout = <60>;
+		/* <HZ/12> */
+		qcom,idle-timeout = <64>;
 
 		qcom,highest-bank-bit = <14>;
 
@@ -180,7 +181,7 @@
 
 				qcom,speed-bin = <0>;
 
-				qcom,initial-pwrlevel = <8>;
+				qcom,initial-pwrlevel = <6>;
 
 				/* TURBO */
 				qcom,gpu-pwrlevel@0 {
@@ -270,7 +271,7 @@
 
 				qcom,speed-bin = <157>;
 
-				qcom,initial-pwrlevel = <8>;
+				qcom,initial-pwrlevel = <6>;
 
 				/* TURBO */
 				qcom,gpu-pwrlevel@0 {
@@ -360,7 +361,7 @@
 
 				qcom,speed-bin = <146>;
 
-				qcom,initial-pwrlevel = <7>;
+				qcom,initial-pwrlevel = <5>;
 
 				/* TURBO */
 				qcom,gpu-pwrlevel@0 {
@@ -441,7 +442,7 @@
 
 				qcom,speed-bin = <135>;
 
-				qcom,initial-pwrlevel = <6>;
+				qcom,initial-pwrlevel = <4>;
 
 				/* NOM_L1 */
 				qcom,gpu-pwrlevel@0 {

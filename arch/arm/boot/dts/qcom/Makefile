@@ -214,19 +214,14 @@ dtb-$(CONFIG_ARCH_MSMHAMSTER) += msmhamster-rumi.dtb
 
 ifeq ($(CONFIG_MACH_XIAOMI_SDM660),y)
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-dtbo-$(CONFIG_MACH_XIAOMI_LAVENDER) += sdm660-mtp-overlay_f7a.dtbo
-dtbo-$(CONFIG_MACH_XIAOMI_TULIP) += sdm660-mtp-overlay_e7t.dtbo
-dtbo-$(CONFIG_MACH_XIAOMI_JASWAY) += sdm660-mtp-overlay_d2s.dtbo
-dtbo-$(CONFIG_MACH_XIAOMI_WHYRED) += sdm660-mtp-overlay_e7s.dtbo
-sdm660-mtp-overlay_f7a.dtbo-base := sdm660-mtp_f7a.dtb
-sdm660-mtp-overlay_e7t.dtbo-base := sdm636-mtp_e7t.dtb
-sdm660-mtp-overlay_e7s.dtbo-base := sdm636-mtp_e7s.dtb
-sdm660-mtp-overlay_d2s.dtbo-base := sdm660-mtp_wayne.dtb sdm660-mtp_jasmine.dtb
+dtbo-$(CONFIG_MACH_XIAOMI_LAVENDER) += sdm660-mtp-lavender-overlay.dtbo
+sdm660-mtp-lavender-overlay.dtbo-base := sdm660-mtp-lavender.dtb \
+	sdm660-mtp-lavender-overlay.dtb
 else
-dtb-$(CONFIG_MACH_XIAOMI_LAVENDER) += sdm660-mtp_f7a.dtb
-dtb-$(CONFIG_MACH_XIAOMI_TULIP) += sdm636-mtp_e7t.dtb
-dtb-$(CONFIG_MACH_XIAOMI_JASWAY) += sdm660-mtp_wayne.dtb sdm660-mtp_jasmine.dtb
-dtb-$(CONFIG_MACH_XIAOMI_WHYRED) += sdm636-mtp_e7s.dtb
+dtb-$(CONFIG_MACH_XIAOMI_LAVENDER) := sdm660-mtp-lavender.dtb
+dtb-$(CONFIG_MACH_XIAOMI_TULIP) := sdm636-mtp-tulip.dtb
+dtb-$(CONFIG_MACH_XIAOMI_JASWAY) := sdm660-mtp-wayne.dtb sdm660-mtp-jasmine.dtb
+dtb-$(CONFIG_MACH_XIAOMI_WHYRED) := sdm636-mtp-whyred.dtb
 endif
 else
 dtb-$(CONFIG_ARCH_SDM660) += sdm660-sim.dtb \

@@ -1,5 +1,4 @@
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -106,7 +105,6 @@
 					RPM_SMD_REGULATOR_LEVEL_RETENTION>;
 			#cooling-cells = <2>;
 		};
-
 	};
 
 	/* PM660L S5 - VDD_MX supply */
@@ -153,7 +151,6 @@
 					RPM_SMD_REGULATOR_LEVEL_RETENTION>;
 			#cooling-cells = <2>;
 		};
-
 	};
 
 	rpm-regulator-ldoa1 {
@@ -310,16 +307,6 @@
 		};
 	};
 
-	rpm-regulator-ldoa16 {
-		status = "okay";
-		pm660_l16: regulator-l16 {
-			regulator-min-microvolt = <2800000>;
-			regulator-max-microvolt = <2800000>;
-			status = "okay";
-			regulator-always-on;
-		};
-	};
-	
 	rpm-regulator-ldoa17 {
 		status = "okay";
 		pm660_l17: regulator-l17 {
@@ -374,7 +361,6 @@
 			regulator-min-microvolt = <1710000>;
 			regulator-max-microvolt = <3600000>;
 			status = "okay";
-			regulator-always-on;
 		};
 	};
 
