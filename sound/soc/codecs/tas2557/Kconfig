@@ -1,24 +1,14 @@
-config SND_SOC_TAS2557
-	bool "Texas Instruments TAS2557 SmartAmp(R)"
-	depends on SND_SOC_SDM660_CDC
-	default y if KERNEL_XIAOMI_SDM660
-    help
-       Texas Instruments TAS2557 SmartAmp(R)
+menuconfig SND_SOC_TAS2557
+	tristate "Texas Instruments TAS2557 SmartAmp(R)"
 
+if SND_SOC_TAS2557
 config TAS2557_REGMAP
-    bool "Use of Tas2557 RegMap API"
-	depends on SND_SOC_TAS2557
-	help
-		Use of Tas2557 RegMap API
-		
+    bool "Use of RegMap API"
+
 config TAS2557_CODEC
-    bool "Tas2557 Codec Driver support"
-	depends on SND_SOC_TAS2557
-	help
-		Tas2557 Codec Driver support
-			
+    bool "Codec Driver support"
+
 config TAS2557_MISC
-    bool "Tas2557 Misc Driver support"
-	depends on SND_SOC_TAS2557
-	help
-		Tas2557 Misc Driver support
+    bool "Misc Driver support"
+	
+endif # SND_SOC_TAS2557
