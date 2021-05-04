@@ -1,5 +1,4 @@
 /* Copyright (c) 2012-2018, 2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2019 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -23,7 +22,6 @@
 #include <linux/kthread.h>
 
 #include <linux/msm-bus.h>
-#include <linux/string.h>
 
 #include "mdss.h"
 #include "mdss_dsi.h"
@@ -1187,8 +1185,7 @@ static int mdss_dsi_read_status(struct mdss_dsi_ctrl_pdata *ctrl)
  * Return: positive value if the panel is in good state, negative value or
  * zero otherwise.
  */
-extern char g_lcd_id[128];
-extern bool ESD_TE_status;
+
 int mdss_dsi_reg_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int ret = 0;
