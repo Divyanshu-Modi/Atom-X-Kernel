@@ -16,41 +16,13 @@
  *
  */
 
-/*****************************************************************************
-*
-* File Name: focaltech_upgrade_ft8719.c
-*
-* Author: Focaltech Driver Team
-*
-* Created: 2017-11-22
-*
-* Abstract:
-*
-* Reference:
-*
-*****************************************************************************/
+#include "focaltech_core.h"
+#include "focaltech_flash.h"
 
-/*****************************************************************************
-* 1.Included header files
-*****************************************************************************/
-#include "../focaltech_core.h"
-#include "../focaltech_flash.h"
-
-/*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
 u8 pb_file_ft8719[] = {
-#include "../include/pramboot/FT8719_Pramboot_V0.5_20171221.i"
+#include "include/pramboot/FT8719_Pramboot_V0.5_20171221.i"
 };
 
-/*****************************************************************************
-* Private constant and macro definitions using #define
-*****************************************************************************/
-
-/************************************************************************
- * fts_ft8719_upgrade_mode -
- * Return: return 0 if success, otherwise return error code
- ***********************************************************************/
 static int fts_ft8719_upgrade_mode(
     struct i2c_client *client,
     enum FW_FLASH_MODE mode,
@@ -126,13 +98,6 @@ fw_reset:
     return -EIO;
 }
 
-/************************************************************************
-* Name: fts_ft8719_upgrade
-* Brief:
-* Input:
-* Output:
-* Return: return 0 if success, otherwise return error code
-***********************************************************************/
 static int fts_ft8719_upgrade(struct i2c_client *client, u8 *buf, u32 len)
 {
     int ret = 0;

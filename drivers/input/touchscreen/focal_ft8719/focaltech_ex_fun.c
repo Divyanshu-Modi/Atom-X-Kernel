@@ -16,29 +16,8 @@
  *
  */
 
-/*****************************************************************************
-*
-* File Name: Focaltech_ex_fun.c
-*
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-08
-*
-* Abstract:
-*
-* Reference:
-*
-*****************************************************************************/
-
-/*****************************************************************************
-* 1.Included header files
-*****************************************************************************/
 #include "focaltech_core.h"
 
-/*****************************************************************************
-* Private constant and macro definitions using #define
-*****************************************************************************/
-/*create apk debug channel*/
 #define PROC_UPGRADE                            0
 #define PROC_READ_REGISTER                      1
 #define PROC_WRITE_REGISTER                     2
@@ -62,14 +41,6 @@ static uint16_t project_id = 0;
 static uint8_t cg_maker = 0;
 static uint8_t reservation_byte = 0;
 
-
-/*****************************************************************************
-* Private enumerations, structures and unions using typedef
-*****************************************************************************/
-
-/*****************************************************************************
-* Static variables
-*****************************************************************************/
 enum {
     RWREG_OP_READ = 0,
     RWREG_OP_WRITE = 1,
@@ -83,20 +54,7 @@ static struct rwreg_operation_t {
     char *opbuf;        /*  length >= 1, read return value, write: op return */
 } rw_op;
 
-/*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
-/*****************************************************************************
-* Static function prototypes
-*****************************************************************************/
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
-/************************************************************************
-*   Name: fts_debug_write
-*  Brief:interface of write proc
-* Input: file point, data buf, data len, no use
-* Output: no
-* Return: data len
-***********************************************************************/
 static ssize_t fts_debug_write(struct file *filp, const char __user *buff, size_t count, loff_t *ppos)
 {
     u8 writebuf[PROC_WRITE_BUF_SIZE] = { 0 };
@@ -177,13 +135,6 @@ static ssize_t fts_debug_write(struct file *filp, const char __user *buff, size_
     }
 }
 
-/************************************************************************
-*   Name: fts_debug_read
-*  Brief:interface of read proc
-* Input: point to the data, no use, no use, read len, no use, no use
-* Output: page point to data
-* Return: read char number
-***********************************************************************/
 static ssize_t fts_debug_read(struct file *filp, char __user *buff, size_t count, loff_t *ppos)
 {
     int ret = 0;
@@ -238,14 +189,7 @@ static const struct file_operations fts_proc_fops = {
     .write  = fts_debug_write,
 };
 #else
-/* interface of write proc */
-/************************************************************************
-*   Name: fts_debug_write
-*  Brief:interface of write proc
-* Input: file point, data buf, data len, no use
-* Output: no
-* Return: data len
-***********************************************************************/
+
 static int fts_debug_write(struct file *filp,
                            const char __user *buff, unsigned long len, void *data)
 {
@@ -328,14 +272,6 @@ static int fts_debug_write(struct file *filp,
     }
 }
 
-/* interface of read proc */
-/************************************************************************
-*   Name: fts_debug_read
-*  Brief:interface of read proc
-* Input: point to the data, no use, no use, read len, no use, no use
-* Output: page point to data
-* Return: read char number
-***********************************************************************/
 static int fts_debug_read( char *page, char **start,
                            off_t off, int count, int *eof, void *data )
 {
@@ -350,7 +286,6 @@ static int fts_debug_read( char *page, char **start,
         FTS_ERROR("apk proc read count(%d) fail", (int)count);
         return -EINVAL;
     }
-
     switch (ts_data->proc_opmode) {
     case PROC_READ_REGISTER:
         readlen = 1;
@@ -382,13 +317,6 @@ static int fts_debug_read( char *page, char **start,
 }
 #endif
 
-/************************************************************************
-* Name: fts_create_apk_debug_channel
-* Brief:  create apk debug channel
-* Input: i2c info
-* Output:
-* Return: return 0 if success
-***********************************************************************/
 int fts_create_apk_debug_channel(struct fts_ts_data *ts_data)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0))
@@ -411,13 +339,6 @@ int fts_create_apk_debug_channel(struct fts_ts_data *ts_data)
     return 0;
 }
 
-/************************************************************************
-* Name: fts_release_apk_debug_channel
-* Brief:  release apk debug channel
-* Input:
-* Output:
-* Return:
-***********************************************************************/
 void fts_release_apk_debug_channel(struct fts_ts_data *ts_data)
 {
 
@@ -429,13 +350,7 @@ void fts_release_apk_debug_channel(struct fts_ts_data *ts_data)
 #endif
     }
 }
-/************************************************************************
-* Name: fts_xiaomi_lockdown_info_show
-* Brief:  show tp lockdown information
-* Input:
-* Output:
-* Return:
-***********************************************************************/
+
 static int fts_xiaomi_lockdown_info_show(struct seq_file *m, void *v)
 {
 	
@@ -443,13 +358,7 @@ static int fts_xiaomi_lockdown_info_show(struct seq_file *m, void *v)
 
 	return 0;
 }
-/************************************************************************
-* Name: tp_lockdown_init
-* Brief:  tp lockdown init
-* Input:
-* Output:
-* Return:
-***********************************************************************/
+
 static void tp_lockdown_init(void)
 {
 	int ret =0;
@@ -490,7 +399,6 @@ static void tp_lockdown_init(void)
 }
 static int32_t fts_xiaomi_lockdown_info_open(struct inode *inode, struct file *file)
 {
-		
 	tp_lockdown_init();
   
 	return single_open(file, fts_xiaomi_lockdown_info_show, NULL);
@@ -526,13 +434,6 @@ void fts_release_tp_lockdown_info(struct fts_ts_data *ts_data)
     }
 }
 
-/************************************************************************
- * sysfs interface
- ***********************************************************************/
-
-/*
- * fts_hw_reset interface
- */
 static ssize_t fts_hw_reset_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     return -EPERM;
@@ -551,9 +452,6 @@ static ssize_t fts_hw_reset_show(struct device *dev, struct device_attribute *at
     return count;
 }
 
-/*
- * fts_irq interface
- */
 static ssize_t fts_irq_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     struct input_dev *input_dev = fts_data->input_dev;
@@ -575,9 +473,6 @@ static ssize_t fts_irq_show(struct device *dev, struct device_attribute *attr, c
     return -EPERM;
 }
 
-/*
- * fts_tpfwver interface
- */
 static ssize_t fts_tpfwver_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct fts_ts_data *ts_data = fts_data;
@@ -605,13 +500,6 @@ static ssize_t fts_tpfwver_store(struct device *dev, struct device_attribute *at
     return -EPERM;
 }
 
-/************************************************************************
-* Name: fts_tprwreg_show
-* Brief:  no
-* Input: device, device attribute, char buf
-* Output: no
-* Return: EPERM
-***********************************************************************/
 static ssize_t fts_tprwreg_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     int count;
@@ -666,10 +554,6 @@ static ssize_t fts_tprwreg_show(struct device *dev, struct device_attribute *att
                 count += snprintf(buf + count, PAGE_SIZE, "Result: success\n");
             }
         }
-        /*if (rw_op.opbuf) {
-            kfree(rw_op.opbuf);
-            rw_op.opbuf = NULL;
-        }*/
     }
     mutex_unlock(&input_dev->mutex);
 
@@ -707,13 +591,7 @@ static u8 shex_to_u8(const char *hex_buf, int size)
 {
     return (u8)shex_to_int(hex_buf, size);
 }
-/*
- * Format buf:
- * [0]: '0' write, '1' read(reserved)
- * [1-2]: addr, hex
- * [3-4]: length, hex
- * [5-6]...[n-(n+1)]: data, hex
- */
+
 static int fts_parse_buf(const char *buf, size_t cmd_len)
 {
     int length;
@@ -760,15 +638,6 @@ static int fts_parse_buf(const char *buf, size_t cmd_len)
     return rw_op.len;
 }
 
-
-
-/************************************************************************
-* Name: fts_tprwreg_store
-* Brief:  read/write register
-* Input: device, device attribute, char buf, char count
-* Output: print register value
-* Return: char count
-***********************************************************************/
 static ssize_t fts_tprwreg_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     struct input_dev *input_dev = fts_data->input_dev;
@@ -852,9 +721,6 @@ static ssize_t fts_tprwreg_store(struct device *dev, struct device_attribute *at
     return count;
 }
 
-/*
- * fts_upgrade_bin interface
- */
 static ssize_t fts_fwupgradebin_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     return -EPERM;
@@ -879,9 +745,7 @@ static ssize_t fts_fwupgradebin_store(struct device *dev, struct device_attribut
     mutex_lock(&input_dev->mutex);
     ts_data->fw_loading = 1;
     fts_irq_disable();
-
     fts_upgrade_bin(client, fwname, 0);
-
     fts_irq_enable();
     ts_data->fw_loading = 0;
     mutex_unlock(&input_dev->mutex);
@@ -889,9 +753,6 @@ static ssize_t fts_fwupgradebin_store(struct device *dev, struct device_attribut
     return count;
 }
 
-/*
- * fts_force_upgrade interface
- */
 static ssize_t fts_fwforceupg_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     return -EPERM;
@@ -916,9 +777,7 @@ static ssize_t fts_fwforceupg_store(struct device *dev, struct device_attribute 
     mutex_lock(&input_dev->mutex);
     ts_data->fw_loading = 1;
     fts_irq_disable();
-
     fts_upgrade_bin(client, fwname, 1);
-
     fts_irq_enable();
     ts_data->fw_loading = 0;
     mutex_unlock(&input_dev->mutex);
@@ -926,9 +785,6 @@ static ssize_t fts_fwforceupg_store(struct device *dev, struct device_attribute 
     return count;
 }
 
-/*
- * fts_driver_version interface
- */
 static ssize_t fts_driverversion_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     int count;
@@ -946,9 +802,6 @@ static ssize_t fts_driverversion_store(struct device *dev, struct device_attribu
     return -EPERM;
 }
 
-/*
- * fts_dump_reg interface
- */
 static ssize_t fts_dumpreg_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
     return -EPERM;
@@ -962,6 +815,7 @@ static ssize_t fts_dumpreg_show(struct device *dev, struct device_attribute *att
     struct input_dev *input_dev = fts_data->input_dev;
 
     mutex_lock(&input_dev->mutex);
+
     fts_i2c_read_reg(client, FTS_REG_POWER_MODE, &val);
     count += snprintf(buf + count, PAGE_SIZE, "Power Mode:0x%02x\n", val);
 
@@ -996,27 +850,13 @@ static ssize_t fts_dumpreg_show(struct device *dev, struct device_attribute *att
     count += snprintf(buf + count, PAGE_SIZE, "ESD count:0x%02x\n", val);
 
     mutex_unlock(&input_dev->mutex);
+
     return count;
 }
 
-/* get the fw version  example:cat fw_version */
 static DEVICE_ATTR(fts_fw_version, S_IRUGO | S_IWUSR, fts_tpfwver_show, fts_tpfwver_store);
 
-/* read and write register(s)
-*   All data type is **HEX**
-*   Single Byte:
-*       read:   echo 88 > rw_reg ---read register 0x88
-*       write:  echo 8807 > rw_reg ---write 0x07 into register 0x88
-*   Multi-bytes:
-*       [0:rw-flag][1-2: reg addr, hex][3-4: length, hex][5-6...n-n+1: write data, hex]
-*       rw-flag: 0, write; 1, read
-*       read:  echo 10005           > rw_reg ---read reg 0x00-0x05
-*       write: echo 000050102030405 > rw_reg ---write reg 0x00-0x05 as 01,02,03,04,05
-*  Get result:
-*       cat rw_reg
-*/
 static DEVICE_ATTR(fts_rw_reg, S_IRUGO | S_IWUSR, fts_tprwreg_show, fts_tprwreg_store);
-/*  upgrade from fw bin file   example:echo "*.bin" > fts_upgrade_bin */
 static DEVICE_ATTR(fts_upgrade_bin, S_IRUGO | S_IWUSR, fts_fwupgradebin_show, fts_fwupgradebin_store);
 static DEVICE_ATTR(fts_force_upgrade, S_IRUGO | S_IWUSR, fts_fwforceupg_show, fts_fwforceupg_store);
 static DEVICE_ATTR(fts_driver_version, S_IRUGO | S_IWUSR, fts_driverversion_show, fts_driverversion_store);
@@ -1024,7 +864,6 @@ static DEVICE_ATTR(fts_dump_reg, S_IRUGO | S_IWUSR, fts_dumpreg_show, fts_dumpre
 static DEVICE_ATTR(fts_hw_reset, S_IRUGO | S_IWUSR, fts_hw_reset_show, fts_hw_reset_store);
 static DEVICE_ATTR(fts_irq, S_IRUGO | S_IWUSR, fts_irq_show, fts_irq_store);
 
-/* add your attr in here*/
 static struct attribute *fts_attributes[] = {
     &dev_attr_fts_fw_version.attr,
     &dev_attr_fts_rw_reg.attr,
@@ -1041,13 +880,6 @@ static struct attribute_group fts_attribute_group = {
     .attrs = fts_attributes
 };
 
-/************************************************************************
-* Name: fts_create_sysfs
-* Brief: create sysfs interface
-* Input:
-* Output:
-* Return: return 0 if success
-***********************************************************************/
 int fts_create_sysfs(struct i2c_client *client)
 {
     int ret = 0;
@@ -1063,13 +895,7 @@ int fts_create_sysfs(struct i2c_client *client)
 
     return ret;
 }
-/************************************************************************
-* Name: fts_remove_sysfs
-* Brief: remove sysfs interface
-* Input:
-* Output:
-* Return:
-***********************************************************************/
+
 int fts_remove_sysfs(struct i2c_client *client)
 {
     sysfs_remove_group(&client->dev.kobj, &fts_attribute_group);

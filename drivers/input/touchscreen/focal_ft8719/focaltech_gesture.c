@@ -577,7 +577,7 @@ int fts_gesture_init(struct fts_ts_data *ts_data)
 
     FTS_FUNC_ENTER();
     input_set_capability(input_dev, EV_KEY, KEY_WAKEUP);
-    input_set_capability(input_dev, EV_KEY, KEY_DOUBLE_TAP);   
+    input_set_capability(input_dev, EV_KEY, KEY_DOUBLE_TAP);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_U);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_UP);
     input_set_capability(input_dev, EV_KEY, KEY_GESTURE_DOWN);

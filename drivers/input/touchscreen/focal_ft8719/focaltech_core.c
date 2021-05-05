@@ -15,30 +15,11 @@
  * GNU General Public License for more details.
  *
  */
-/*****************************************************************************
-*
-* File Name: focaltech_core.c
-*
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-08
-*
-* Abstract: entrance for focaltech ts driver
-*
-* Version: V1.0
-*
-*****************************************************************************/
 
-/*****************************************************************************
-* Included header files
-*****************************************************************************/
 #include "focaltech_core.h"
 #include <linux/notifier.h>
 #include <linux/fb.h>
 
-/*****************************************************************************
-* Private constant and macro definitions using #define
-*****************************************************************************/
 #define FTS_DRIVER_NAME                     "fts_ts"
 #define INTERVAL_READ_REG                   100  /* unit:ms */
 #define TIMEOUT_READ_REG                    1000 /* unit:ms */
@@ -49,14 +30,8 @@
 #define FTS_I2C_VTG_MAX_UV                  1800000
 #endif
 
-/*****************************************************************************
-* Global variable or extern global variabls/functions
-*****************************************************************************/
 struct fts_ts_data *fts_data;
 
-/*****************************************************************************
-* Static function prototypes
-*****************************************************************************/
 static void fts_release_all_finger(void);
 static int fts_ts_suspend(struct device *dev);
 static int fts_ts_resume(struct device *dev);
@@ -70,36 +45,26 @@ bool focal_suspend_state = false;
 
 int fts_gesture_switch(struct input_dev *dev, unsigned int type, unsigned int code, int value)
 {
-	if (type == EV_SYN && code == SYN_CONFIG)
-	{
-		if (focal_suspend_state)
-		{
-			if ((value != WAKEUP_OFF) || focal_gesture_mode)
-			{
+	if (type == EV_SYN && code == SYN_CONFIG) {
+		if (focal_suspend_state) {
+			if ((value != WAKEUP_OFF) || focal_gesture_mode) {
 				focal_delay_gesture = true;
 			}
 		}
+
 		FTS_INFO("choose the gesture mode yes or not\n");
-		if(value == WAKEUP_OFF){
-			FTS_INFO("disable gesture mode\n");
-			focal_gesture_mode = false;
-		}else if(value == WAKEUP_ON){
+		if (value == WAKEUP_ON) {
 			FTS_INFO("enable gesture mode\n");
 			focal_gesture_mode  = true;
+		} else {
+			FTS_INFO("disable gesture mode\n");
+			focal_gesture_mode = false;
 		}
 	}
 	return 0;
 }
 #endif
 
-/*****************************************************************************
-*  Name: fts_wait_tp_to_valid
-*  Brief: Read chip id until TP FW become valid(Timeout: TIMEOUT_READ_REG),
-*         need call when reset/power on/resume...
-*  Input:
-*  Output:
-*  Return: return 0 if tp valid, otherwise return error code
-*****************************************************************************/
 int fts_wait_tp_to_valid(struct i2c_client *client)
 {
     int ret = 0;
@@ -122,13 +87,6 @@ int fts_wait_tp_to_valid(struct i2c_client *client)
     return -EIO;
 }
 
-/************************************************************************
-* Name: fts_get_chip_types
-* Brief: verity chip id and get chip type data
-* Input:
-* Output:
-* Return: return 0 if success, otherwise return error code
-***********************************************************************/
 static int fts_get_chip_types(
     struct fts_ts_data *ts_data,
     u8 id_h, u8 id_l, bool fw_valid)
@@ -163,13 +121,6 @@ static int fts_get_chip_types(
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_get_ic_information
-*  Brief:
-*  Input:
-*  Output:
-*  Return: return 0 if success, otherwise return error code
-*****************************************************************************/
 static int fts_get_ic_information(struct fts_ts_data *ts_data)
 {
     int ret = 0;
@@ -237,36 +188,17 @@ static int fts_get_ic_information(struct fts_ts_data *ts_data)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_tp_state_recovery
-*  Brief: Need execute this function when reset
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 void fts_tp_state_recovery(struct i2c_client *client)
 {
     FTS_FUNC_ENTER();
-    /* wait tp stable */
     fts_wait_tp_to_valid(client);
-    /* recover TP charger state 0x8B */
-    /* recover TP glove state 0xC0 */
-    /* recover TP cover state 0xC1 */
     fts_ex_mode_recovery(client);
-    /* recover TP gesture state 0xD0 */
 #if FTS_GESTURE_EN
     fts_gesture_recovery(client);
 #endif
     FTS_FUNC_EXIT();
 }
 
-/*****************************************************************************
-*  Name: fts_reset_proc
-*  Brief: Execute reset operation
-*  Input: hdelayms - delay time unit:ms
-*  Output:
-*  Return:
-*****************************************************************************/
 int fts_reset_proc(int hdelayms)
 {
     FTS_FUNC_ENTER();
@@ -281,13 +213,6 @@ int fts_reset_proc(int hdelayms)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_irq_disable
-*  Brief: disable irq
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 void fts_irq_disable(void)
 {
     unsigned long irqflags;
@@ -304,13 +229,6 @@ void fts_irq_disable(void)
     FTS_FUNC_EXIT();
 }
 
-/*****************************************************************************
-*  Name: fts_irq_enable
-*  Brief: enable irq
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 void fts_irq_enable(void)
 {
     unsigned long irqflags = 0;
@@ -328,9 +246,6 @@ void fts_irq_enable(void)
 }
 
 #if FTS_POWER_SOURCE_CUST_EN
-/*****************************************************************************
-* Power Control
-*****************************************************************************/
 static int fts_power_source_init(struct fts_ts_data *data)
 {
     int ret = 0;
@@ -432,13 +347,6 @@ static int fts_power_source_ctrl(struct fts_ts_data *data, int enable)
 }
 
 #if FTS_PINCTRL_EN
-/*****************************************************************************
-*  Name: fts_pinctrl_init
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_pinctrl_init(struct fts_ts_data *ts)
 {
     int ret = 0;
@@ -533,55 +441,17 @@ static int fts_pinctrl_select_release(struct fts_ts_data *ts)
 
 #endif /* FTS_POWER_SOURCE_CUST_EN */
 
-/*****************************************************************************
-*  Reprot related
-*****************************************************************************/
-#if (FTS_DEBUG_EN && (FTS_DEBUG_LEVEL == 2))
-char g_sz_debug[1024] = {0};
-static void fts_show_touch_buffer(u8 *buf, int point_num)
-{
-    int len = point_num * FTS_ONE_TCH_LEN;
-    int count = 0;
-    int i;
-
-    memset(g_sz_debug, 0, 1024);
-    if (len > (fts_data->pnt_buf_size - 3)) {
-        len = fts_data->pnt_buf_size - 3;
-    } else if (len == 0) {
-        len += FTS_ONE_TCH_LEN;
-    }
-    count += snprintf(g_sz_debug, PAGE_SIZE, "%02X,%02X,%02X", buf[0], buf[1], buf[2]);
-    for (i = 0; i < len; i++) {
-        count += snprintf(g_sz_debug + count, PAGE_SIZE, ",%02X", buf[i + 3]);
-    }
-    FTS_DEBUG("buffer: %s", g_sz_debug);
-}
-#endif
-
-/*****************************************************************************
- *  Name: fts_release_all_finger
- *  Brief: report all points' up events, release touch
- *  Input:
- *  Output:
- *  Return:
- *****************************************************************************/
 static void fts_release_all_finger(void)
 {
     struct input_dev *input_dev = fts_data->input_dev;
-#if FTS_MT_PROTOCOL_B_EN
     u32 finger_count = 0;
-#endif
 
     FTS_FUNC_ENTER();
     mutex_lock(&fts_data->report_mutex);
-#if FTS_MT_PROTOCOL_B_EN
     for (finger_count = 0; finger_count < fts_data->pdata->max_touch_number; finger_count++) {
         input_mt_slot(input_dev, finger_count);
         input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
     }
-#else
-    input_mt_sync(input_dev);
-#endif
     input_report_key(input_dev, BTN_TOUCH, 0);
     input_sync(input_dev);
 
@@ -589,19 +459,12 @@ static void fts_release_all_finger(void)
     FTS_FUNC_EXIT();
 }
 
-/************************************************************************
- * Name: fts_input_report_key
- * Brief: report key event
- * Input: events info
- * Output:
- * Return: return 0 if success
- ***********************************************************************/
 static int fts_input_report_key(struct fts_ts_data *data, int index)
 {
     u32 ik;
-    int id = data->events[index].id;
+//    int id = data->events[index].id;
     int x = data->events[index].x;
-    int y = data->events[index].y;
+//    int y = data->events[index].y;
     int flag = data->events[index].flag;
     u32 key_num = data->pdata->key_number;
 
@@ -627,7 +490,6 @@ static int fts_input_report_key(struct fts_ts_data *data, int index)
     return -EINVAL;
 }
 
-#if FTS_MT_PROTOCOL_B_EN
 static int fts_input_report_b(struct fts_ts_data *data)
 {
     int i = 0;
@@ -653,12 +515,6 @@ static int fts_input_report_b(struct fts_ts_data *data)
         if (EVENT_DOWN(events[i].flag)) {
             input_mt_report_slot_state(data->input_dev, MT_TOOL_FINGER, true);
 
-#if FTS_REPORT_PRESSURE_EN
-            if (events[i].p <= 0) {
-                events[i].p = 0x3f;
-            }
-            input_report_abs(data->input_dev, ABS_MT_PRESSURE, events[i].p);
-#endif
             if (events[i].area <= 0) {
                 events[i].area = 0x09;
             }
@@ -705,74 +561,6 @@ static int fts_input_report_b(struct fts_ts_data *data)
     return 0;
 }
 
-#else
-static int fts_input_report_a(struct fts_ts_data *data)
-{
-    int i = 0;
-    int touchs = 0;
-    bool va_reported = false;
-    u32 key_y_coor = data->pdata->key_y_coord;
-    struct ts_event *events = data->events;
-
-    for (i = 0; i < data->touch_point; i++) {
-        if (KEY_EN(data) && TOUCH_IS_KEY(events[i].y, key_y_coor)) {
-            fts_input_report_key(data, i);
-            continue;
-        }
-
-        va_reported = true;
-        if (EVENT_DOWN(events[i].flag)) {
-            input_report_abs(data->input_dev, ABS_MT_TRACKING_ID, events[i].id);
-#if FTS_REPORT_PRESSURE_EN
-            if (events[i].p <= 0) {
-                events[i].p = 0x3f;
-            }
-            input_report_abs(data->input_dev, ABS_MT_PRESSURE, events[i].p);
-#endif
-            if (events[i].area <= 0) {
-                events[i].area = 0x09;
-            }
-            input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR, events[i].area);
-
-            input_report_abs(data->input_dev, ABS_MT_POSITION_X, events[i].x);
-            input_report_abs(data->input_dev, ABS_MT_POSITION_Y, events[i].y);
-
-            input_mt_sync(data->input_dev);
-
-            FTS_DEBUG("[A]P%d(%d, %d)[p:%d,tm:%d] DOWN!", events[i].id, events[i].x,
-                      events[i].y, events[i].p, events[i].area);
-            touchs++;
-        }
-    }
-
-    /* last point down, current no point but key */
-    if (data->touchs && !touchs) {
-        va_reported = true;
-    }
-    data->touchs = touchs;
-
-    if (va_reported) {
-        if (EVENT_NO_DOWN(data)) {
-            FTS_DEBUG("[A]Points All Up!");
-            input_report_key(data->input_dev, BTN_TOUCH, 0);
-            input_mt_sync(data->input_dev);
-        } else {
-            input_report_key(data->input_dev, BTN_TOUCH, 1);
-        }
-    }
-
-    input_sync(data->input_dev);
-    return 0;
-}
-#endif
-
-/*****************************************************************************
-*  Name: fts_read_touchdata
-*  Brief:
-*  Input:
-*  Output:
-*  Return: return 0 if succuss
-*****************************************************************************/
 static int fts_read_touchdata(struct fts_ts_data *data)
 {
     int ret = 0;
@@ -789,10 +577,6 @@ static int fts_read_touchdata(struct fts_ts_data *data)
         FTS_INFO("succuss to get gesture data in irq handler");
         return 1;
     }
-#endif
-
-#if FTS_POINT_REPORT_CHECK_EN
-    fts_prc_queue_work(data);
 #endif
 
     data->point_num = 0;
@@ -821,10 +605,6 @@ static int fts_read_touchdata(struct fts_ts_data *data)
         FTS_INFO("invalid point_num(%d)", data->point_num);
         return -EIO;
     }
-
-#if (FTS_DEBUG_EN && (FTS_DEBUG_LEVEL == 2))
-    fts_show_touch_buffer(buf, data->point_num);
-#endif
 
     for (i = 0; i < max_touch_num; i++) {
         base = FTS_ONE_TCH_LEN * i;
@@ -861,29 +641,11 @@ static int fts_read_touchdata(struct fts_ts_data *data)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_report_event
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static void fts_report_event(struct fts_ts_data *data)
 {
-#if FTS_MT_PROTOCOL_B_EN
     fts_input_report_b(data);
-#else
-    fts_input_report_a(data);
-#endif
 }
 
-/*****************************************************************************
-*  Name: fts_ts_interrupt
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static irqreturn_t fts_ts_interrupt(int irq, void *data)
 {
     int ret = 0;
@@ -904,13 +666,6 @@ static irqreturn_t fts_ts_interrupt(int irq, void *data)
     return IRQ_HANDLED;
 }
 
-/*****************************************************************************
-*  Name: fts_irq_registration
-*  Brief:
-*  Input:
-*  Output:
-*  Return: return 0 if succuss, otherwise return error code
-*****************************************************************************/
 static int fts_irq_registration(struct fts_ts_data *ts_data)
 {
     int ret = 0;
@@ -925,19 +680,12 @@ static int fts_irq_registration(struct fts_ts_data *ts_data)
         pdata->irq_gpio_flags = IRQF_TRIGGER_FALLING;
     FTS_INFO("irq flag:%x", pdata->irq_gpio_flags);
     ret = request_threaded_irq(ts_data->irq, NULL, fts_ts_interrupt,
-                               pdata->irq_gpio_flags | IRQF_ONESHOT | IRQF_PERF_CRITICAL,
+                               pdata->irq_gpio_flags | IRQF_ONESHOT,
                                ts_data->client->name, ts_data);
 
     return ret;
 }
 
-/*****************************************************************************
-*  Name: fts_input_init
-*  Brief: input device init
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_input_init(struct fts_ts_data *ts_data)
 {
     int ret = 0;
@@ -973,17 +721,10 @@ static int fts_input_init(struct fts_ts_data *ts_data)
             input_set_capability(input_dev, EV_KEY, pdata->keys[key_num]);
     }
 
-#if FTS_MT_PROTOCOL_B_EN
     input_mt_init_slots(input_dev, pdata->max_touch_number, INPUT_MT_DIRECT);
-#else
-    input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0, 0x0f, 0, 0);
-#endif
     input_set_abs_params(input_dev, ABS_MT_POSITION_X, pdata->x_min, pdata->x_max, 0, 0);
     input_set_abs_params(input_dev, ABS_MT_POSITION_Y, pdata->y_min, pdata->y_max, 0, 0);
     input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, 0xFF, 0, 0);
-#if FTS_REPORT_PRESSURE_EN
-    input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, 0xFF, 0, 0);
-#endif
     point_num = pdata->max_touch_number;
     ts_data->pnt_buf_size = point_num * FTS_ONE_TCH_LEN + 3;
     ts_data->point_buf = (u8 *)kzalloc(ts_data->pnt_buf_size, GFP_KERNEL);
@@ -1028,14 +769,6 @@ err_point_buf:
     return ret;
 }
 
-
-/*****************************************************************************
-*  Name: fts_gpio_configure
-*  Brief: Configure IRQ&RESET GPIO
-*  Input:
-*  Output:
-*  Return: return 0 if succuss
-*****************************************************************************/
 static int fts_gpio_configure(struct fts_ts_data *data)
 {
     int ret = 0;
@@ -1085,13 +818,6 @@ err_irq_gpio_req:
     return ret;
 }
 
-/*****************************************************************************
-*  Name: fts_get_dt_coords
-*  Brief:
-*  Input:
-*  Output:
-*  Return: return 0 if succuss, otherwise return error code
-*****************************************************************************/
 static int fts_get_dt_coords(struct device *dev, char *name,
                              struct fts_ts_platform_data *pdata)
 {
@@ -1134,13 +860,6 @@ static int fts_get_dt_coords(struct device *dev, char *name,
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_parse_dt
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_parse_dt(struct device *dev, struct fts_ts_platform_data *pdata)
 {
     int ret = 0;
@@ -1211,13 +930,6 @@ static int fts_parse_dt(struct device *dev, struct fts_ts_platform_data *pdata)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fb_notifier_callback
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fb_notifier_callback(struct notifier_block *self,
                                 unsigned long event, void *data)
 {
@@ -1242,13 +954,6 @@ static int fb_notifier_callback(struct notifier_block *self,
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_ts_probe
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_ts_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
     int ret = 0;
@@ -1290,7 +995,7 @@ static int fts_ts_probe(struct i2c_client *client, const struct i2c_device_id *i
     ts_data->pdata = pdata;
     i2c_set_clientdata(client, ts_data);
 
-    ts_data->ts_workqueue = alloc_workqueue("fts_wq", WQ_FREEZABLE | WQ_HIGHPRI | WQ_UNBOUND, 0);
+    ts_data->ts_workqueue = create_singlethread_workqueue("fts_wq");
     if (NULL == ts_data->ts_workqueue) {
         FTS_ERROR("failed to create fts workqueue");
     }
@@ -1356,13 +1061,6 @@ static int fts_ts_probe(struct i2c_client *client, const struct i2c_device_id *i
     }
 #endif
 
-#if FTS_POINT_REPORT_CHECK_EN
-    ret = fts_point_report_check_init(ts_data);
-    if (ret) {
-        FTS_ERROR("init point report check fail");
-    }
-#endif
-
     ret = fts_ex_mode_init(client);
     if (ret) {
         FTS_ERROR("init glove/cover/charger fail");
@@ -1375,19 +1073,6 @@ static int fts_ts_probe(struct i2c_client *client, const struct i2c_device_id *i
     }
 	fts_data->input_dev->event =fts_gesture_switch;
 #endif
-
-#if FTS_TEST_EN
-    ret = fts_test_init(client);
-    if (ret) {
-        FTS_ERROR("init production test fail");
-    }
-#endif
-
-init_tp_selftest(client);
-
-if (ret) {
-	FTS_ERROR("init tp self test fail");
-}
 
     ret = fts_irq_registration(ts_data);
     if (ret) {
@@ -1407,14 +1092,13 @@ if (ret) {
     if (ret) {
         FTS_ERROR("[FB]Unable to register fb_notifier: %d", ret);
     }
-/* add tp lockdown information by yangjiangzhu  2018/5/21 start */	
+
 #if FTS_TP_LOCKDOWN_INFO
 	ret = fts_create_tp_lockdown_info(ts_data);
 	if (ret) {
 		FTS_ERROR("create apk debug node fail");
 	}
 #endif
-/* add tp lockdown information by yangjiangzhu  2018/5/21 end */	
 
     FTS_FUNC_EXIT();
     return 0;
@@ -1446,23 +1130,11 @@ err_input_init:
     return ret;
 }
 
-/*****************************************************************************
-*  Name: fts_ts_remove
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_ts_remove(struct i2c_client *client)
 {
     struct fts_ts_data *ts_data = i2c_get_clientdata(client);
 
     FTS_FUNC_ENTER();
-
-#if FTS_POINT_REPORT_CHECK_EN
-    fts_point_report_check_exit(ts_data);
-#endif
-
 #if FTS_APK_NODE_EN
     fts_release_apk_debug_channel(ts_data);
 #endif
@@ -1475,10 +1147,6 @@ static int fts_ts_remove(struct i2c_client *client)
 
 #if FTS_AUTO_UPGRADE_EN
     fts_fwupg_exit(ts_data);
-#endif
-
-#if FTS_TEST_EN
-    fts_test_exit(client);
 #endif
 
 /* add tp lockdown information by yangjiangzhu  2018/5/21 start */
@@ -1519,13 +1187,6 @@ static int fts_ts_remove(struct i2c_client *client)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_ts_suspend
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_ts_suspend(struct device *dev)
 {
     int ret = 0;
@@ -1590,13 +1251,6 @@ static int fts_ts_suspend(struct device *dev)
     return 0;
 }
 
-/*****************************************************************************
-*  Name: fts_ts_resume
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int fts_ts_resume(struct device *dev)
 {
     struct fts_ts_data *ts_data = dev_get_drvdata(dev);
@@ -1650,9 +1304,6 @@ if (focal_gesture_mode){
     return 0;
 }
 
-/*****************************************************************************
-* I2C Driver
-*****************************************************************************/
 static const struct i2c_device_id fts_ts_id[] = {
     {FTS_DRIVER_NAME, 0},
     {},
@@ -1671,18 +1322,11 @@ static struct i2c_driver fts_ts_driver = {
         .name = FTS_DRIVER_NAME,
         .owner = THIS_MODULE,
         .of_match_table = fts_match_table,
- 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,       
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
     },
     .id_table = fts_ts_id,
 };
 
-/*****************************************************************************
-*  Name: fts_ts_init
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static int __init fts_ts_init(void)
 {
     int ret = 0;
@@ -1696,13 +1340,6 @@ static int __init fts_ts_init(void)
     return ret;
 }
 
-/*****************************************************************************
-*  Name: fts_ts_exit
-*  Brief:
-*  Input:
-*  Output:
-*  Return:
-*****************************************************************************/
 static void __exit fts_ts_exit(void)
 {
     i2c_del_driver(&fts_ts_driver);

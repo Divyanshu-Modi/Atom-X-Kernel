@@ -15,25 +15,9 @@
  * GNU General Public License for more details.
  *
  */
-/*****************************************************************************
-*
-* File Name: focaltech_core.h
-
-* Author: Focaltech Driver Team
-*
-* Created: 2016-08-08
-*
-* Abstract:
-*
-* Reference:
-*
-*****************************************************************************/
 
 #ifndef __LINUX_FOCALTECH_CORE_H__
 #define __LINUX_FOCALTECH_CORE_H__
-/*****************************************************************************
-* Included header files
-*****************************************************************************/
 #include <linux/i2c.h>
 #include <linux/input.h>
 #include <linux/input/mt.h>
@@ -68,9 +52,6 @@
 #include <linux/vmalloc.h>
 #include "focaltech_common.h"
 
-/*****************************************************************************
-* Private constant and macro definitions using #define
-*****************************************************************************/
 #define FTS_MAX_POINTS_SUPPORT              10 /* constant value, can't be changed */
 #define FTS_MAX_KEYS                        4
 #define FTS_KEY_WIDTH                       50
@@ -207,21 +188,6 @@ void fts_release_tp_lockdown_info(struct fts_ts_data *ts_data);
 #if FTS_SYSFS_NODE_EN
 int fts_create_sysfs(struct i2c_client *client);
 int fts_remove_sysfs(struct i2c_client *client);
-#endif
-
-/* Production test */
-#if FTS_TEST_EN
-int fts_test_init(struct i2c_client *client);
-int fts_test_exit(struct i2c_client *client);
-#endif
-int init_tp_selftest(struct i2c_client * client);
-
-
-/* Point Report Check*/
-#if FTS_POINT_REPORT_CHECK_EN
-int fts_point_report_check_init(struct fts_ts_data *ts_data);
-int fts_point_report_check_exit(struct fts_ts_data *ts_data);
-void fts_prc_queue_work(struct fts_ts_data *ts_data);
 #endif
 
 /* FW upgrade */
