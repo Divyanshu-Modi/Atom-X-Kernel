@@ -1,24 +1,17 @@
 /*
- * SPDX-License-Identifier: GPL-2.0-only
- * Copyright (C) 2010 - 2018 Novatek, Inc.
+ * Copyright (C) 2010 - 2017 Novatek, Inc.
  * Copyright (C) 2019 XiaoMi, Inc.
  *
- * $Revision: 47247 $
- * $Date: 2019-07-10 10:41:36 +0800 (Wed, 10 Jul 2019) $
+ * SPDX-License-Identifier: GPL-2.0
+ * 
+ * $Revision: 23175 $
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
+ * $Date: 2018-02-12 16:26:21 +0800 (Monday, 12 February 2018) $
  */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/delay.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/gpio.h>
@@ -32,13 +25,15 @@
 #include "nt36xxx.h"
 
 #define POINT_DATA_LEN 65
+
 struct nvt_ts_data *ts;
 static uint8_t bTouchIsAwake;
-static int fb_notifier_callback(struct notifier_block *self, unsigned long event, void *data);
+
 #if BOOT_UPDATE_FIRMWARE
 static struct workqueue_struct *nvt_fwu_wq;
 extern void Boot_Update_Firmware(struct work_struct *work);
 #endif
+static int fb_notifier_callback(struct notifier_block *self, unsigned long event, void *data);
 
 #if WAKEUP_GESTURE
 #ifdef CONFIG_TOUCHSCREEN_COMMON
@@ -86,21 +81,19 @@ static struct wake_lock gestrue_wakelock;
 
 int nvt_gesture_switch(struct input_dev *dev, unsigned int type, unsigned int code, int value)
 {
-	if (type == EV_SYN && code == SYN_CONFIG)
-	{
-		if (suspend_state)
-		{
-			if ((value != WAKEUP_OFF) || enable_gesture_mode)
-			{
+	if (type == EV_SYN && code == SYN_CONFIG) {
+		if (suspend_state) {
+			if ((value != WAKEUP_OFF) || enable_gesture_mode) {
 				delay_gesture = true;
 			}
 		}
-		if(value == WAKEUP_OFF){
+		if (value == WAKEUP_OFF) {
 			enable_gesture_mode = false;
-		}else if(value == WAKEUP_ON){
+		} else if (value == WAKEUP_ON) {
 			enable_gesture_mode  = true;
 		}
 	}
+
 	return 0;
 }
 
@@ -136,7 +129,6 @@ void nvt_ts_wakeup_gesture_report(uint8_t gesture_id, uint8_t *data)
 	uint32_t keycode = 0;
 	uint8_t func_type = data[2];
 	uint8_t func_id = data[3];
-
 
 	if ((gesture_id == DATA_PROTOCOL) && (func_type == FUNCPAGE_GESTURE))
 		gesture_id = func_id;
@@ -189,8 +181,10 @@ void nvt_ts_wakeup_gesture_report(uint8_t gesture_id, uint8_t *data)
 
 	if (keycode > 0) {
 		input_report_key(ts->input_dev, keycode, 1);
+		input_report_key(ts->input_dev, KEY_DOUBLE_TAP, 1);
 		input_sync(ts->input_dev);
 		input_report_key(ts->input_dev, keycode, 0);
+		input_report_key(ts->input_dev, KEY_DOUBLE_TAP, 0);
 		input_sync(ts->input_dev);
 	}
 }
@@ -241,17 +235,6 @@ int32_t CTP_I2C_WRITE(struct i2c_client *client, uint16_t address, uint8_t *buf,
 	return -EIO;
 }
 
-int32_t nvt_set_page(uint16_t i2c_addr, uint32_t addr)
-{
-	uint8_t buf[4] = {0};
-
-	buf[0] = 0xFF;
-	buf[1] = (addr >> 16) & 0xFF;
-	buf[2] = (addr >> 8) & 0xFF;
-
-	return CTP_I2C_WRITE(ts->client, i2c_addr, buf, 3);
-}
-
 void nvt_sw_reset_idle(void)
 {
 	uint8_t buf[4]={0};
@@ -281,8 +264,10 @@ int32_t nvt_clear_fw_status(void)
 	const int32_t retry = 20;
 
 	for (i = 0; i < retry; i++) {
-
-		nvt_set_page(I2C_FW_Address, ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_HANDSHAKING_or_SUB_CMD_BYTE);
+		buf[0] = 0xFF;
+		buf[1] = (ts->mmap->EVENT_BUF_ADDR >> 16) & 0xFF;
+		buf[2] = (ts->mmap->EVENT_BUF_ADDR >> 8) & 0xFF;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 3);
 
 		buf[0] = EVENT_MAP_HANDSHAKING_or_SUB_CMD_BYTE;
 		buf[1] = 0x00;
@@ -311,8 +296,10 @@ int32_t nvt_check_fw_status(void)
 	const int32_t retry = 50;
 
 	for (i = 0; i < retry; i++) {
-
-		nvt_set_page(I2C_FW_Address, ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_HANDSHAKING_or_SUB_CMD_BYTE);
+		buf[0] = 0xFF;
+		buf[1] = (ts->mmap->EVENT_BUF_ADDR >> 16) & 0xFF;
+		buf[2] = (ts->mmap->EVENT_BUF_ADDR >> 8) & 0xFF;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 3);
 
 		buf[0] = EVENT_MAP_HANDSHAKING_or_SUB_CMD_BYTE;
 		buf[1] = 0x00;
@@ -349,7 +336,7 @@ int32_t nvt_check_fw_reset_state(RST_COMPLETE_STATE check_reset_state)
 		}
 
 		retry++;
-		if(unlikely(retry > 100)) {
+		if (unlikely(retry > 100)) {
 			ret = -1;
 			break;
 		}
@@ -363,7 +350,10 @@ int32_t nvt_read_pid(void)
 	uint8_t buf[3] = {0};
 	int32_t ret = 0;
 
-	nvt_set_page(I2C_FW_Address, ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_PROJECTID);
+	buf[0] = 0xFF;
+	buf[1] = (ts->mmap->EVENT_BUF_ADDR >> 16) & 0xFF;
+	buf[2] = (ts->mmap->EVENT_BUF_ADDR >> 8) & 0xFF;
+	CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 3);
 
 	buf[0] = EVENT_MAP_PROJECTID;
 	buf[1] = 0x00;
@@ -382,8 +372,10 @@ int32_t nvt_get_fw_info(void)
 	int32_t ret = 0;
 
 info_retry:
-
-	nvt_set_page(I2C_FW_Address, ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_FWINFO);
+	buf[0] = 0xFF;
+	buf[1] = (ts->mmap->EVENT_BUF_ADDR >> 16) & 0xFF;
+	buf[2] = (ts->mmap->EVENT_BUF_ADDR >> 8) & 0xFF;
+	CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 3);
 
 	buf[0] = EVENT_MAP_FWINFO;
 	CTP_I2C_READ(ts->client, I2C_FW_Address, buf, 17);
@@ -419,7 +411,6 @@ static void nvt_parse_dt(struct device *dev)
 	ts->reset_gpio = of_get_named_gpio_flags(np, "novatek,reset-gpio", 0, &ts->reset_flags);
 #endif
 	ts->irq_gpio = of_get_named_gpio_flags(np, "novatek,irq-gpio", 0, &ts->irq_flags);
-
 }
 #else
 static void nvt_parse_dt(struct device *dev)
@@ -436,7 +427,6 @@ static int nvt_gpio_config(struct nvt_ts_data *ts)
 	int32_t ret = 0;
 
 #if NVT_TOUCH_SUPPORT_HW_RST
-	/* request RST-pin (Output/High) */
 	if (gpio_is_valid(ts->reset_gpio)) {
 		ret = gpio_request_one(ts->reset_gpio, GPIOF_OUT_INIT_HIGH, "NVT-tp-rst");
 		if (ret)
@@ -444,7 +434,6 @@ static int nvt_gpio_config(struct nvt_ts_data *ts)
 	}
 #endif
 
-	/* request INT-pin (Input) */
 	if (gpio_is_valid(ts->irq_gpio)) {
 		ret = gpio_request_one(ts->irq_gpio, GPIOF_IN, "NVT-int");
 		if (ret)
@@ -472,6 +461,9 @@ static void nvt_ts_work_func(void)
 	uint8_t press_id[TOUCH_MAX_FINGER_NUM] = {0};
 	int32_t i = 0;
 	int32_t finger_cnt = 0;
+	struct sched_param param = { .sched_priority = MAX_USER_RT_PRIO / 2 };
+
+	sched_setscheduler(current, SCHED_FIFO, &param);
 
 	ret = CTP_I2C_READ(ts->client, I2C_FW_Address, point_data, POINT_DATA_LEN + 1);
 	if (unlikely(ret < 0)) {
@@ -491,7 +483,6 @@ static void nvt_ts_work_func(void)
 	for (i = 0; i < ts->max_touch_num; i++) {
 		position = 1 + 6 * i;
 		input_id = (uint8_t) (point_data[position] >> 3);
-
 		if ((input_id == 0) || (input_id > ts->max_touch_num))
 			continue;
 
@@ -501,12 +492,9 @@ static void nvt_ts_work_func(void)
 			press_id[input_id - 1] = 1;
 			input_mt_slot(ts->input_dev, input_id - 1);
 			input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
-			input_report_abs(ts->input_dev, ABS_MT_TRACKING_ID, input_id - 1);
-			input_report_key(ts->input_dev, BTN_TOUCH, 1);
 			input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
 			input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
 			input_report_abs(ts->input_dev, ABS_MT_PRESSURE, TOUCH_FORCE_NUM);
-
 			finger_cnt++;
 		}
 	}
@@ -520,9 +508,7 @@ static void nvt_ts_work_func(void)
 	}
 
 	input_report_key(ts->input_dev, BTN_TOUCH, (finger_cnt > 0));
-
 	input_sync(ts->input_dev);
-
 }
 
 static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
@@ -533,11 +519,9 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 	}
 #endif
 
-	pm_qos_update_request(&ts->pm_qos_req, 100);
 	mutex_lock(&ts->lock);
 	nvt_ts_work_func();
 	mutex_unlock(&ts->lock);
-	pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
 
 	return IRQ_HANDLED;
 }
@@ -547,7 +531,10 @@ void nvt_stop_crc_reboot(void)
 	uint8_t buf[8] = {0};
 	int32_t retry = 0;
 
-	nvt_set_page(I2C_BLDR_Address, 0x1F64E);
+	buf[0] = 0xFF;
+	buf[1] = 0x01;
+	buf[2] = 0xF6;
+	CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
 
 	buf[0] = 0x4E;
 	CTP_I2C_READ(ts->client, I2C_BLDR_Address, buf, 4);
@@ -556,7 +543,6 @@ void nvt_stop_crc_reboot(void)
 		((buf[1] == 0xFF) && (buf[2] == 0xFF) && (buf[3] == 0xFF))) {
 
 		for (retry = 5; retry > 0; retry--) {
-
 			buf[0]=0x00;
 			buf[1]=0xA5;
 			CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
@@ -566,13 +552,19 @@ void nvt_stop_crc_reboot(void)
 			CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
 			msleep(1);
 
-			nvt_set_page(I2C_BLDR_Address, 0x3F135);
+			buf[0] = 0xFF;
+			buf[1] = 0x03;
+			buf[2] = 0xF1;
+			CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
 
 			buf[0] = 0x35;
 			buf[1] = 0xA5;
 			CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 2);
 
-			nvt_set_page(I2C_BLDR_Address, 0x3F135);
+			buf[0] = 0xFF;
+			buf[1] = 0x03;
+			buf[2] = 0xF1;
+			CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
 
 			buf[0] = 0x35;
 			buf[1] = 0x00;
@@ -580,7 +572,7 @@ void nvt_stop_crc_reboot(void)
 
 			if (buf[1] == 0xA5)
 				break;
-		}		
+		}
 	}
 
 	return;
@@ -605,7 +597,10 @@ static int8_t nvt_ts_check_chip_ver_trim(void)
 		CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
 		msleep(10);
 
-		nvt_set_page(I2C_BLDR_Address, 0x1F64E);
+		buf[0] = 0xFF;
+		buf[1] = 0x01;
+		buf[2] = 0xF6;
+		CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
 
 		buf[0] = 0x4E;
 		buf[1] = 0x00;
@@ -635,7 +630,7 @@ static int8_t nvt_ts_check_chip_ver_trim(void)
 
 			if (found_nvt_chip) {
 				ts->mmap = trim_id_table[list].mmap;
-				ts->carrier_system = trim_id_table[list].hwinfo->carrier_system;
+				ts->carrier_system = trim_id_table[list].carrier_system;
 				ret = 0;
 				goto out;
 			} else {
@@ -665,7 +660,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	ts->client = client;
 	i2c_set_clientdata(client, ts);
-
 	nvt_parse_dt(&client->dev);
 
 	ret = nvt_gpio_config(ts);
@@ -680,13 +674,13 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	msleep(10);
 	
-	ts->vcc_i2c = regulator_get(&client->dev, "vcc_i2c-supply");
-	if (IS_ERR(ts->vcc_i2c))
+    ts->vcc_i2c = regulator_get(&client->dev, "vcc_i2c-supply");
+    if (IS_ERR(ts->vcc_i2c))
         ret = PTR_ERR(ts->vcc_i2c);
 
-    	if (regulator_count_voltages(ts->vcc_i2c) > 0)
+    if (regulator_count_voltages(ts->vcc_i2c) > 0)
         ret = regulator_set_voltage(ts->vcc_i2c, 1800000, 1800000);
- 
+
     ret = regulator_enable(ts->vcc_i2c);
 	ret = nvt_ts_check_chip_ver_trim();
 	if (ret) {
@@ -709,7 +703,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	ts->max_touch_num = TOUCH_MAX_FINGER_NUM;
 	ts->int_trigger_type = INT_TRIGGER_TYPE;
-
 	ts->input_dev->evbit[0] = BIT_MASK(EV_SYN) | BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) ;
 	ts->input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 	ts->input_dev->propbit[0] = BIT(INPUT_PROP_DIRECT);
@@ -742,12 +735,8 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	if (ret)
 		goto err_input_register_device_failed;
 
-	pm_qos_add_request(&ts->pm_qos_req, PM_QOS_CPU_DMA_LATENCY,
-			PM_QOS_DEFAULT_VALUE);
-
 	client->irq = gpio_to_irq(ts->irq_gpio);
 	if (client->irq) {
-
 #if WAKEUP_GESTURE
 		ret = request_threaded_irq(client->irq, NULL, nvt_ts_irq_handler, ts->int_trigger_type | IRQF_ONESHOT | IRQF_NO_SUSPEND, client->name, ts);
 #else
@@ -764,7 +753,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	if (!nvt_fwu_wq) {
 		ret = -ENOMEM;
 		goto err_create_nvt_fwu_wq_failed;
-	}
 	INIT_DELAYED_WORK(&ts->nvt_fwu_work, Boot_Update_Firmware);
 	queue_delayed_work(nvt_fwu_wq, &ts->nvt_fwu_work, msecs_to_jiffies(14000));
 #endif
@@ -779,7 +767,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	return 0;
 
-	pm_qos_remove_request(&ts->pm_qos_req);
 err_register_fb_notif_failed:
 	free_irq(client->irq, ts);
 #if BOOT_UPDATE_FIRMWARE
@@ -802,7 +789,6 @@ static int32_t nvt_ts_remove(struct i2c_client *client)
 {
 	fb_unregister_client(&ts->fb_notif);
 	mutex_destroy(&ts->lock);
-	pm_qos_remove_request(&ts->pm_qos_req);	
 	free_irq(client->irq, ts);
 	input_unregister_device(ts->input_dev);
 	i2c_set_clientdata(client, NULL);
@@ -823,15 +809,19 @@ static int32_t nvt_ts_suspend(struct device *dev)
 	bTouchIsAwake = 0;
 
 #if WAKEUP_GESTURE
-	buf[0] = EVENT_MAP_HOST_CMD;
-	buf[1] = 0x13;
-	CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
-	enable_irq_wake(ts->client->irq);
-#else
-	buf[0] = EVENT_MAP_HOST_CMD;
-	buf[1] = 0x11;
-	CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
-	disable_irq(ts->client->irq);
+	if (enable_gesture_mode) {
+		buf[0] = EVENT_MAP_HOST_CMD;
+		buf[1] = 0x13;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
+		enable_irq_wake(ts->client->irq);
+	} else {
+#endif
+		disable_irq(ts->client->irq);
+		buf[0] = EVENT_MAP_HOST_CMD;
+		buf[1] = 0x11;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
+#if WAKEUP_GESTURE
+	}
 #endif
 
 	for (i = 0; i < ts->max_touch_num; i++) {
@@ -844,7 +834,6 @@ static int32_t nvt_ts_suspend(struct device *dev)
 	input_sync(ts->input_dev);
 
 	msleep(50);
-
 	mutex_unlock(&ts->lock);
 #if WAKEUP_GESTURE
 	suspend_state = true;
@@ -866,14 +855,14 @@ static int32_t nvt_ts_resume(struct device *dev)
 	nvt_check_fw_reset_state(RESET_STATE_REK);
 
 #if WAKEUP_GESTURE
-if (delay_gesture)
-	enable_gesture_mode = !enable_gesture_mode;
+	if (delay_gesture)
+		enable_gesture_mode = !enable_gesture_mode;
 
-if (!enable_gesture_mode)
-	enable_irq(ts->client->irq);
+	if(!enable_gesture_mode)
+		enable_irq(ts->client->irq);
 
-if (delay_gesture)
-	enable_gesture_mode = !enable_gesture_mode;
+	if (delay_gesture)
+		enable_gesture_mode = !enable_gesture_mode;
 #else
 	enable_irq(ts->client->irq);
 #endif
@@ -958,6 +947,5 @@ static void __exit nvt_driver_exit(void)
 
 module_init(nvt_driver_init);
 module_exit(nvt_driver_exit);
-
 MODULE_DESCRIPTION("Novatek Touchscreen Driver");
 MODULE_LICENSE("GPL");

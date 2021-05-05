@@ -1,31 +1,21 @@
 /*
- * SPDX-License-Identifier: GPL-2.0-only
- * Copyright (C) 2010 - 2018 Novatek, Inc.
+ * Copyright (C) 2010 - 2017 Novatek, Inc.
  * Copyright (C) 2019 XiaoMi, Inc.
  *
- * $Revision: 47247 $
- * $Date: 2019-07-10 10:41:36 +0800 (Wed, 10 Jul 2019) $
+ * SPDX-License-Identifier: GPL-2.0 
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * $Revision: 22429 $
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
+ * $Date: 2018-01-30 19:42:59 +0800 (Tuesday, 30 January 2018) $
  */
+
 #ifndef 	_LINUX_NVT_TOUCH_H
 #define		_LINUX_NVT_TOUCH_H
 
 #include <linux/i2c.h>
 #include <linux/input.h>
 #include <linux/regulator/consumer.h>
-#include <linux/delay.h>
 #include "nt36xxx_mem_map.h"
-#include <linux/pm_qos.h>
 
 #define NVTTOUCH_RST_PIN 66
 #define NVTTOUCH_INT_PIN 67
@@ -42,20 +32,22 @@
 #define TOUCH_DEFAULT_MAX_WIDTH 1080
 #define TOUCH_DEFAULT_MAX_HEIGHT 2280
 #define TOUCH_MAX_FINGER_NUM 10
-#define TOUCH_KEY_NUM 0
 #define TOUCH_FORCE_NUM 1000
 
-// Enable only when module have tp reset pin and connected to host
+/* Enable only when module have tp reset pin and connected to host */
 #define NVT_TOUCH_SUPPORT_HW_RST 0
 
 #define WAKEUP_GESTURE 1
+#if WAKEUP_GESTURE
+extern const uint16_t gesture_key_array[];
+#endif
 
-#ifdef CONFIG_BOOT_FW_UPDATE_NVT_A
+#ifndef CONFIG_BOOT_FIRMWARE_UPDATE_NVT_A
+#define BOOT_UPDATE_FIRMWARE 0
+#else
 #define BOOT_UPDATE_FIRMWARE 1
 #define BOOT_UPDATE_FIRMWARE_NAME_TIANMA "novatek/tianma_nt36672a_miui_e7t.bin"
 #define BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO "novatek/shenchao_nt36672a_miui_e7t.bin"
-#else
-#define BOOT_UPDATE_FIRMWARE 0
 #endif
 
 struct nvt_ts_data {
@@ -79,13 +71,9 @@ struct nvt_ts_data {
 	int32_t reset_gpio;
 	uint32_t reset_flags;
 	struct mutex lock;
-	struct pm_qos_request pm_qos_req;	
 	const struct nvt_ts_mem_map *mmap;
 	uint8_t carrier_system;
 	uint16_t nvt_pid;
-	uint8_t xbuf[1025];
-	struct mutex xbuf_lock;
-	bool irq_enabled;	
 };
 
 typedef enum {
@@ -104,10 +92,6 @@ typedef enum {
     EVENT_MAP_PROJECTID                     = 0x9A,
 } I2C_EVENT_MAP;
 
-
-#if WAKEUP_GESTURE
-extern const uint16_t gesture_key_array[];
-#endif
 extern struct nvt_ts_data *ts;
 extern int32_t CTP_I2C_READ(struct i2c_client *client, uint16_t address, uint8_t *buf, uint16_t len);
 extern int32_t CTP_I2C_WRITE(struct i2c_client *client, uint16_t address, uint8_t *buf, uint16_t len);
@@ -117,7 +101,5 @@ extern int32_t nvt_check_fw_reset_state(RST_COMPLETE_STATE check_reset_state);
 extern int32_t nvt_get_fw_info(void);
 extern int32_t nvt_clear_fw_status(void);
 extern int32_t nvt_check_fw_status(void);
-extern int32_t nvt_set_page(uint16_t i2c_addr, uint32_t addr);
 extern void nvt_stop_crc_reboot(void);
-
 #endif /* _LINUX_NVT_TOUCH_H */

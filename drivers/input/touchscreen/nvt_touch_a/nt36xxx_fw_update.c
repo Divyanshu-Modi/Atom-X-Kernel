@@ -1,87 +1,55 @@
 /*
- * SPDX-License-Identifier: GPL-2.0-only
- * Copyright (C) 2010 - 2018 Novatek, Inc.
- * Copyright (C) 2019 XiaoMi, Inc. 
+ * Copyright (C) 2010 - 2017 Novatek, Inc.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
- * $Revision: 47247 $
- * $Date: 2019-07-10 10:41:36 +0800 (Wed, 10 Jul 2019) $
+ * SPDX-License-Identifier: GPL-2.0 
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * $Revision: 20544 $
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
+ * $Date: 2017-12-20 11:08:15 +0800 (Wednesday, 20 December 2017) $
  */
 
+#include <linux/delay.h>
 #include <linux/firmware.h>
 #include "nt36xxx.h"
 
 #if BOOT_UPDATE_FIRMWARE
-
-#define SIZE_4KB 4096
-#define FLASH_SECTOR_SIZE SIZE_4KB
+#define FW_BIN_SIZE_116KB 118784
+#define FW_BIN_SIZE FW_BIN_SIZE_116KB
+#define FW_BIN_VER_OFFSET 0x1A000
+#define FW_BIN_VER_BAR_OFFSET 0x1A001
+#define FLASH_SECTOR_SIZE 4096
 #define SIZE_64KB 65536
 #define BLOCK_64KB_NUM 4
-#define FW_BIN_VER_OFFSET (fw_need_write_size - SIZE_4KB)
-#define FW_BIN_VER_BAR_OFFSET (FW_BIN_VER_OFFSET + 1)
 #define NVT_FLASH_END_FLAG_LEN 3
-#define NVT_FLASH_END_FLAG_ADDR (fw_need_write_size - NVT_FLASH_END_FLAG_LEN)
+#define NVT_FLASH_END_FLAG_ADDR 0x1AFFD
 
 const struct firmware *fw_entry = NULL;
-static size_t fw_need_write_size = 0;
-extern char g_lcd_id[128];
-
-static int32_t nvt_get_fw_need_write_size(const struct firmware *fw_entry)
-{
-	int32_t i = 0;
-	int32_t total_sectors_to_check = 0;
-
-	total_sectors_to_check = fw_entry->size / FLASH_SECTOR_SIZE;
-
-	for (i = total_sectors_to_check; i > 0; i--) {
-		if (memcmp(&fw_entry->data[i * FLASH_SECTOR_SIZE - NVT_FLASH_END_FLAG_LEN], "NVT", NVT_FLASH_END_FLAG_LEN) == 0) {
-			fw_need_write_size = i * FLASH_SECTOR_SIZE;
-			return 0;
-		}
-	}
-
-	return -1;
-}
 
 int32_t update_firmware_request(char *filename)
 {
 	int32_t ret = 0;
 
-	if (NULL == filename) {
+	if (filename == NULL)
 		return -1;
-	}
 
 	ret = request_firmware(&fw_entry, filename, &ts->client->dev);
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
-	if (nvt_get_fw_need_write_size(fw_entry)) {
+	if (fw_entry->size != FW_BIN_SIZE)
 		return -EINVAL;
-	}
 
-	if (*(fw_entry->data + FW_BIN_VER_OFFSET) + *(fw_entry->data + FW_BIN_VER_BAR_OFFSET) != 0xFF) {
+	if (*(fw_entry->data + FW_BIN_VER_OFFSET) + *(fw_entry->data + FW_BIN_VER_BAR_OFFSET) != 0xFF)
 		return -EINVAL;
-	}
 
 	return 0;
 }
 
 void update_firmware_release(void)
 {
-	if (fw_entry) {
+	if (fw_entry)
 		release_firmware(fw_entry);
-	}
 
 	fw_entry = NULL;
 }
@@ -91,22 +59,22 @@ int32_t Check_FW_Ver(void)
 	uint8_t buf[16] = {0};
 	int32_t ret = 0;
 
-	ret = nvt_set_page(I2C_BLDR_Address, ts->mmap->EVENT_BUF_ADDR | EVENT_MAP_FWINFO);
-	if (ret < 0) {
+	buf[0] = 0xFF;
+	buf[1] = (ts->mmap->EVENT_BUF_ADDR >> 16) & 0xFF;
+	buf[2] = (ts->mmap->EVENT_BUF_ADDR >> 8) & 0xFF;
+	ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
+	if (ret < 0)
 		return ret;
-	}
 
 	buf[0] = EVENT_MAP_FWINFO;
 	buf[1] = 0x00;
 	buf[2] = 0x00;
 	ret = CTP_I2C_READ(ts->client, I2C_BLDR_Address, buf, 3);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
-	if ((buf[1] + buf[2]) != 0xFF) {
+	if ((buf[1] + buf[2]) != 0xFF)
 		return 0;
-	}
 
 	if (buf[1] > fw_entry->data[FW_BIN_VER_OFFSET])
 		return 1;
@@ -123,9 +91,8 @@ int32_t Resume_PD(void)
 	buf[0] = 0x00;
 	buf[1] = 0xAB;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
 	retry = 0;
 	while(1) {
@@ -133,16 +100,15 @@ int32_t Resume_PD(void)
 		buf[0] = 0x00;
 		buf[1] = 0x00;
 		ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
-		if (buf[1] == 0xAA) {
+
+		if (buf[1] == 0xAA)
 			break;
-		}
+
 		retry++;
-		if (unlikely(retry > 20)) {
+		if (unlikely(retry > 20))
 			return -1;
-		}
 	}
 	msleep(10);
 
@@ -158,20 +124,22 @@ int32_t Check_CheckSum(void)
 	int32_t k = 0;
 	uint16_t WR_Filechksum[BLOCK_64KB_NUM] = {0};
 	uint16_t RD_Filechksum[BLOCK_64KB_NUM] = {0};
+	size_t fw_bin_size = 0;
 	size_t len_in_blk = 0;
 	int32_t retry = 0;
 
-	if (Resume_PD()) {
+	if (Resume_PD())
 		return -1;
-	}
+
+	fw_bin_size = fw_entry->size;
 
 	for (i = 0; i < BLOCK_64KB_NUM; i++) {
-		if (fw_need_write_size > (i * SIZE_64KB)) {
-			len_in_blk = min(fw_need_write_size - i * SIZE_64KB, (size_t)SIZE_64KB);
+		if (fw_bin_size > (i * SIZE_64KB)) {
+
+			len_in_blk = min(fw_bin_size - i * SIZE_64KB, (size_t)SIZE_64KB);
 			WR_Filechksum[i] = i + 0x00 + 0x00 + (((len_in_blk - 1) >> 8) & 0xFF) + ((len_in_blk - 1) & 0xFF);
-			for (k = 0; k < len_in_blk; k++) {
+			for (k = 0; k < len_in_blk; k++)
 				WR_Filechksum[i] += fw_entry->data[k + i * SIZE_64KB];
-			}
 			WR_Filechksum[i] = 65535 - WR_Filechksum[i] + 1;
 
 			buf[0] = 0x00;
@@ -182,9 +150,8 @@ int32_t Check_CheckSum(void)
 			buf[5] = ((len_in_blk - 1) >> 8) & 0xFF;
 			buf[6] = (len_in_blk - 1) & 0xFF;
 			ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 7);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			retry = 0;
 			while (1) {
@@ -192,35 +159,34 @@ int32_t Check_CheckSum(void)
 				buf[0] = 0x00;
 				buf[1] = 0x00;
 				ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-				if (ret < 0) {
+				if (ret < 0)
 					return ret;
-				}
-				if (buf[1] == 0xAA) {
+
+				if (buf[1] == 0xAA)
 					break;
-				}
+
 				retry++;
-				if (unlikely(retry > 5)) {
+				if (unlikely(retry > 5))
 					return -1;
-				}
 			}
 
-			ret = nvt_set_page(I2C_BLDR_Address, XDATA_Addr);
-			if (ret < 0) {
+			buf[0] = 0xFF;
+			buf[1] = XDATA_Addr >> 16;
+			buf[2] = (XDATA_Addr >> 8) & 0xFF;
+			ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
+			if (ret < 0)
 				return ret;
-			}
 
 			buf[0] = (XDATA_Addr) & 0xFF;
 			buf[1] = 0x00;
 			buf[2] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_BLDR_Address, buf, 3);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			RD_Filechksum[i] = (uint16_t)((buf[2] << 8) | buf[1]);
-			if (WR_Filechksum[i] != RD_Filechksum[i]) {
+			if (WR_Filechksum[i] != RD_Filechksum[i])
 				return 0;
-			}
 		}
 	}
 
@@ -239,9 +205,8 @@ int32_t Init_BootLoader(void)
 	buf[1] = 0x00;
 	buf[2] = I2C_FW_Address;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 3);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
 	retry = 0;
 	while(1) {
@@ -249,16 +214,15 @@ int32_t Init_BootLoader(void)
 		buf[0] = 0x00;
 		buf[1] = 0x00;
 		ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
-		if (buf[1] == 0xAA) {
+
+		if (buf[1] == 0xAA)
 			break;
-		}
+
 		retry++;
-		if (unlikely(retry > 20)) {
+		if (unlikely(retry > 20))
 			return -1;
-		}
 	}
 
 	msleep(20);
@@ -278,9 +242,8 @@ int32_t Erase_Flash(void)
 	buf[0] = 0x00;
 	buf[1] = 0x06;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
 	retry = 0;
 	while (1) {
@@ -288,25 +251,23 @@ int32_t Erase_Flash(void)
 		buf[0] = 0x00;
 		buf[1] = 0x00;
 		ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
-		if (buf[1] == 0xAA) {
+
+		if (buf[1] == 0xAA)
 			break;
-		}
+
 		retry++;
-		if (unlikely(retry > 20)) {
+		if (unlikely(retry > 20))
 			return -1;
-		}
 	}
 
 	buf[0] = 0x00;
 	buf[1] = 0x01;
 	buf[2] = 0x00;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 3);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
 	retry = 0;
 	while (1) {
@@ -314,16 +275,15 @@ int32_t Erase_Flash(void)
 		buf[0] = 0x00;
 		buf[1] = 0x00;
 		ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
-		if (buf[1] == 0xAA) {
+
+		if (buf[1] == 0xAA)
 			break;
-		}
+
 		retry++;
-		if (unlikely(retry > 20)) {
+		if (unlikely(retry > 20))
 			return -1;
-		}
 	}
 
 	retry = 0;
@@ -332,24 +292,22 @@ int32_t Erase_Flash(void)
 		buf[0] = 0x00;
 		buf[1] = 0x05;
 		ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
 
 		buf[0] = 0x00;
 		buf[1] = 0x00;
 		buf[2] = 0x00;
 		ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 3);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
-		if ((buf[1] == 0xAA) && (buf[2] == 0x00)) {
+
+		if ((buf[1] == 0xAA) && (buf[2] == 0x00))
 			break;
-		}
+
 		retry++;
-		if (unlikely(retry > 100)) {
+		if (unlikely(retry > 100))
 			return -1;
-		}
 	}
 
 	if (fw_entry->size % FLASH_SECTOR_SIZE)
@@ -358,13 +316,11 @@ int32_t Erase_Flash(void)
 		count = fw_entry->size / FLASH_SECTOR_SIZE;
 
 	for(i = 0; i < count; i++) {
-
 		buf[0] = 0x00;
 		buf[1] = 0x06;
 		ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
 
 		retry = 0;
 		while (1) {
@@ -372,16 +328,15 @@ int32_t Erase_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if (buf[1] == 0xAA) {
+
+			if (buf[1] == 0xAA)
 				break;
-			}
+
 			retry++;
-			if (unlikely(retry > 20)) {
+			if (unlikely(retry > 20))
 				return -1;
-			}
 		}
 
 		Flash_Address = i * FLASH_SECTOR_SIZE;
@@ -392,9 +347,8 @@ int32_t Erase_Flash(void)
 		buf[3] = ((Flash_Address >> 8) & 0xFF);
 		buf[4] = (Flash_Address & 0xFF);
 		ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 5);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
 
 		retry = 0;
 		while (1) {
@@ -402,16 +356,15 @@ int32_t Erase_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if (buf[1] == 0xAA) {
+
+			if (buf[1] == 0xAA)
 				break;
-			}
+
 			retry++;
-			if (unlikely(retry > 20)) {
+			if (unlikely(retry > 20))
 				return -1;
-			}
 		}
 
 		retry = 0;
@@ -420,24 +373,22 @@ int32_t Erase_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x05;
 			ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			buf[2] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 3);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if ((buf[1] == 0xAA) && (buf[2] == 0x00)) {
+
+			if ((buf[1] == 0xAA) && (buf[2] == 0x00))
 				break;
-			}
+			
 			retry++;
-			if (unlikely(retry > 100)) {
+			if (unlikely(retry > 100))
 				return -1;
-			}
 		}
 	}
 
@@ -454,10 +405,11 @@ int32_t Write_Flash(void)
 	int32_t count = 0;
 	int32_t ret = 0;
 	int32_t retry = 0;
-	int32_t percent = 0;
-	int32_t previous_percent = -1;
 
-	ret = nvt_set_page(I2C_BLDR_Address, XDATA_Addr);
+	buf[0] = 0xFF;
+	buf[1] = XDATA_Addr >> 16;
+	buf[2] = (XDATA_Addr >> 8) & 0xFF;
+	ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
 	if (ret < 0)
 		return ret;
 
@@ -472,9 +424,8 @@ int32_t Write_Flash(void)
 		buf[0] = 0x00;
 		buf[1] = 0x06;
 		ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
 
 		retry = 0;
 		while (1) {
@@ -482,27 +433,24 @@ int32_t Write_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if (buf[1] == 0xAA) {
+
+			if (buf[1] == 0xAA)
 				break;
-			}
+
 			retry++;
-			if (unlikely(retry > 20)) {
+			if (unlikely(retry > 20))
 				return -1;
-			}
 		}
 
 		for (j = 0; j < min(fw_entry->size - i * 256, (size_t)256); j += 32) {
 			buf[0] = (XDATA_Addr + j) & 0xFF;
-			for (k = 0; k < 32; k++) {
+			for (k = 0; k < 32; k++)
 				buf[1 + k] = fw_entry->data[Flash_Address + j + k];
-			}
 			ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 33);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 		}
 		if (fw_entry->size - Flash_Address >= 256)
 			tmpvalue=(Flash_Address >> 16) + ((Flash_Address >> 8) & 0xFF) + (Flash_Address & 0xFF) + 0x00 + (255);
@@ -523,9 +471,8 @@ int32_t Write_Flash(void)
 		buf[6] = min(fw_entry->size - Flash_Address,(size_t)256) - 1;
 		buf[7] = tmpvalue;
 		ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 8);
-		if (ret < 0) {
+		if (ret < 0)
 			return ret;
-		}
 
 		retry = 0;
 		while (1) {
@@ -533,20 +480,20 @@ int32_t Write_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if (buf[1] == 0xAA || buf[1] == 0xEA) {
+
+			if (buf[1] == 0xAA || buf[1] == 0xEA)
 				break;
-			}
+
 			retry++;
-			if (unlikely(retry > 20)) {
+			if (unlikely(retry > 20))
 				return -1;
-			}
+
 		}
-		if (buf[1] == 0xEA) {
+
+		if (buf[1] == 0xEA)
 			return -3;
-		}
 
 		retry = 0;
 		while (1) {
@@ -554,33 +501,27 @@ int32_t Write_Flash(void)
 			buf[0] = 0x00;
 			buf[1] = 0x05;
 			ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			buf[0] = 0x00;
 			buf[1] = 0x00;
 			buf[2] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 3);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
-			if (((buf[1] == 0xAA) && (buf[2] == 0x00)) || (buf[1] == 0xEA)) {
+
+			if (((buf[1] == 0xAA) && (buf[2] == 0x00)) || (buf[1] == 0xEA))
 				break;
-			}
+
 			retry++;
-			if (unlikely(retry > 100)) {
+			if (unlikely(retry > 100))
 				return -1;
-			}
-		}
-		if (buf[1] == 0xEA) {
-			return -4;
 		}
 
-		percent = ((i + 1) * 100) / count;
-		if (((percent % 10) == 0) && (percent != previous_percent)) {
-			previous_percent = percent;
-		}
+		if (buf[1] == 0xEA)
+			return -4;
+
 	}
 
 	return 0;
@@ -595,17 +536,18 @@ int32_t Verify_Flash(void)
 	int32_t k = 0;
 	uint16_t WR_Filechksum[BLOCK_64KB_NUM] = {0};
 	uint16_t RD_Filechksum[BLOCK_64KB_NUM] = {0};
+	size_t fw_bin_size = 0;
 	size_t len_in_blk = 0;
 	int32_t retry = 0;
 
-	for (i = 0; i < BLOCK_64KB_NUM; i++) {
-		if (fw_need_write_size > (i * SIZE_64KB)) {
+	fw_bin_size = fw_entry->size;
 
-			len_in_blk = min(fw_need_write_size - i * SIZE_64KB, (size_t)SIZE_64KB);
+	for (i = 0; i < BLOCK_64KB_NUM; i++) {
+		if (fw_bin_size > (i * SIZE_64KB)) {
+			len_in_blk = min(fw_bin_size - i * SIZE_64KB, (size_t)SIZE_64KB);
 			WR_Filechksum[i] = i + 0x00 + 0x00 + (((len_in_blk - 1) >> 8) & 0xFF) + ((len_in_blk - 1) & 0xFF);
-			for (k = 0; k < len_in_blk; k++) {
+			for (k = 0; k < len_in_blk; k++)
 				WR_Filechksum[i] += fw_entry->data[k + i * SIZE_64KB];
-			}
 			WR_Filechksum[i] = 65535 - WR_Filechksum[i] + 1;
 
 			buf[0] = 0x00;
@@ -616,9 +558,8 @@ int32_t Verify_Flash(void)
 			buf[5] = ((len_in_blk - 1) >> 8) & 0xFF;
 			buf[6] = (len_in_blk - 1) & 0xFF;
 			ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 7);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			retry = 0;
 			while (1) {
@@ -626,35 +567,35 @@ int32_t Verify_Flash(void)
 				buf[0] = 0x00;
 				buf[1] = 0x00;
 				ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-				if (ret < 0) {
+
+				if (ret < 0)
 					return ret;
-				}
-				if (buf[1] == 0xAA) {
+				
+				if (buf[1] == 0xAA)
 					break;
-				}
+
 				retry++;
-				if (unlikely(retry > 5)) {
+				if (unlikely(retry > 5))
 					return -1;
-				}
 			}
 
-			ret = nvt_set_page(I2C_BLDR_Address, XDATA_Addr);
-			if (ret < 0) {
+			buf[0] = 0xFF;
+			buf[1] = XDATA_Addr >> 16;
+			buf[2] = (XDATA_Addr >> 8) & 0xFF;
+			ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
+			if (ret < 0)
 				return ret;
-			}
 
 			buf[0] = (XDATA_Addr) & 0xFF;
 			buf[1] = 0x00;
 			buf[2] = 0x00;
 			ret = CTP_I2C_READ(ts->client, I2C_BLDR_Address, buf, 3);
-			if (ret < 0) {
+			if (ret < 0)
 				return ret;
-			}
 
 			RD_Filechksum[i] = (uint16_t)((buf[2] << 8) | buf[1]);
-			if (WR_Filechksum[i] != RD_Filechksum[i]) {
+			if (WR_Filechksum[i] != RD_Filechksum[i])
 				return -1;
-			}
 		}
 	}
 
@@ -668,33 +609,27 @@ int32_t Update_Firmware(void)
 	nvt_stop_crc_reboot();
 
 	ret = Init_BootLoader();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	ret = Resume_PD();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	ret = Erase_Flash();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	ret = Write_Flash();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	ret = Verify_Flash();
-	if (ret) {
+	if (ret
 		return ret;
-	}
 
 	nvt_bootloader_reset();
 	nvt_check_fw_reset_state(RESET_STATE_INIT);
-	nvt_get_fw_info();	
 
 	return ret;
 }
@@ -706,21 +641,19 @@ int32_t nvt_check_flash_end_flag(void)
 	int32_t ret = 0;
 
 	ret = Init_BootLoader();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	ret = Resume_PD();
-	if (ret) {
+	if (ret)
 		return ret;
-	}
 
 	buf[0] = 0x00;
 	buf[1] = 0x35;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
+
 	msleep(10);
 
 	buf[0] = 0x00;
@@ -731,69 +664,69 @@ int32_t nvt_check_flash_end_flag(void)
 	buf[5] = (NVT_FLASH_END_FLAG_LEN >> 8) & 0xFF;
 	buf[6] = NVT_FLASH_END_FLAG_LEN & 0xFF;
 	ret = CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 7);
-	if (ret < 0) {
+
+	if (ret < 0)
 		return ret;
-	}
+
 	msleep(10);
 
 	buf[0] = 0x00;
 	buf[1] = 0x00;
 	ret = CTP_I2C_READ(ts->client, I2C_HW_Address, buf, 2);
-	if (ret < 0) {
-		return ret;
-	}
 
-	if (buf[1] != 0xAA) {
+	if (ret < 0)
+		return ret;
+
+	if (buf[1] != 0xAA)
 		return -1;
-	}
 
 	msleep(10);
 
-	ret = nvt_set_page(I2C_BLDR_Address, ts->mmap->READ_FLASH_CHECKSUM_ADDR);
-	if (ret < 0) {
+	buf[0] = 0xFF;
+	buf[1] = (ts->mmap->READ_FLASH_CHECKSUM_ADDR >> 16) & 0xFF;
+	buf[2] = (ts->mmap->READ_FLASH_CHECKSUM_ADDR >> 8) & 0xFF;
+	ret = CTP_I2C_WRITE(ts->client, I2C_BLDR_Address, buf, 3);
+
+	if (ret < 0)
 		return ret;
-	}
+
 	msleep(10);
 
 	buf[0] = ts->mmap->READ_FLASH_CHECKSUM_ADDR & 0xFF;
 	ret = CTP_I2C_READ(ts->client, I2C_BLDR_Address, buf, 6);
-	if (ret < 0) {
+	if (ret < 0)
 		return ret;
-	}
 
 	strncpy(nvt_end_flag, &buf[3], NVT_FLASH_END_FLAG_LEN);
 
 	if (strncmp(nvt_end_flag, "NVT", 3) == 0) {
 		return 0;
-	} else {
+	else
 		return 1;
-	}
 }
 
 void Boot_Update_Firmware(struct work_struct *work)
 {
 	int32_t ret = 0;
+
 	char firmware_name[256] = "";
+	char g_lcd_id[128];
 
 	if (strstr(g_lcd_id,"shenchao nt36672a fhdplus video mode dsi panel") != NULL) {
-			snprintf(firmware_name, sizeof(firmware_name), BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO);
-    } else {
-			snprintf(firmware_name, sizeof(firmware_name), BOOT_UPDATE_FIRMWARE_NAME_TIANMA);
+		sprintf(firmware_name, BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO);
+	} else {
+		sprintf(firmware_name, BOOT_UPDATE_FIRMWARE_NAME_TIANMA);
 	}
 
 	ret = update_firmware_request(firmware_name);
-	if (ret) {
+	if (ret)
 		return;
-    }
 
 	mutex_lock(&ts->lock);
 	nvt_sw_reset_idle();
 	ret = Check_CheckSum();
-	if (ret < 0) {
-		Update_Firmware();
-	} else if ((ret == 0) && (Check_FW_Ver() == 0)) {
-		Update_Firmware();
-	} else if (nvt_check_flash_end_flag()) {
+
+	if ((ret < 0) || ((ret == 0) && (Check_FW_Ver() == 0)) || (nvt_check_flash_end_flag())) {
 		Update_Firmware();
 	} else {
 		nvt_bootloader_reset();
@@ -804,6 +737,6 @@ void Boot_Update_Firmware(struct work_struct *work)
 
 	mutex_unlock(&ts->lock);
 	update_firmware_release();
-
+	nvt_get_fw_info();
 }
 #endif /* BOOT_UPDATE_FIRMWARE */

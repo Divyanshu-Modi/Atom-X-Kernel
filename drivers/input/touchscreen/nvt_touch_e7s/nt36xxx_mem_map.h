@@ -2,11 +2,11 @@
  * Copyright (C) 2010 - 2017 Novatek, Inc.
  * Copyright (C) 2019 XiaoMi, Inc.
  *
- * SPDX-License-Identifier: GPL-2.0
- * 
- * $Revision: 20544 $
+ * SPDX-License-Identifier: GPL-2.0 
  *
- * $Date: 2017-12-20 11:08:15 +0800 (Wednesday, 20 December 2017) $
+ * $Revision: NULL
+ *
+ * $Date: NULL
  */
 
 struct nvt_ts_mem_map {
@@ -33,32 +33,6 @@ struct nvt_ts_mem_map {
 	uint32_t DIFF_BTN_PIPE1_Q_ADDR;
 	uint32_t READ_FLASH_CHECKSUM_ADDR;
 	uint32_t RW_FLASH_DATA_ADDR;
-};
-
-static const struct nvt_ts_mem_map NT36672A_memory_map = {
-	.EVENT_BUF_ADDR           = 0x21C00,
-	.RAW_PIPE0_ADDR           = 0x20000,
-	.RAW_PIPE0_Q_ADDR         = 0,
-	.RAW_PIPE1_ADDR           = 0x23000,
-	.RAW_PIPE1_Q_ADDR         = 0,
-	.BASELINE_ADDR            = 0x20BFC,
-	.BASELINE_Q_ADDR          = 0,
-	.BASELINE_BTN_ADDR        = 0x23BFC,
-	.BASELINE_BTN_Q_ADDR      = 0,
-	.DIFF_PIPE0_ADDR          = 0x206DC,
-	.DIFF_PIPE0_Q_ADDR        = 0,
-	.DIFF_PIPE1_ADDR          = 0x236DC,
-	.DIFF_PIPE1_Q_ADDR        = 0,
-	.RAW_BTN_PIPE0_ADDR       = 0x20510,
-	.RAW_BTN_PIPE0_Q_ADDR     = 0,
-	.RAW_BTN_PIPE1_ADDR       = 0x23510,
-	.RAW_BTN_PIPE1_Q_ADDR     = 0,
-	.DIFF_BTN_PIPE0_ADDR      = 0x20BF0,
-	.DIFF_BTN_PIPE0_Q_ADDR    = 0,
-	.DIFF_BTN_PIPE1_ADDR      = 0x23BF0,
-	.DIFF_BTN_PIPE1_Q_ADDR    = 0,
-	.READ_FLASH_CHECKSUM_ADDR = 0x24000,
-	.RW_FLASH_DATA_ADDR       = 0x24002,
 };
 
 static const struct nvt_ts_mem_map NT36772_memory_map = {
@@ -174,8 +148,6 @@ struct nvt_ts_trim_id_table {
 };
 
 static const struct nvt_ts_trim_id_table trim_id_table[] = {
-	{.id = {0x0A, 0xFF, 0xFF, 0x72, 0x66, 0x03}, .mask = {1, 0, 0, 1, 1, 1},
-		.mmap = &NT36672A_memory_map, .carrier_system = 0},
 	{.id = {0x55, 0x00, 0xFF, 0x00, 0x00, 0x00}, .mask = {1, 1, 0, 1, 1, 1},
 		.mmap = &NT36772_memory_map, .carrier_system = 0},
 	{.id = {0x55, 0x72, 0xFF, 0x00, 0x00, 0x00}, .mask = {1, 1, 0, 1, 1, 1},
