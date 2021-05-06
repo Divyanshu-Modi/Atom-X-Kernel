@@ -2542,6 +2542,11 @@ static inline bool cpupri_check_rt(void)
 }
 #endif
 
+void sched_migrate_to_cpumask_start(struct cpumask *old_mask,
+				    const struct cpumask *dest);
+void sched_migrate_to_cpumask_end(const struct cpumask *old_mask,
+				  const struct cpumask *dest);
+
 extern u32 sched_get_wake_up_idle(struct task_struct *p);
 extern int sched_set_wake_up_idle(struct task_struct *p, int wake_up_idle);
 
