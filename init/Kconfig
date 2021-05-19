@@ -1508,6 +1508,14 @@ config CLANG_POLLY_FLAGS
           About the polly optimizations: https://polly.llvm.org/
           If unsure, say N.
 
+config GRAPHITE
+	bool "Enable Graphite"
+	depends on LTO
+	help
+	  This enables GCC Graphite.
+
+	  If unsure, say N.
+
 config SYSCTL
 	bool
 
