@@ -673,7 +673,8 @@ LTO_CFLAGS		:= -flto -flto=jobserver -fno-fat-lto-objects \
 				-fuse-linker-plugin -fwhole-program
 KBUILD_CFLAGS	+= $(LTO_CFLAGS)
 LTO_LDFLAGS		:= $(LTO_CFLAGS) -Wno-lto-type-mismatch -Wno-psabi \
-				-Wno-stringop-overflow -flinker-output=nolto-rel
+				-Wno-stringop-overflow -Wno-stringop-overread \
+				-flinker-output=nolto-rel
 LDFINAL			:= $(CONFIG_SHELL) $(srctree)/scripts/gcc-ld $(LTO_LDFLAGS)
 AR				:= $(CROSS_COMPILE)gcc-ar
 NM				:= $(CROSS_COMPILE)gcc-nm
@@ -701,6 +702,7 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, void-pointer-to-enum-cast)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, restrict)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-overflow)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-overread)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, zero-length-bounds)
 KBUILD_CFLAGS   += $(call cc-option, -Wno-misleading-indentation)
 ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
