@@ -22,12 +22,11 @@ ifeq ($(CONFIG_RELOCATABLE), y)
 LDFLAGS_vmlinux		+= -Bsymbolic -z notext -z norelro \
 			$(call ld-option, --no-apply-dynamic-relocs)
 			
-# Pass -shared for bfd and -pie for lld to minimize Image size on both
-ifeq ($(ld-name),bfd)
-LDFLAGS_vmlinux		+= -shared
-endif
+# Pass -pie for lld and -shared for other linkers to minimize Image size.
 ifeq ($(ld-name),lld)
 LDFLAGS_vmlinux		+= -pie
+else
+LDFLAGS_vmlinux		+= -shared
 endif			
 endif
 
