@@ -24,6 +24,8 @@
 #include "kgsl_snapshot.h"
 #include "adreno_cp_parser.h"
 
+static void kgsl_snapshot_save_frozen_objs(struct work_struct *work);
+
 /* Placeholder for list of ib objects that contain all objects in that IB */
 
 struct kgsl_snapshot_cp_obj {
