@@ -139,11 +139,9 @@ static void syncobj_timer(unsigned long data)
 		"kgsl: possible gpu syncpoint deadlock for context %d timestamp %d\n",
 		drawobj->context->id, drawobj->timestamp);
 
-#ifdef CONFIG_ADRENO_CORESNAP
 	set_bit(ADRENO_CONTEXT_FENCE_LOG, &drawobj->context->priv);
 	kgsl_context_dump(drawobj->context);
 	clear_bit(ADRENO_CONTEXT_FENCE_LOG, &drawobj->context->priv);
-#endif
 
 	dev_err(device->dev, "      pending events:\n");
 

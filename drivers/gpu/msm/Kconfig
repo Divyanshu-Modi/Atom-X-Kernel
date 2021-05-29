@@ -45,12 +45,3 @@ config QCOM_ADRENO_DEFAULT_GOVERNOR
 config QCOM_KGSL_IOMMU
 	bool
 	default y if QCOM_KGSL && (MSM_IOMMU || ARM_SMMU)
-
-config ADRENO_CORESNAP
-    bool "adreno & kgsl coresight and snapshot drivers"
-    default n
-	depends on QCOM_KGSL
-	---help---
-	  Enables adreno & kgsl coresight and snapshot drivers 
- 
-   
