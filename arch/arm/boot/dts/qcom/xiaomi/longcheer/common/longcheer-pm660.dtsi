@@ -34,37 +34,20 @@
 			qcom,pmic-revid = <&pm660_revid>;
 			qcom,pmic-misc = <&pm660_misc>;
 			qcom,misc-clk-trim-error-reg = <0xf3>;
-			qcom,wave-shape = "sine";
-			qcom,wave-shape-haptic = "square";
-#ifndef CONFIG_MACH_XIAOMI_JASWAY
 			qcom,actuator-type = "erm";
 			qcom,play-mode = "direct";
-			qcom,vmax-mv = <3000>;
+			qcom,wave-shape = "sine";
+			qcom,wave-shape-haptic = "square";
 			qcom,wave-play-rate-us = <6000>;
 			qcom,int-pwm-freq-khz = <505>;
+			qcom,vmax-mv = <3000>;
+			qcom,ilim-ma = <800>;
+			qcom,en-brake;
+			qcom,sc-deb-cycles = <8>;
 			qcom,brake-pattern = [03 03 00 00];
 			qcom,lra-high-z = "opt0";
 			qcom,lra-auto-res-mode = "qwd";
 			qcom,correct-lra-drive-freq;
-#else
-			qcom,actuator-type = "lra";
-			qcom,play-mode = "buffer";
-			qcom,vmax-mv = <2204>;
-			qcom,wave-play-rate-us = <4878>;
-			qcom,int-pwm-freq-khz = <253>;
-			qcom,brake-pattern = [02 02 01 00];
-			qcom,wave-samples = [3e 3e 3e 00 00 00 00 00];
-			qcom,wave-samples-two = [3e 3e 3e 3e 00 00 00 00];
-			qcom,wave-samples-three = [3e 3e 3e 3e 3e 00 00 00];
-			qcom,wave-rep-cnt = <1>;
-			qcom,wave-samp-rep-cnt = <1>;
-			qcom,lra-high-z = "opt1";
-			qcom,lra-auto-res-mode = "none";
-			qcom,lra-hw-auto-resonance;
-#endif
-			qcom,ilim-ma = <800>;
-			qcom,sc-deb-cycles = <8>;
-			qcom,en-brake;
 			qcom,lra-calibrate-at-eop = <0>;
 		};
 	};
