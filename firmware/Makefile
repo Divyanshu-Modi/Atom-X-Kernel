@@ -20,6 +20,22 @@ fw-external-y := $(subst $(quote),,$(CONFIG_EXTRA_FIRMWARE))
 # accurate. In the latter case it doesn't matter -- it'll use $(fw-shipped-all).
 # But be aware that the config file might not be included at all.
 
+# Xiaomi_Novatek
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_A) += novatek/shenchao_nt36672a_miui_e7t.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_A) += novatek/tianma_nt36672a_miui_e7t.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_E7S) += novatek/nt36672_miui_e7s.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_E7S) += novatek/hx_nt36672_miui_e7s.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_D2S) += novatek/tianma_nt36672_miui_d2s.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_D2S) += novatek/jdi_nt36672_miui_d2s.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_F7A) += novatek/tianma_nt36672a_miui_f7a.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_F7A) += novatek/shenchao_nt36672a_miui_f7a.bin
+fw-shipped-$(CONFIG_BOOT_FIRMWARE_UPDATE_NVT_F7A) += novatek/shenchao_2nd_nt36672a_miui_f7a.bin
+
+# Xiaomi_Synaptics
+fw-shipped-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_E7S_FW_UPDATE) += synaptics/tianma_td4310_miui_e7s.img
+fw-shipped-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_E7S_FW_UPDATE) += synaptics/shenchao_td4310_miui_e7s.img
+fw-shipped-$(CONFIG_TOUCHSCREEN_SYNAPTICS_TCM_F7A_REFLASH) += synaptics/boe_td4320_i2c_F7A.img
+
 fw-shipped-all := $(fw-shipped-y) $(fw-shipped-m) $(fw-shipped-)
 
 quiet_cmd_ihex  = IHEX    $@
