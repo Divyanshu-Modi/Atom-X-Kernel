@@ -366,26 +366,6 @@ AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage -fno-tree-loop-im
 CFLAGS_KCOV	= -fsanitize-coverage=trace-pc
 
-ifdef CONFIG_CLANG_POLLY_FLAGS
-POLLY_FLAGS	:= -mllvm -polly \
-		   -mllvm -polly-parallel -lgomp \
-		   -mllvm -polly-run-dce \
-		   -mllvm -polly-run-inliner \
-		   -mllvm -polly-opt-fusion=max \
-		   -mllvm -polly-ast-use-context \
-		   -mllvm -polly-detect-keep-going \
-		   -mllvm -polly-vectorizer=stripmine \
-		   -mllvm -polly-invariant-load-hoisting
-else
-POLLY_FLAGS	:=
-endif
-
-ifeq ($(cc-name),clang)
-OPT_FLAGS	:= -funsafe-math-optimizations -ffast-math -fopenmp
-else
-OPT_FLAGS	:=
-endif
-
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \
 		-I$(srctree)/arch/$(hdr-arch)/include/uapi \
@@ -404,7 +384,7 @@ LINUXINCLUDE    := \
 		-Iinclude \
 		$(USERINCLUDE)
 
-KBUILD_AFLAGS   := -D__ASSEMBLY__ $(POLLY_FLAGS) $(OPT_FLAGS)
+KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -pipe \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
@@ -414,7 +394,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -pipe \
 ifeq ($(TARGET_BOARD_TYPE),auto)
 KBUILD_CFLAGS    += -DCONFIG_PLATFORM_AUTO
 endif
-KBUILD_CPPFLAGS := -D__KERNEL__ $(POLLY_FLAGS) $(OPT_FLAGS)
+KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS_MODULE  := -DMODULE
@@ -687,7 +667,13 @@ ifdef CONFIG_LTO_GCC
 LTO_CFLAGS		:= -flto -flto=jobserver -fno-fat-lto-objects \
 				-fuse-linker-plugin -fwhole-program
 ifdef CONFIG_GRAPHITE
-LTO_CFLAGS    += -floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block -ftree-vectorize
+LTO_CFLAGS    += -floop-block \
+                 -ftree-vectorize \
+                 -floop-strip-mine \
+                 -floop-interchange \
+                 -fgraphite-identity \
+                 -floop-nest-optimize \
+                 -ftree-loop-distribution
 endif
 KBUILD_CFLAGS	+= $(LTO_CFLAGS)
 LTO_LDFLAGS		:= $(LTO_CFLAGS) -Wno-lto-type-mismatch -Wno-psabi \
@@ -739,12 +725,29 @@ endif
 
 # Tell compiler to tune the performance of the code for a specified target processor
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS += -mcpu=cortex-a53 -march=armv8-a+crc+crypto
-KBUILD_AFLAGS += -mcpu=cortex-a53 -march=armv8-a+crc+crypto
+ifdef CONFIG_LLVM_POLLY
+POLLY_FLAGS	:= -mllvm -polly \
+		   -mllvm -polly-run-dce \
+		   -mllvm -polly-run-inliner \
+		   -mllvm -polly-opt-fusion=max \
+		   -mllvm -polly-parallel -lgomp \
+		   -mllvm -polly-ast-use-context \
+		   -mllvm -polly-detect-keep-going \
+		   -mllvm -polly-vectorizer=stripmine \
+		   -mllvm -polly-invariant-load-hoisting
 else
-KBUILD_CFLAGS += -mcpu=cortex-a73.cortex-a53 -march=armv8-a+crc+crypto
-KBUILD_AFLAGS += -mcpu=cortex-a73.cortex-a53 -march=armv8-a+crc+crypto
+POLLY_FLAGS	:=
 endif
+OPT_FLAGS := -funsafe-math-optimizations -ffast-math -fopenmp \
+               -mcpu=cortex-a53 -mtune=cortex-a53 -march=armv8-a+crc+crypto \
+               $(POLLY_FLAGS)
+else
+OPT_FLAGS := -mcpu=cortex-a73.cortex-a53 -mtune=cortex-a73.cortex-a53 \
+             -march=armv8-a+crc+crypto
+endif
+
+KBUILD_CFLAGS += $(OPT_FLAGS)
+KBUILD_AFLAGS += $(OPT_FLAGS)
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)

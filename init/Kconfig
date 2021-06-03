@@ -1501,12 +1501,13 @@ config CC_OPTIMIZE_FOR_SIZE
 
 endchoice
 
-config CLANG_POLLY_FLAGS
-        bool "Enable the polly optimizations for clang"
-        help
-          Enabling this option will enable some polly optimization flags for clang.
-          About the polly optimizations: https://polly.llvm.org/
-          If unsure, say N.
+config LLVM_POLLY
+	bool "Enable LLVM's polyhedral loop optimizer (Polly)"
+	help
+	  This option enables LLVM's polyhedral loop optimizer known as Polly.
+	  Polly is able to optimize various loops throughout the kernel for
+	  maximum cache locality. This requires an LLVM toolchain explicitly
+	  compiled with Polly support.
 
 config GRAPHITE
 	bool "Enable Graphite"
