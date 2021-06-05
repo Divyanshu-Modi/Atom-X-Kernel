@@ -207,12 +207,20 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
 #ifdef CONFIG_BPF_JIT
 void *__weak bpf_jit_alloc_exec(unsigned long size)
 {
+#ifdef CONFIG_MODULES
 	return module_alloc(size);
+#else
+	return vmalloc_exec(size);
+#endif
 }
 
 void __weak bpf_jit_free_exec(void *addr)
 {
+#ifdef CONFIG_MODULES
 	module_memfree(addr);
+#else
+	vfree(addr);
+#endif
 }
 
 struct bpf_binary_header *
