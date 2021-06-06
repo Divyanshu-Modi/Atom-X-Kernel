@@ -739,7 +739,7 @@ endif
 OPT_FLAGS := -funsafe-math-optimizations -ffast-math -fopenmp \
                -mcpu=cortex-a53 -mtune=cortex-a53 -march=armv8-a+crc+crypto \
                $(POLLY_FLAGS) \
-	       $(POLLY_LLD_FLAGS)
+	        $(POLLY_LLD_FLAGS)
 else
 ifdef CONFIG_GCC_GRAPHITE
 GRAPHITE_FLAGS    += -floop-block \
