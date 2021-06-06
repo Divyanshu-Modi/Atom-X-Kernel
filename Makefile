@@ -721,9 +721,6 @@ POLLY_FLAGS	:= -mllvm -polly \
 		   -mllvm -polly-run-dce \
 		   -mllvm -polly-run-inliner \
 		   -mllvm -polly-opt-fusion=max \
-		   ifeq ($(ld-name),lld)
-                   -mllvm -polly-parallel -lgomp \
-		   endif
 		   -mllvm -polly-ast-use-context \
 		   -mllvm -polly-detect-keep-going \
 		   -mllvm -polly-vectorizer=stripmine \
@@ -731,9 +728,18 @@ POLLY_FLAGS	:= -mllvm -polly \
 else
 POLLY_FLAGS	:=
 endif
+
+ifeq ($(ld-name),lld)
+ifdef CONFIG_LLVM_POLLY
+POLLY_LLD_FLAGS := -mllvm -polly-parallel -lgomp \
+else
+POLLY_LLD_FLAGS :=
+endif
+
 OPT_FLAGS := -funsafe-math-optimizations -ffast-math -fopenmp \
                -mcpu=cortex-a53 -mtune=cortex-a53 -march=armv8-a+crc+crypto \
-               $(POLLY_FLAGS)
+               $(POLLY_FLAGS) \
+	       $(POLLY_LLD_FLAGS)
 else
 ifdef CONFIG_GCC_GRAPHITE
 GRAPHITE_FLAGS    += -floop-block \
