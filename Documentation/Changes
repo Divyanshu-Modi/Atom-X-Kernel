@@ -24,6 +24,8 @@ you probably needn't concern yourself with isdn4k-utils.
 o  GNU C                  3.2                     # gcc --version
 o  GNU make               3.80                    # make --version
 o  binutils               2.12                    # ld -v
+o  flex                   2.5.35                  # flex --version
+o  bison                  2.0                     # bison --version
 o  util-linux             2.10o                   # fdformat --version
 o  kmod                   13                      # depmod -V
 o  e2fsprogs              1.41.4                  # e2fsck -V
@@ -68,6 +70,18 @@ Linux on IA-32 has recently switched from using as86 to using gas for
 assembling the 16-bit boot code, removing the need for as86 to compile
 your kernel.  This change does, however, mean that you need a recent
 release of binutils.
+
+Flex
+----
+
+Since Linux 4.16, the build system generates lexical analyzers
+during build. This requires flex 2.5.35 or later.
+
+Bison
+-----
+
+Since Linux 4.16, the build system generates parsers
+during build. This requires bison 2.0 or later.
 
 Perl
 ----
@@ -301,6 +315,16 @@ o  <ftp://ftp.gnu.org/gnu/make/>
 Binutils
 --------
 o  <ftp://ftp.kernel.org/pub/linux/devel/binutils/>
+
+Flex
+----
+
+o  <https://github.com/westes/flex/releases>
+
+Bison
+-----
+
+o  <ftp://ftp.gnu.org/gnu/bison/>
 
 OpenSSL
 -------
