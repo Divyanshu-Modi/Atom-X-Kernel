@@ -273,9 +273,13 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
 	if (tb[TCA_TCINDEX_MASK])
 		cp->mask = nla_get_u16(tb[TCA_TCINDEX_MASK]);
 
-	if (tb[TCA_TCINDEX_SHIFT])
+	if (tb[TCA_TCINDEX_SHIFT]) {
 		cp->shift = nla_get_u32(tb[TCA_TCINDEX_SHIFT]);
-
+		if (cp->shift > 16) {
+			err = -EINVAL;
+			goto errout;
+		}
+	}
 	if (!cp->hash) {
 		/* Hash not specified, use perfect hash if the upper limit
 		 * of the hashing index is below the threshold.
@@ -293,6 +297,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
 				      sizeof(*r) * cp->hash, GFP_KERNEL);
 		if (!cp->perfect)
 			goto errout;
+		cp->alloc_hash = cp->hash;
 		for (i = 0; i < min(cp->hash, p->hash); i++)
 			tcf_exts_init(&cp->perfect[i].exts,
 				      TCA_TCINDEX_ACT, TCA_TCINDEX_POLICE);
