@@ -572,7 +572,11 @@ struct qpnp_led_data {
 struct rgb_sync {
 	struct led_classdev	cdev;
 	struct platform_device	*pdev;
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	struct qpnp_led_data	*led_data[4];
+#else
 	struct qpnp_led_data	*led_data[3];
+#endif
 };
 
 static DEFINE_MUTEX(flash_lock);
@@ -2776,7 +2780,11 @@ static inline void rgb_lock_leds(struct rgb_sync *rgb)
 {
 	int i;
 
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		if (rgb->led_data[i]) {
 			flush_work(&rgb->led_data[i]->work);
 			mutex_lock(&rgb->led_data[i]->lock);
@@ -2788,7 +2796,11 @@ static inline void rgb_unlock_leds(struct rgb_sync *rgb)
 {
 	int i;
 
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		if (rgb->led_data[i]) {
 			mutex_unlock(&rgb->led_data[i]->lock);
 		}
@@ -2801,7 +2813,11 @@ static void rgb_disable_leds(struct rgb_sync *rgb)
 	struct qpnp_led_data *led;
 
 	//TODO Implement synchronized off
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		led = rgb->led_data[i];
 		if (led && led->rgb_cfg->pwm_cfg->pwm_enabled) {
 			led->rgb_cfg->pwm_cfg->mode =
@@ -2822,7 +2838,11 @@ static int rgb_enable_leds(struct rgb_sync *rgb)
 	struct pwm_device *pwm_dev[3];
 	int i, rc;
 
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		led = rgb->led_data[i];
 		if (!led)
 			continue;
@@ -2842,7 +2862,11 @@ static int rgb_enable_leds(struct rgb_sync *rgb)
 		return rc;
 	}
 
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		led = rgb->led_data[i];
 		if (!led)
 			continue;
@@ -2870,7 +2894,11 @@ static ssize_t rgb_blink_store(struct device *dev,
 	rgb_sync = container_of(led_cdev, struct rgb_sync, cdev);
 
 	rgb_lock_leds(rgb_sync);
+#ifdef CONFIG_MACH_XIAOMI_SDM660
+	for (i = 0; i < 4; i++) {
+#else
 	for (i = 0; i < 3; i++) {
+#endif
 		if (rgb_sync->led_data[i]) {
 			led = rgb_sync->led_data[i];
 			enable |= led->rgb_cfg->enable;
