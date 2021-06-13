@@ -91,7 +91,7 @@
 
 &pm660l_wled {
 	/delete-property/ qcom,auto-calibration-enable;
-	qcom,fs-curr-ua = <20000>;
+	qcom,fs-curr-ua = <18000>;
 	qcom,en-cabc;
 };
 
