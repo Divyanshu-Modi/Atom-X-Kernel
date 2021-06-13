@@ -149,12 +149,12 @@ $(asm-obj-vdso): %.o: %.S FORCE
 	$(call if_changed_dep,vdsoas)
 
 # Actual build commands
-quiet_cmd_vdsold = VDSOL32   $@
+quiet_cmd_vdsold = LD32    $@
       cmd_vdsold = $(LD_ARM32) $(VDSO_LDFLAGS) \
                    -T $(filter %.lds,$^) $(filter %.o,$^) -o $@
-quiet_cmd_vdsocc = VDSOC32   $@
+quiet_cmd_vdsocc = CC32    $@
       cmd_vdsocc = $(CC_ARM32) -Wp,-MD,$(depfile) $(VDSO_CFLAGS) -c -o $@ $<
-quiet_cmd_vdsoas = VDSOA32   $@
+quiet_cmd_vdsoas = AS32    $@
       cmd_vdsoas = $(CC_ARM32) -Wp,-MD,$(depfile) $(VDSO_AFLAGS) -c -o $@ $<
 
 quiet_cmd_vdsomunge = MUNGE   $@
