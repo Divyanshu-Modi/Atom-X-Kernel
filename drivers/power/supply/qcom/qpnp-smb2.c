@@ -263,18 +263,9 @@ static int smb2_parse_dt(struct smb2 *chip)
 				"qcom,fcc-max-ua", &chg->batt_profile_fcc_ua);
 	if (rc < 0)
 		chg->batt_profile_fcc_ua = -EINVAL;
+
 #ifdef CONFIG_MACH_LONGCHEER
-	if (hwc_check_global) {
-		chg->batt_profile_fcc_ua = 2300000;
-#ifdef CONFIG_MACH_XIAOMI_TULIP
-		if (is_poweroff_charge) {
-			if (hwc_check_india)
-				chg->batt_profile_fcc_ua = 2200000;
-			else
-				chg->batt_profile_fcc_ua = 2300000;
-		}
-#endif
-	}
+	chg->batt_profile_fcc_ua = 2300000;
 #endif
 
 	rc = of_property_read_u32(node,
