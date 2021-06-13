@@ -94,6 +94,10 @@
 				39 01 00 00 00 00 02 00 00
 				39 01 00 00 00 00 05 f7 5a a5 95 27
 				];
+
+		qcom,mdss-dsi-pan-enable-dynamic-bitclk;
+		qcom,mdss-dsi-dynamic-bitclk_freq = <798240576 801594528 804948480
+		808302432 811656384>;		        
 		qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
