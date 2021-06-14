@@ -107,12 +107,22 @@ void set_##name(type __##name)			\
 	name = __##name;			\
 }
 
-bool is_abnormal_powerup(void)
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
+bool
+#else
+int
+#endif
+is_abnormal_powerup(void)
 {
 	u32 pu_reason = get_powerup_reason();
 
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 	return (((pu_reason & (RESTART_EVENT_KPANIC | RESTART_EVENT_WDOG)) |
 		 (pu_reason & BIT(PU_REASON_EVENT_HWRST) & RESTART_EVENT_OTHER))==0 ? false : true);
+#else
+	return (pu_reason & (RESTART_EVENT_KPANIC | RESTART_EVENT_WDOG)) |
+		(pu_reason & BIT(PU_REASON_EVENT_HWRST) & RESTART_EVENT_OTHER);
+#endif
 }
 
 static ssize_t powerup_reason_show(struct kobject *kobj,
@@ -186,11 +196,11 @@ void set_poweroff_reason(int pmicv)
 	while (i < PMIC_NUM) {
 		if (pmic_v[i] != -1)
 			i++;
-		else {
+		else
 			pmic_v[i] = pmicv;
 			break;
-		}
 	}
+
 }
 
 static ssize_t poweroff_reason_show(struct kobject *kobj,
@@ -246,7 +256,11 @@ static int __init bootinfo_init(void)
 		pr_err("bootinfo_init: subsystem_register failed\n");
 		goto fail;
 	}
+
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 	memset(pmic_v, -1, sizeof(pmic_v));
+#endif
+
 	ret = sysfs_create_group(bootinfo_kobj, &attr_group);
 	if (ret) {
 		pr_err("bootinfo_init: subsystem_register failed\n");

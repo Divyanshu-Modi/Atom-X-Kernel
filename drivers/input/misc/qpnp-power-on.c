@@ -32,7 +32,7 @@
 #include <linux/regulator/of_regulator.h>
 #include <linux/input/qpnp-power-on.h>
 #include <linux/power_supply.h>
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 #include <asm/bootinfo.h>
 #endif
 
@@ -69,7 +69,7 @@
 	((pon)->base + PON_OFFSET((pon)->subtype, 0xA, 0xC2))
 #define QPNP_POFF_REASON1(pon) \
 	((pon)->base + PON_OFFSET((pon)->subtype, 0xC, 0xC5))
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 #define QPNP_POFF_REASON2(pon)			((pon)->base + 0xD)
 #endif
 #define QPNP_PON_WARM_RESET_REASON2(pon)	((pon)->base + 0xB)
@@ -158,6 +158,11 @@
 #define QPNP_KEY_STATUS_DELAY			msecs_to_jiffies(250)
 
 #define QPNP_PON_BUFFER_SIZE			9
+
+#if defined(CONFIG_MACH_XIAOMI_JASWAY) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#define QPNP_PON_SET_PS_HOLD			0x2
+#define QPNP_PON_SET_POWER_KEY			0x80
+#endif
 
 #define QPNP_POFF_REASON_UVLO			13
 
@@ -482,7 +487,7 @@ static ssize_t qpnp_pon_dbc_store(struct device *dev,
 
 static DEVICE_ATTR(debounce_us, 0664, qpnp_pon_dbc_show, qpnp_pon_dbc_store);
 
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#ifdef CONFIG_MACH_LONGCHEER
 static ssize_t qpnp_kpdpwr_reset_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -684,7 +689,7 @@ int qpnp_pon_is_warm_reset(void)
 }
 EXPORT_SYMBOL(qpnp_pon_is_warm_reset);
 
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#ifdef CONFIG_MACH_LONGCHEER
 int qpnp_pon_is_ps_hold_reset(void)
 {
 	struct qpnp_pon *pon = sys_reset_dev;
@@ -702,18 +707,22 @@ int qpnp_pon_is_ps_hold_reset(void)
 		return 0;
 	}
 
+	dev_info(&pon->pdev->dev, "hw_reset reason1 is 0x%x\n", reg);
+
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
+	/* The bit 1 is 1, means by PS_HOLD/MSM controlled shutdown */
 	if (reg & (1<<POFF_REASON_EVENT_PS_HOLD))
 		return 1;
 
-	dev_info(&pon->pdev->dev,
-			"hw_reset reason1 is 0x%x\n",
-			reg);
-
 	rc = regmap_read(pon->regmap, QPNP_POFF_REASON2(pon), &reg);
 
-	dev_info(&pon->pdev->dev,
-			"hw_reset reason2 is 0x%x\n",
-			reg);
+	dev_info(&pon->pdev->dev, "hw_reset reason2 is 0x%x\n", reg);
+#else
+	/* The bit 1 is 1, means by PS_HOLD/MSM controlled shutdown */
+	if (reg & QPNP_PON_SET_PS_HOLD)
+		return 1;
+#endif
+
 	return 0;
 }
 EXPORT_SYMBOL(qpnp_pon_is_ps_hold_reset);
@@ -735,18 +744,21 @@ int qpnp_pon_is_lpk(void)
 		return 0;
 	}
 
+	dev_info(&pon->pdev->dev, "hw_reset reason1 is 0x%x\n", reg);
+
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 	if (reg & (1<<POFF_REASON_EVENT_KPDPWR_N))
 		return 1;
 
-	dev_info(&pon->pdev->dev,
-			"hw_reset reason1 is 0x%x\n",
-			reg);
-
 	rc = regmap_read(pon->regmap, QPNP_POFF_REASON2(pon), &reg);
 
-	dev_info(&pon->pdev->dev,
-			"hw_reset reason2 is 0x%x\n",
-			reg);
+	dev_info(&pon->pdev->dev, "hw_reset reason2 is 0x%x\n", reg);
+#else
+	/* The bit 7 is 1, means the off reason is powerkey */
+	if (reg & QPNP_PON_SET_POWER_KEY)
+		return 1;
+#endif
+
 	return 0;
 }
 EXPORT_SYMBOL(qpnp_pon_is_lpk);
@@ -2288,7 +2300,7 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 				"PMIC@SID%d: Power-off reason: %s\n",
 				to_spmi_device(pon->pdev->dev.parent)->usid,
 				qpnp_poff_reason[index]);
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 		set_poweroff_reason(index);
 #endif
 	}
@@ -2478,7 +2490,7 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		return rc;
 	}
 
-#ifdef CONFIG_MACH_XIAOMI_SDM660
+#ifdef CONFIG_MACH_LONGCHEER
 	rc = device_create_file(&pdev->dev, &dev_attr_kpdpwr_reset);
 	if (rc) {
 		dev_err(&pdev->dev, "sys file creation failed rc: %d\n", rc);

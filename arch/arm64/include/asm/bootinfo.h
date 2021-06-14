@@ -84,8 +84,11 @@ typedef enum {
 
 #if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 void set_poweroff_reason(int poweroff_reason);
+bool
+#else
+int
 #endif
+is_abnormal_powerup(void);
 unsigned int get_powerup_reason(void);
-bool is_abnormal_powerup(void);
 void set_powerup_reason(unsigned int powerup_reason);
 #endif
