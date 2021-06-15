@@ -589,7 +589,7 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 keep_lcd_and_tp_reset:
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
 		printk(KERN_ERR "[lcd][tp][gesture] keep lcd_reset and tp_reset gpio to high.\n");
-#elif defined(CONFIG_MACH_XIAOMI_WAYNE)
+#elif defined(CONFIG_MACH_XIAOMI_JASWAY)
 		if (enable_gesture_mode)
 			printk("gesture mode keep reset gpio to high.\n");
 #elif defined(CONFIG_MACH_XIAOMI_WHYRED)
