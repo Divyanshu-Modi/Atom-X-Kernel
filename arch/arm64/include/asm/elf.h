@@ -188,7 +188,7 @@ do {									\
 	set_thread_flag(TIF_32BIT);					\
 } while (0)
 
-#ifdef CONFIG_GENERIC_COMPAT_VDSO
+#ifdef CONFIG_COMPAT_VDSO
 #define COMPAT_ARCH_DLINFO						\
 do {									\
 	/*								\
