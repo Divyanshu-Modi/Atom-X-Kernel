@@ -29,6 +29,8 @@
 
 #include <linux/string.h>
 
+#include <vdso/processor.h>
+
 #include <asm/alternative.h>
 #include <asm/fpsimd.h>
 #include <asm/hw_breakpoint.h>
@@ -148,11 +150,6 @@ struct task_struct;
 extern void release_thread(struct task_struct *);
 
 unsigned long get_wchan(struct task_struct *p);
-
-static inline void cpu_relax(void)
-{
-	asm volatile("yield" ::: "memory");
-}
 
 #define cpu_relax_lowlatency()                cpu_relax()
 
