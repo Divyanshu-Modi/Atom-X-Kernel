@@ -746,6 +746,9 @@ out:
 	return rc;
 }
 
+#if !defined(CONFIG_MACH_XIAOMI_LAVENDER) ||\
+    !defined(CONFIG_MACH_XIAOMI_WHYRED)   ||\
+    !defined(CONFIG_MACH_XIAOMI_JASWAY)
 int fg_dma_mem_req(struct fg_chip *chip, bool request)
 {
 	int ret, rc = 0, retry_count  = RETRY_COUNT;
@@ -803,6 +806,7 @@ release_mem:
 
 	return rc;
 }
+#endif
 
 int fg_ima_init(struct fg_chip *chip)
 {

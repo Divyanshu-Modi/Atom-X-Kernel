@@ -528,5 +528,9 @@ extern void fg_circ_buf_clr(struct fg_circ_buf *);
 extern int fg_circ_buf_avg(struct fg_circ_buf *, int *);
 extern int fg_circ_buf_median(struct fg_circ_buf *, int *);
 extern int fg_lerp(const struct fg_pt *, size_t, s32, s32 *);
+#if !defined(CONFIG_MACH_XIAOMI_LAVENDER) ||\
+    !defined(CONFIG_MACH_XIAOMI_WHYRED)   ||\
+    !defined(CONFIG_MACH_XIAOMI_JASWAY)
 extern int fg_dma_mem_req(struct fg_chip *, bool);
+#endif
 #endif

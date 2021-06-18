@@ -318,7 +318,11 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(parallel_batfet_mode),
 	POWER_SUPPLY_ATTR(parallel_fcc_max),
 	POWER_SUPPLY_ATTR(min_icl),
+#if !defined(CONFIG_MACH_XIAOMI_LAVENDER) ||\
+    !defined(CONFIG_MACH_XIAOMI_WHYRED)   ||\
+    !defined(CONFIG_MACH_XIAOMI_JASWAY)
 	POWER_SUPPLY_ATTR(fg_reset_clock),
+#endif
 #ifdef CONFIG_MACH_LONGCHEER
 	POWER_SUPPLY_ATTR(rerun_apsd),
 #endif
