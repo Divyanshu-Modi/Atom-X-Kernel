@@ -95,6 +95,18 @@ lto_lds()
 	echo "-T .tmp_lto.lds"
 }
 
+# We can't use --no-whole-archive flag with GCC LTO
+no_whole_archive_check()
+{
+	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
+		if [ -n "${CONFIG_LTO_GCC}" ]; then
+			NO_WHOLE_ARCHIVE=""
+		else
+			NO_WHOLE_ARCHIVE="--no-whole-archive"
+		fi
+	fi
+}
+
 # Link of vmlinux.o used for section mismatch analysis
 # ${1} output file
 modpost_link()
@@ -102,9 +114,10 @@ modpost_link()
 	local objects
 
 	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
+		no_whole_archive_check
 		objects="--whole-archive				\
 			built-in.o					\
-			--no-whole-archive				\
+			${NO_WHOLE_ARCHIVE}				\
 			--start-group					\
 			${KBUILD_VMLINUX_LIBS}				\
 			--end-group"
@@ -158,9 +171,10 @@ vmlinux_link()
 		fi
 
 		if [[ -n "${CONFIG_THIN_ARCHIVES}" && -z "${CONFIG_LTO_CLANG}" ]]; then
+			no_whole_archive_check
 			objects="--whole-archive 			\
 				built-in.o				\
-				--no-whole-archive			\
+				${NO_WHOLE_ARCHIVE}			\
 				--start-group				\
 				${KBUILD_VMLINUX_LIBS}			\
 				--end-group				\
@@ -177,9 +191,10 @@ vmlinux_link()
 		${ld} ${ldflags} -o ${2} -T ${lds} ${objects}
 	else
 		if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
+			no_whole_archive_check
 			objects="-Wl,--whole-archive			\
 				built-in.o				\
-				-Wl,--no-whole-archive			\
+				-Wl,${NO_WHOLE_ARCHIVE}			\
 				-Wl,--start-group			\
 				${KBUILD_VMLINUX_LIBS}			\
 				-Wl,--end-group				\
