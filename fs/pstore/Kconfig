@@ -12,35 +12,33 @@ config PSTORE
 	   If you don't have a platform persaistent store driver,
 	   say N.
 
-config PSTORE_ZLIB_COMPRESS
-	bool "ZLIB compression"
+config PSTORE_DEFLATE_COMPRESS
+	bool "DEFLATE (ZLIB) compression"
 	default y
 	depends on PSTORE
-	select ZLIB_DEFLATE
-	select ZLIB_INFLATE
+	select CRYPTO_DEFLATE
 	help
-	  This option enables ZLIB compression algorithm support.
+	  This option enables DEFLATE (also known as ZLIB) compression
+	  algorithm support.
 
 config PSTORE_LZO_COMPRESS
 	bool "LZO compression"
 	depends on PSTORE
-	select LZO_COMPRESS
-	select LZO_DECOMPRESS
+	select CRYPTO_LZO
 	help
 	  This option enables LZO compression algorithm support.
 
 config PSTORE_LZ4_COMPRESS
 	bool "LZ4 compression"
 	depends on PSTORE
-	select LZ4_COMPRESS
-	select LZ4_DECOMPRESS
+	select CRYPTO_LZ4
 	help
 	  This option enables LZ4 compression algorithm support.
 
 config PSTORE_COMPRESS
 	def_bool y
 	depends on PSTORE
-	depends on PSTORE_ZLIB_COMPRESS || PSTORE_LZO_COMPRESS || PSTORE_LZ4_COMPRESS
+	depends on PSTORE_DEFLATE_COMPRESS || PSTORE_LZO_COMPRESS || PSTORE_LZ4_COMPRESS
 
 choice
 	prompt "Default pstore compression algorithm"
@@ -51,12 +49,12 @@ choice
 	  the kernel command line.
 
 	  Currently, pstore has support for 3 compression algorithms:
-	  zlib, lzo, lz4
+	  deflate, lzo, lz4
 
-	  The default compression algorithm is zlib.
+	  The default compression algorithm is deflate.
 
-	config PSTORE_ZLIB_COMPRESS_DEFAULT
-		bool "zlib" if PSTORE_ZLIB_COMPRESS=y
+	config PSTORE_DEFLATE_COMPRESS_DEFAULT
+		bool "deflate" if PSTORE_DEFLATE_COMPRESS=y
 
 	config PSTORE_LZO_COMPRESS_DEFAULT
 		bool "lzo" if PSTORE_LZO_COMPRESS=y
@@ -69,7 +67,7 @@ endchoice
 config PSTORE_COMPRESS_DEFAULT
 	string
 	depends on PSTORE_COMPRESS
-	default "zlib" if PSTORE_ZLIB_COMPRESS_DEFAULT
+	default "deflate" if PSTORE_DEFLATE_COMPRESS_DEFAULT
 	default "lzo" if PSTORE_LZO_COMPRESS_DEFAULT
 	default "lz4" if PSTORE_LZ4_COMPRESS_DEFAULT
 
