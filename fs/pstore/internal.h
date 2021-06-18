@@ -65,4 +65,7 @@ extern int	pstore_mkfile(enum pstore_type_id, char *psname, u64 id,
 			      struct pstore_info *psi);
 extern bool	pstore_is_mounted(void);
 
+/* Called during module_init() */
+extern void __init pstore_choose_compression(void);
+
 #endif
