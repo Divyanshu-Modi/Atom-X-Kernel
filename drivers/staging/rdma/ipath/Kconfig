@@ -1,7 +1,7 @@
 config INFINIBAND_IPATH
 	tristate "QLogic HTX HCA support"
 	depends on 64BIT && NET && HT_IRQ
-	---help---
+	help
 	This is a driver for the deprecated QLogic Hyper-Transport
 	IB host channel adapter (model QHT7140),
 	including InfiniBand verbs support.  This driver allows these

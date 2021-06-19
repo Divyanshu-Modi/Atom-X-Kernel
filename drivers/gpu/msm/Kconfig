@@ -10,7 +10,7 @@ config QCOM_KGSL
 	select DEVFREQ_GOV_QCOM_ADRENO_TZ
 	select DEVFREQ_GOV_QCOM_GPUBW_MON
 	select ONESHOT_SYNC if SYNC
-	---help---
+	help
 	  3D graphics driver for the Adreno family of GPUs from Qualcomm.
 	  Required to use hardware accelerated OpenGL and compute on Qualcomm
 	  targets.
@@ -20,7 +20,7 @@ config QCOM_KGSL_CFF_DUMP
 	default n
 	depends on QCOM_KGSL
 	select RELAY
-	---help---
+	help
 	  This is an analysis and diagnostic feature only, and should only be
 	  turned on during KGSL GPU diagnostics and will slow down the KGSL
 	  performance sigificantly, hence *do not use in production builds*.
@@ -32,7 +32,7 @@ config QCOM_KGSL_CFF_DUMP_NO_CONTEXT_MEM_DUMP
 	bool "When selected will disable KGSL CFF Dump for context switches"
 	default n
 	depends on QCOM_KGSL_CFF_DUMP
-	---help---
+	help
 	  Dumping all the memory for every context switch can produce quite
 	  huge log files, to reduce this, turn this feature on.
 

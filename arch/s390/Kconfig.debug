@@ -8,7 +8,7 @@ source "lib/Kconfig.debug"
 config STRICT_DEVMEM
 	def_bool y
 	prompt "Filter access to /dev/mem"
-	---help---
+	help
 	  This option restricts access to /dev/mem.  If this option is
 	  disabled, you allow userspace access to all memory, including
 	  kernel and userspace memory. Accidental memory access is likely
@@ -21,7 +21,7 @@ config S390_PTDUMP
 	bool "Export kernel pagetable layout to userspace via debugfs"
 	depends on DEBUG_KERNEL
 	select DEBUG_FS
-	---help---
+	help
 	  Say Y here if you want to show the kernel pagetable layout in a
 	  debugfs file. This information is only useful for kernel developers
 	  who are working in architecture specific areas of the kernel.

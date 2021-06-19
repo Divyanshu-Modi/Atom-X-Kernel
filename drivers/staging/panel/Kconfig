@@ -1,7 +1,7 @@
 config PANEL
 	tristate "Parallel port LCD/Keypad Panel support"
 	depends on PARPORT
-	---help---
+	help
 	  Say Y here if you have an HD44780 or KS-0074 LCD connected to your
 	  parallel port. This driver also features 4 and 6-key keypads. The LCD
 	  is accessible through the /dev/lcd char device (10, 156), and the
@@ -15,7 +15,7 @@ config PANEL_PARPORT
 	depends on PANEL
 	range 0 255
 	default "0"
-	---help---
+	help
 	  This is the index of the parallel port the panel is connected to. One
 	  driver instance only supports one parallel port, so if your keypad
 	  and LCD are connected to two separate ports, you have to start two
@@ -27,7 +27,7 @@ config PANEL_PROFILE
 	depends on PANEL
 	range 0 5
 	default "5"
-	---help---
+	help
 	  To ease configuration, the driver supports different configuration
 	  profiles for past and recent wirings. These profiles can also be
 	  used to define an approximative configuration, completed by a few
@@ -49,7 +49,7 @@ config PANEL_KEYPAD
 	int "Keypad type (0=none, 1=old 6 keys, 2=new 6 keys, 3=Nexcom 4 keys)"
 	range 0 3
 	default 0
-	---help---
+	help
 	  This enables and configures a keypad connected to the parallel port.
 	  The keys will be read from character device 10,185. Valid values are :
 
@@ -66,7 +66,7 @@ config PANEL_LCD
 	int "LCD type (0=none, 1=custom, 2=old //, 3=ks0074, 4=hantronix, 5=Nexcom)"
 	range 0 5
 	default 0
-	---help---
+	help
 	   This enables and configures an LCD connected to the parallel port.
 	   The driver includes an interpreter for escape codes starting with
 	   '\e[L' which are specific to the LCD, and a few ANSI codes. The
@@ -89,7 +89,7 @@ config PANEL_LCD_HEIGHT
 	int "Number of lines on the LCD (1-2)"
 	range 1 2
 	default 2
-	---help---
+	help
 	  This is the number of visible character lines on the LCD in custom profile.
 	  It can either be 1 or 2.
 
@@ -98,7 +98,7 @@ config PANEL_LCD_WIDTH
 	int "Number of characters per line on the LCD (1-40)"
 	range 1 40
 	default 40
-	---help---
+	help
 	  This is the number of characters per line on the LCD in custom profile.
 	  Common values are 16,20,24,40.
 
@@ -107,7 +107,7 @@ config PANEL_LCD_BWIDTH
 	int "Internal LCD line width (1-40, 40 by default)"
 	range 1 40
 	default 40
-	---help---
+	help
 	  Most LCDs use a standard controller which supports hardware lines of 40
 	  characters, although sometimes only 16, 20 or 24 of them are really wired
 	  to the terminal. This results in some non-visible but addressable characters,
@@ -123,7 +123,7 @@ config PANEL_LCD_HWIDTH
 	int "Hardware LCD line width (1-64, 64 by default)"
 	range 1 64
 	default 64
-	---help---
+	help
 	  Most LCDs use a single address bit to differentiate line 0 and line 1. Since
 	  some of them need to be able to address 40 chars with the lower bits, they
 	  often use the immediately superior power of 2, which is 64, to address the
@@ -137,7 +137,7 @@ config PANEL_LCD_CHARSET
 	int "LCD character set (0=normal, 1=KS0074)"
 	range 0 1
 	default 0
-	---help---
+	help
 	  Some controllers such as the KS0074 use a somewhat strange character set
 	  where many symbols are at unusual places. The driver knows how to map
 	  'standard' ASCII characters to the character sets used by these controllers.
@@ -153,7 +153,7 @@ config PANEL_LCD_PROTO
 	int "LCD communication mode (0=parallel 8 bits, 1=serial)"
 	range 0 1
 	default 0
-	---help---
+	help
 	  This driver now supports any serial or parallel LCD wired to a parallel
 	  port. But before assigning signals, the driver needs to know if it will
 	  be driving a serial LCD or a parallel one. Serial LCDs only use 2 wires
@@ -166,7 +166,7 @@ config PANEL_LCD_PIN_E
         int "Parallel port pin number & polarity connected to the LCD E signal (-17...17) "
 	range -17 17
 	default 14
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the LCD 'E'
 	  signal has been connected. It can be :
 
@@ -181,7 +181,7 @@ config PANEL_LCD_PIN_RS
         int "Parallel port pin number & polarity connected to the LCD RS signal (-17...17) "
 	range -17 17
 	default 17
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the LCD 'RS'
 	  signal has been connected. It can be :
 
@@ -196,7 +196,7 @@ config PANEL_LCD_PIN_RW
         int "Parallel port pin number & polarity connected to the LCD RW signal (-17...17) "
 	range -17 17
 	default 16
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the LCD 'RW'
 	  signal has been connected. It can be :
 
@@ -211,7 +211,7 @@ config PANEL_LCD_PIN_SCL
         int "Parallel port pin number & polarity connected to the LCD SCL signal (-17...17) "
 	range -17 17
 	default 1
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the serial
 	  LCD 'SCL' signal has been connected. It can be :
 
@@ -226,7 +226,7 @@ config PANEL_LCD_PIN_SDA
         int "Parallel port pin number & polarity connected to the LCD SDA signal (-17...17) "
 	range -17 17
 	default 2
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the serial
 	  LCD 'SDA' signal has been connected. It can be :
 
@@ -241,7 +241,7 @@ config PANEL_LCD_PIN_BL
         int "Parallel port pin number & polarity connected to the LCD backlight signal (-17...17) "
 	range -17 17
 	default 0
-	---help---
+	help
 	  This describes the number of the parallel port pin to which the LCD 'BL' signal
           has been connected. It can be :
 
@@ -255,7 +255,7 @@ config PANEL_CHANGE_MESSAGE
 	depends on PANEL
 	bool "Change LCD initialization message ?"
 	default "n"
-	---help---
+	help
 	  This allows you to replace the boot message indicating the kernel version
 	  and the driver version with a custom message. This is useful on appliances
 	  where a simple 'Starting system' message can be enough to stop a customer
@@ -268,7 +268,7 @@ config PANEL_BOOT_MESSAGE
 	depends on PANEL && PANEL_CHANGE_MESSAGE="y"
 	string "New initialization message"
 	default ""
-	---help---
+	help
 	  This allows you to replace the boot message indicating the kernel version
 	  and the driver version with a custom message. This is useful on appliances
 	  where a simple 'Starting system' message can be enough to stop a customer

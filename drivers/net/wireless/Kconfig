@@ -8,7 +8,7 @@ menuconfig WLAN
 	depends on NET
 	select WIRELESS
 	default y
-	---help---
+	help
 	  This section contains all the pre 802.11 and 802.11 wireless
 	  device drivers. For a complete list of drivers and documentation
 	  on them refer to the wireless wiki:
@@ -23,7 +23,7 @@ config PCMCIA_RAYCS
 	select WIRELESS_EXT
 	select WEXT_SPY
 	select WEXT_PRIV
-	---help---
+	help
 	  Say Y here if you intend to attach an Aviator/Raytheon PCMCIA
 	  (PC-card) wireless Ethernet networking card to your computer.
 	  Please read the file <file:Documentation/networking/ray_cs.txt> for
@@ -36,19 +36,19 @@ config LIBERTAS_THINFIRM
 	tristate "Marvell 8xxx Libertas WLAN driver support with thin firmware"
 	depends on MAC80211
 	select FW_LOADER
-	---help---
+	help
 	  A library for Marvell Libertas 8xxx devices using thinfirm.
 
 config LIBERTAS_THINFIRM_DEBUG
 	bool "Enable full debugging output in the Libertas thin firmware module."
 	depends on LIBERTAS_THINFIRM
-	---help---
+	help
 	  Debugging support.
 
 config LIBERTAS_THINFIRM_USB
 	tristate "Marvell Libertas 8388 USB 802.11b/g cards with thin firmware"
 	depends on LIBERTAS_THINFIRM && USB
-	---help---
+	help
 	  A driver for Marvell Libertas 8388 USB devices using thinfirm.
 
 config AIRO
@@ -58,7 +58,7 @@ config AIRO
 	select CRYPTO
 	select WEXT_SPY
 	select WEXT_PRIV
-	---help---
+	help
 	  This is the standard Linux driver to support Cisco/Aironet ISA and
 	  PCI 802.11 wireless cards.
 	  It supports the new 802.11b cards from Cisco (Cisco 34X, Cisco 35X
@@ -78,7 +78,7 @@ config ATMEL
       select WEXT_PRIV
       select FW_LOADER
       select CRC32
-       ---help---
+	help
         A driver 802.11b wireless cards based on the Atmel fast-vnet
         chips. This driver supports standard Linux wireless extensions.
 
@@ -92,7 +92,7 @@ config ATMEL
 config PCI_ATMEL
       tristate "Atmel at76c506 PCI cards"
       depends on ATMEL && PCI
-       ---help---
+	help
         Enable support for PCI and mini-PCI cards containing the
         Atmel at76c506 chip.
 
@@ -102,7 +102,7 @@ config PCMCIA_ATMEL
 	select WIRELESS_EXT
 	select FW_LOADER
 	select CRC32
-	---help---
+	help
 	  Enable support for PCMCIA cards containing the
 	  Atmel at76c502 and at76c504 chips.
 
@@ -110,7 +110,7 @@ config AT76C50X_USB
         tristate "Atmel at76c503/at76c505/at76c505a USB cards"
         depends on MAC80211 && USB
         select FW_LOADER
-        ---help---
+	help
           Enable support for USB Wireless devices using Atmel at76c503,
           at76c505 or at76c505a chips.
 
@@ -122,7 +122,7 @@ config AIRO_CS
 	select WEXT_PRIV
 	select CRYPTO
 	select CRYPTO_AES
-	---help---
+	help
 	  This is the standard Linux driver to support Cisco/Aironet PCMCIA
 	  802.11 wireless cards.  This driver is the same as the Aironet
 	  driver part of the Linux Pcmcia package.
@@ -153,7 +153,7 @@ config PRISM54
 	select WEXT_SPY
 	select WEXT_PRIV
 	select FW_LOADER
-	---help---
+	help
 	  This enables support for FullMAC PCI/Cardbus prism54 devices. This
 	  driver is now deprecated in favor for the SoftMAC driver, p54pci.
 	  p54pci supports FullMAC PCI/Cardbus devices as well.
@@ -172,7 +172,7 @@ config USB_ZD1201
 	select WIRELESS_EXT
 	select WEXT_PRIV
 	select FW_LOADER
-	---help---
+	help
 	  Say Y if you want to use wireless LAN adapters based on the ZyDAS
 	  ZD1201 chip.
 
@@ -193,7 +193,7 @@ config USB_NET_RNDIS_WLAN
 	select USB_USBNET
 	select USB_NET_CDCETHER
 	select USB_NET_RNDIS_HOST
-	---help---
+	help
 	  This is a driver for wireless RNDIS devices.
 	  These are USB based adapters found in devices such as:
 
@@ -219,7 +219,7 @@ config ADM8211
 	depends on MAC80211 && PCI
 	select CRC32
 	select EEPROM_93CX6
-	---help---
+	help
 	  This driver is for ADM8211A, ADM8211B, and ADM8211C based cards.
 	  These are PCI/mini-PCI/Cardbus 802.11b chips found in cards such as:
 
@@ -246,7 +246,7 @@ source "drivers/net/wireless/realtek/rtl818x/Kconfig"
 config MAC80211_HWSIM
 	tristate "Simulated radio testing tool for mac80211"
 	depends on MAC80211
-	---help---
+	help
 	  This driver is a developer testing tool that can be used to test
 	  IEEE 802.11 networking stack (mac80211) functionality. This is not
 	  needed for normal wireless LAN usage and is only for testing. See
@@ -259,14 +259,14 @@ config MAC80211_HWSIM
 config VIRT_WIFI
 	tristate "Wifi wrapper for ethernet drivers"
 	depends on CFG80211
-	---help---
+	help
 	  This option adds support for ethernet connections to appear as if they
 	  are wifi connections through a special rtnetlink device.
 
 config MWL8K
 	tristate "Marvell 88W8xxx PCI/PCIe Wireless support"
 	depends on MAC80211 && PCI
-	---help---
+	help
 	  This driver supports Marvell TOPDOG 802.11 wireless cards.
 
 	  To compile this driver as a module, choose M here: the module
@@ -283,19 +283,19 @@ config WCNSS_CORE
 	select WEXT_PRIV
 	select WEXT_CORE
 	select WEXT_SPY
-	---help---
+	help
 	  Core driver for the Qualcomm WCNSS triple play connectivity subsystem
 
 config WCNSS_CORE_PRONTO
 	tristate "Qualcomm WCNSS Pronto Support"
 	depends on WCNSS_CORE
-	---help---
+	help
 	  Pronto Support for the Qualcomm WCNSS triple play connectivity subsystem
 
 config WCNSS_REGISTER_DUMP_ON_BITE
 	bool "Enable/disable WCNSS register dump when there is a WCNSS bite"
 	depends on WCNSS_CORE_PRONTO
-	---help---
+	help
 	  When Apps recieves a WDOG bite from WCNSS, collecting a register dump
 	  of WCNSS is helpful to root cause the failure. WCNSS may not be
 	  properly clocked in some WCNSS bite cases, and that may cause unclocked
@@ -304,7 +304,7 @@ config WCNSS_REGISTER_DUMP_ON_BITE
 
 config WCNSS_MEM_PRE_ALLOC
 	tristate "WCNSS pre-alloc memory support"
-	---help---
+	help
 	  Pre-allocate memory for the WLAN driver module.
 	  This feature enable cld wlan driver to use pre allocated memory
 	  for it's internal usage and release it to back to pre allocated pool.
@@ -312,7 +312,7 @@ config WCNSS_MEM_PRE_ALLOC
 
 config CNSS_CRYPTO
 	tristate "Enable CNSS crypto support"
-	---help---
+	help
 	  Add crypto support for the WLAN  driver module.
 	  This feature enable wlan driver to use the crypto APIs exported
 	  from cnss platform driver. This crypto APIs used to generate cipher
@@ -320,7 +320,7 @@ config CNSS_CRYPTO
 
 config CNSS_QCA6290
 	bool "Enable CNSS QCA6290 chipset specific changes"
-	---help---
+	help
 	  This enables the changes from WLAN host driver that are specific to
 	  CNSS QCA6290 chipset.
 	  These changes are needed to support the new hardware architecture

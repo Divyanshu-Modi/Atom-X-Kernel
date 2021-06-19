@@ -7,6 +7,6 @@ config DVB_NETUP_UNIDVB
 	select DVB_ASCOT2E if MEDIA_SUBDRV_AUTOSELECT
 	select DVB_LNBH25 if MEDIA_SUBDRV_AUTOSELECT
 	select DVB_CXD2841ER if MEDIA_SUBDRV_AUTOSELECT
-	---help---
+	help
 	  Support for NetUP PCI express Universal DVB card.
 

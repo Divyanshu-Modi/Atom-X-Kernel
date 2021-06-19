@@ -6,7 +6,7 @@ menuconfig STAGING_RDMA
 	depends on NET
 	depends on INET
         default n
-        ---help---
+	help
           This option allows you to select a number of RDMA drivers that
 	  fall into one of two categories: deprecated drivers being held
 	  here before finally being removed or new drivers that still need

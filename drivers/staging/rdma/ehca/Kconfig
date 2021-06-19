@@ -1,7 +1,7 @@
 config INFINIBAND_EHCA
 	tristate "eHCA support"
 	depends on IBMEBUS
-	---help---
+	help
 	This driver supports the deprecated IBM pSeries eHCA InfiniBand
 	adapter.
 

@@ -11,7 +11,7 @@ config VIDEO_SAMSUNG_S5P_TV
 	depends on PM
 	depends on ARCH_S5PV210 || ARCH_EXYNOS || COMPILE_TEST
 	default n
-	---help---
+	help
 	  Say Y here to enable selecting the TV output devices for
 	  Samsung S5P platform.
 

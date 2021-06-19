@@ -2941,7 +2941,7 @@ config EISA
 	depends on HW_HAS_EISA
 	select ISA
 	select GENERIC_ISA_DMA
-	---help---
+	help
 	  The Extended Industry Standard Architecture (EISA) bus was
 	  developed as an open alternative to the IBM MicroChannel bus.
 

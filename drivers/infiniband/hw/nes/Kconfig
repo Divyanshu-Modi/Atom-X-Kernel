@@ -3,7 +3,7 @@ config INFINIBAND_NES
 	depends on PCI && INET && INFINIBAND
 	select LIBCRC32C
 	select INET_LRO
-	---help---
+	help
 	  This is the RDMA Network Interface Card (RNIC) driver for
 	  NetEffect Ethernet Cluster Server Adapters.
 
@@ -11,6 +11,6 @@ config INFINIBAND_NES_DEBUG
 	bool "Verbose debugging output"
 	depends on INFINIBAND_NES
 	default n
-	---help---
+	help
 	  This option enables debug messages from the NetEffect RNIC
 	  driver.  Select this if you are diagnosing a problem.

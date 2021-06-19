@@ -12,7 +12,7 @@ config COMMON_CLK_MSM
 config MSM_CLK_CONTROLLER_V2
 	bool "QTI clock driver"
 	depends on COMMON_CLK_MSM
-	---help---
+	help
 	   Generate clock data structures from definitions found in
 	   device tree.
 
@@ -23,7 +23,7 @@ config MSM_VIRTCLK_FRONTEND_8996
 	tristate "QTI msm8996 virtual clock frontend driver"
 	depends on COMMON_CLK_MSM && MSM_HAB
 	select MSM_VIRTCLK_FRONTEND
-	---help---
+	help
 	   This is the virtual clock frontend driver for the QTI msm8996
 	   virtual platform.
 

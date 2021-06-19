@@ -28,7 +28,7 @@ config DRM_NXP_PTN3460
 	depends on OF
 	select DRM_KMS_HELPER
 	select DRM_PANEL
-	---help---
+	help
 	  NXP PTN3460 eDP-LVDS bridge chip driver.
 
 config DRM_PARADE_PS8622
@@ -38,7 +38,7 @@ config DRM_PARADE_PS8622
 	select DRM_KMS_HELPER
 	select BACKLIGHT_LCD_SUPPORT
 	select BACKLIGHT_CLASS_DEVICE
-	---help---
+	help
 	  Parade eDP-LVDS bridge chip driver.
 
 endmenu

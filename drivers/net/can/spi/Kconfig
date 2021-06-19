@@ -4,25 +4,25 @@ menu "CAN SPI interfaces"
 config CAN_MCP251X
 	tristate "Microchip MCP251x and MCP25625 SPI CAN controllers"
 	depends on HAS_DMA
-	---help---
+	help
 	  Driver for the Microchip MCP251x and MCP25625 SPI CAN
 	  controllers.
 
 config CAN_RH850
 	tristate "Renesas RH850 SPI CAN controller"
 	depends on HAS_DMA
-	---help---
+	help
 	  Driver for the Renesas RH850 SPI CAN controller.
 
 config CAN_K61
 	tristate "Freescale K61 SPI CAN controllers"
 	depends on SPI
-	---help---
+	help
 	  Driver for the Freescale K61 SPI CAN controllers.
 
 config QTI_CAN
 	tristate "Unified driver for QTI CAN controllers"
 	depends on SPI
-	---help---
+	help
 	  Unified driver for QTI CAN controllers.
 endmenu

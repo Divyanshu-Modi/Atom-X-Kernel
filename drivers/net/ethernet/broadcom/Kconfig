@@ -7,7 +7,7 @@ config NET_VENDOR_BROADCOM
 	default y
 	depends on (SSB_POSSIBLE && HAS_DMA) || PCI || BCM63XX || \
 		   SIBYTE_SB1xxx_SOC
-	---help---
+	help
 	  If you have a network (Ethernet) chipset belonging to this class,
 	  say Y.
 
@@ -24,7 +24,7 @@ config B44
 	select SSB
 	select MII
 	select PHYLIB
-	---help---
+	help
 	  If you have a network (Ethernet) controller of this type, say Y
 	  or M here.
 
@@ -74,7 +74,7 @@ config BNX2
 	depends on PCI
 	select CRC32
 	select FW_LOADER
-	---help---
+	help
 	  This driver supports QLogic bnx2 gigabit Ethernet cards.
 
 	  To compile this driver as a module, choose M here: the module
@@ -85,7 +85,7 @@ config CNIC
 	depends on PCI && (IPV6 || IPV6=n)
 	select BNX2
 	select UIO
-	---help---
+	help
 	  This driver supports offload features of QLogic bnx2 gigabit
 	  Ethernet cards.
 
@@ -96,7 +96,7 @@ config SB1250_MAC
 	tristate "SB1250 Gigabit Ethernet support"
 	depends on SIBYTE_SB1xxx_SOC
 	select PHYLIB
-	---help---
+	help
 	  This driver supports Gigabit Ethernet interfaces based on the
 	  Broadcom SiByte family of System-On-a-Chip parts.  They include
 	  the BCM1120, BCM1125, BCM1125H, BCM1250, BCM1255, BCM1280, BCM1455
@@ -111,7 +111,7 @@ config TIGON3
 	select PHYLIB
 	select HWMON
 	select PTP_1588_CLOCK
-	---help---
+	help
 	  This driver supports Broadcom Tigon3 based gigabit Ethernet cards.
 
 	  To compile this driver as a module, choose M here: the module
@@ -125,7 +125,7 @@ config BNX2X
 	select ZLIB_INFLATE
 	select LIBCRC32C
 	select MDIO
-	---help---
+	help
 	  This driver supports Broadcom NetXtremeII 10 gigabit Ethernet cards.
 	  To compile this driver as a module, choose M here: the module
 	  will be called bnx2x.  This is recommended.
@@ -134,7 +134,7 @@ config BNX2X_SRIOV
 	bool "Broadcom 578xx and 57712 SR-IOV support"
 	depends on BNX2X && PCI_IOV
 	default y
-	---help---
+	help
 	  This configuration parameter enables Single Root Input Output
 	  Virtualization support in the 578xx and 57712 products. This
 	  allows for virtual function acceleration in virtual environments.
@@ -143,7 +143,7 @@ config BNX2X_VXLAN
 	bool "Virtual eXtensible Local Area Network support"
 	default n
 	depends on BNX2X && VXLAN && !(BNX2X=y && VXLAN=m)
-	---help---
+	help
 	  This enables hardward offload support for VXLAN protocol over the
 	  NetXtremeII series adapters.
 	  Say Y here if you want to enable hardware offload support for
@@ -153,7 +153,7 @@ config BGMAC
 	tristate "BCMA bus GBit core support"
 	depends on BCMA_HOST_SOC && HAS_DMA && (BCM47XX || ARCH_BCM_5301X)
 	select PHYLIB
-	---help---
+	help
 	  This driver supports GBit MAC and BCM4706 GBit MAC cores on BCMA bus.
 	  They can be found on BCM47xx SoCs and provide gigabit ethernet.
 	  In case of using this driver on BCM4706 it's also requires to enable
@@ -176,7 +176,7 @@ config BNXT
 	depends on VXLAN || VXLAN=n
 	select FW_LOADER
 	select LIBCRC32C
-	---help---
+	help
 	  This driver supports Broadcom NetXtreme-C/E 10/25/40/50 gigabit
 	  Ethernet cards.  To compile this driver as a module, choose M here:
 	  the module will be called bnxt_en.  This is recommended.
@@ -185,7 +185,7 @@ config BNXT_SRIOV
 	bool "Broadcom NetXtreme-C/E SR-IOV support"
 	depends on BNXT && PCI_IOV
 	default y
-	---help---
+	help
 	  This configuration parameter enables Single Root Input Output
 	  Virtualization support in the NetXtreme-C/E products. This
 	  allows for virtual function acceleration in virtual environments.

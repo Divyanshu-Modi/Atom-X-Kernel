@@ -3,7 +3,7 @@ config SCSI_QLA_FC
 	depends on PCI && SCSI
 	depends on SCSI_FC_ATTRS
 	select FW_LOADER
-	---help---
+	help
 	This qla2xxx driver supports all QLogic Fibre Channel
 	PCI and PCIe host adapters.
 
@@ -37,5 +37,5 @@ config TCM_QLA2XXX
 	depends on LIBFC
 	select BTREE
 	default n
-	---help---
+	help
 	Say Y here to enable the TCM_QLA2XXX fabric module for QLogic 24xx+ series target mode HBAs

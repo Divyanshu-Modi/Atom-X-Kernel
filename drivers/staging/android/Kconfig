@@ -6,7 +6,7 @@ config ASHMEM
 	bool "Enable the Anonymous Shared Memory Subsystem"
 	default n
 	depends on SHMEM
-	---help---
+	help
 	  The ashmem subsystem is a new shared memory allocator, similar to
 	  POSIX SHM but with different behavior and sporting a simpler
 	  file-based API.
@@ -23,7 +23,7 @@ config ANDROID_TIMED_GPIO
 	depends on GPIOLIB || COMPILE_TEST
 	depends on ANDROID_TIMED_OUTPUT
 	default n
-        ---help---
+	help
 	  Unlike generic gpio is to allow programs to access and manipulate gpio
 	  registers from user space, timed output/gpio is a system to allow changing
 	  a gpio pin and restore it automatically after a specified timeout.
@@ -33,7 +33,7 @@ config SYNC
 	default n
 	select ANON_INODES
 	select DMA_SHARED_BUFFER
-	---help---
+	help
 	  This option enables the framework for synchronization between multiple
 	  drivers.  Sync implementations can take advantage of hardware
 	  synchronization built into devices like GPUs.
@@ -42,7 +42,7 @@ config SW_SYNC
 	bool "Software synchronization objects"
 	default n
 	depends on SYNC
-	---help---
+	help
 	  A sync object driver that uses a 32bit counter to coordinate
 	  synchronization.  Useful when there is no hardware primitive backing
 	  the synchronization.
@@ -51,7 +51,7 @@ config SW_SYNC_USER
 	bool "Userspace API for SW_SYNC"
 	default n
 	depends on SW_SYNC
-	---help---
+	help
 	  Provides a user space API to the sw sync object.
 	  *WARNING* improper use of this can result in deadlocking kernel
 	  drivers from userspace.
@@ -75,7 +75,7 @@ config ANDROID_VSOC
 	tristate "Android Virtual SoC support"
 	default n
 	depends on PCI_MSI
-	---help---
+	help
 	  This option adds support for the Virtual SoC driver needed to boot
 	  a 'cuttlefish' Android image inside QEmu. The driver interacts with
 	  a QEmu ivshmem device. If built as a module, it will be called vsoc.
@@ -84,7 +84,7 @@ config SYNC_DEBUG
 	bool "Debug software synchronization"
 	default n
 	depends on SYNC
-	---help---
+	help
 	  This makes the sync driver keep track of fence names.
 
 source "drivers/staging/android/ion/Kconfig"

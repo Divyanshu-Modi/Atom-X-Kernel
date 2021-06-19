@@ -485,7 +485,7 @@ config MINIDUMP_MAX_ENTRIES
 config ICNSS
 	tristate "Platform driver for Q6 integrated connectivity"
 	select CNSS_UTILS
-	---help---
+	help
 	  This module adds support for Q6 integrated WLAN connectivity
 	  subsystem. This module is responsible for communicating WLAN on/off
 	  control messages to FW over QMI channel. It is also responsible for
@@ -494,7 +494,7 @@ config ICNSS
 config ICNSS_DEBUG
 	bool "ICNSS debug support"
 	depends on ICNSS
-	---help---
+	help
 	  Say 'Y' here to enable ICNSS driver debug support. Debug support
 	  primarily consists of logs consisting of information related to
 	  hardware register access and enabling BUG_ON for certain cases to aid

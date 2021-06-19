@@ -5,7 +5,7 @@
 menuconfig RMNET
 	depends on NETDEVICES
 	bool "RmNet MAP driver"
-	---help---
+	help
 	  If you say Y here, then the rmnet module will be statically
 	  compiled into the kernel. The rmnet module provides MAP
 	  functionality for embedded and bridged traffic.
@@ -13,7 +13,7 @@ if RMNET
 
 config RMNET_DEBUG
 	bool "RmNet Debug Logging"
-	---help---
+	help
 	  Say Y here if you want RmNet to be able to log packets in main
 	  system log. This should not be enabled on production builds as it can
 	  impact system performance. Note that simply enabling it here will not
