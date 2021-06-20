@@ -61,13 +61,14 @@ arm64-obj-$(CONFIG_MSM_APP_SETTINGS)	+= app_setting.o
 arm64-obj-$(CONFIG_HIBERNATION)		+= hibernate.o hibernate-asm.o
 arm64-obj-$(CONFIG_ARM64_ACPI_PARKING_PROTOCOL)	+= acpi_parking_protocol.o
 arm64-obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+obj-y			          		+= vdso-wrap.o
+obj-$(CONFIG_COMPAT_VDSO)		+= vdso32-wrap.o
 
 ifeq ($(CONFIG_KVM),y)
 arm64-obj-$(CONFIG_HARDEN_BRANCH_PREDICTOR)	+= bpi.o
 endif
 
-obj-y					+= $(arm64-obj-y) vdso/ probes/
+obj-y					+= $(arm64-obj-y) probes/
 obj-m					+= $(arm64-obj-m)
-obj-$(CONFIG_COMPAT_VDSO)		+= vdso32/
 head-y					:= head.o
 extra-y					+= $(head-y) vmlinux.lds
