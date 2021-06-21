@@ -420,8 +420,8 @@ ENDPROC(__create_page_tables)
 __primary_switched:
 	mov	x28, lr				// preserve LR
 
-	adr_l	x8, vectors			// load VBAR_EL1 with virtual
-	msr	vbar_el1, x8			// vector table address
+	adr_l	x8, vectors		// load VBAR_EL1 with virtual
+	msr	vbar_el1, x8		// vector table address
 	isb
 
 	// Clear BSS
@@ -433,12 +433,13 @@ __primary_switched:
 	dsb	ishst				// Make zero page visible to PTW
 
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-        adrp    x4, init_thread_union
-        add     sp, x4, #THREAD_SIZE
-        adr_l   x5, init_task
-        msr     sp_el0, x5                      // Save thread_info
+	adrp    x4, init_thread_union
+	add     sp, x4, #THREAD_SIZE
+	adr_l   x5, init_task
+	msr     sp_el0, x5		// Save thread_info
 #else
-	adr_l	sp, initial_sp, x4
+	adrp	x4, initial_sp
+	add	sp, x4, :lo12:initial_sp
 	mov	x4, sp
 	and	x4, x4, #~(THREAD_SIZE - 1)
 	msr	sp_el0, x4			// Save thread_info
