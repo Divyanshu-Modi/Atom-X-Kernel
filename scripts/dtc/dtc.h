@@ -35,7 +35,7 @@
  * Command line options
  */
 extern int quiet;		/* Level of quietness */
-extern int reservenum;		/* Number of memory reservation slots */
+extern unsigned int reservenum;	/* Number of memory reservation slots */
 extern int minsize;		/* Minimum blob size */
 extern int padsize;		/* Additional padding to blob */
 extern int alignsize;		/* Additional padding to blob accroding to the alignsize */
@@ -50,6 +50,11 @@ extern int annotate;		/* annotate .dts with input source location */
 #define PHANDLE_BOTH	0x3
 
 typedef uint32_t cell_t;
+
+static inline bool phandle_is_valid(cell_t phandle)
+{
+	return phandle != 0 && phandle != ~0U;
+}
 
 static inline uint16_t dtb_ld16(const void *p)
 {
