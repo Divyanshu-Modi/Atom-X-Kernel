@@ -25,3 +25,9 @@ cc-option = $(success,$(CC) -Werror $(1) -E -x c /dev/null -o /dev/null)
 # $(ld-option,<flag>)
 # Return y if the linker supports <flag>, n otherwise
 ld-option = $(success,$(LD) -v $(1))
+
+# Get the linker name, version, and error out if it is not supported.
+ld-info := $(shell,$(srctree)/scripts/ld-version.sh $(LD))
+$(error-if,$(success,test -z "$(ld-info)"),Sorry$(comma) this linker is not supported.)
+ld-name := $(shell,set -- $(ld-info) && echo $1)
+ld-version := $(shell,set -- $(ld-info) && echo $2)

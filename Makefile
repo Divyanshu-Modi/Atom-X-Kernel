@@ -398,7 +398,6 @@ OBJDUMP		= $(CROSS_COMPILE)objdump
 STRIP		= $(CROSS_COMPILE)strip
 endif
 CPP			= $(CC) -E
-LDGOLD		= $(CROSS_COMPILE)ld.gold
 LDLLD		= ld.lld
 LEX			= flex
 YACC		= bison
@@ -664,19 +663,11 @@ endif
 
 # Make toolchain changes before including arch/$(SRCARCH)/Makefile to ensure
 # ar/cc/ld-* macros return correct values.
-ifdef CONFIG_LD_GOLD
-LDFINAL_vmlinux := $(LD)
-LD		:= $(LDGOLD)
-endif
-ifdef CONFIG_LD_LLD
+ifdef CONFIG_LD_IS_LLD
 LD		:= $(LDLLD)
 endif
 ifdef CONFIG_LTO_CLANG
-# use GNU gold with LLVMgold or LLD for LTO linking, and LD for vmlinux_link
-ifeq ($(ld-name),gold)
-LDFLAGS		+= -plugin LLVMgold.so
-endif
-# use llvm-ar for building symbol tables from IR files, and llvm-dis instead
+# use llvm-ar for building symbol tables from IR files, and llvm-nm instead
 # of objdump for processing symbol versions and exports
 LLVM_AR		:= llvm-ar
 LLVM_NM		:= llvm-nm

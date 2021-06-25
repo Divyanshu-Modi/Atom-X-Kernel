@@ -40,6 +40,35 @@ config CLANG_VERSION
 	int
 	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
 
+choice
+	prompt "Kernel linker"
+	default LD_IS_LLD if LTO_CLANG
+	default LD_IS_BFD
+	help
+	  This selects the linker that will be used to link the kernel and
+	  its composite objects.
+
+	  Note that using either ld.gold or lld is required for Clang LTO.
+	  ld.bfd will not work.
+
+config LD_IS_BFD
+	bool "bfd"
+	depends on !LTO_CLANG
+	help
+	  Standard ld.bfd linker from binutils, which is usually the
+	  default. This linker does not work with Clang LTO.
+
+config LD_IS_LLD
+	bool "lld"
+	help
+	  Alternative linker from LLVM proves to be faster in some cases.
+
+endchoice
+
+config LD_VERSION
+	int
+	default $(ld-version)
+
 config CONSTRUCTORS
 	bool
 	depends on !UML
