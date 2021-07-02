@@ -652,11 +652,6 @@ KBUILD_AFLAGS	+= $(CLANG_FLAGS)
 export CLANG_FLAGS
 endif
 
-# Make toolchain changes before including arch/$(SRCARCH)/Makefile to ensure
-# ar/cc/ld-* macros return correct values.
-ifdef CONFIG_LD_IS_LLD
-LD		:= $(LDLLD)
-endif
 ifdef CONFIG_LTO_CLANG
 # use llvm-ar for building symbol tables from IR files, and llvm-nm instead
 # of objdump for processing symbol versions and exports
