@@ -660,6 +660,7 @@ ifeq ($(ld-name),lld)
 KBUILD_CFLAGS += -fuse-ld=lld
 endif
 KBUILD_CPPFLAGS += -Qunused-arguments
+export CLANG_FLAGS
 endif
 
 # Make toolchain changes before including arch/$(SRCARCH)/Makefile to ensure
