@@ -381,7 +381,6 @@ ifneq ($(LLVM),)
 CC			= clang
 LD			= ld.lld
 AR			= llvm-ar
-AS			= llvm-as
 NM			= llvm-nm
 OBJCOPY		= llvm-objcopy
 OBJDUMP		= llvm-objdump
@@ -389,7 +388,6 @@ READELF		= llvm-readelf
 STRIP		= llvm-strip
 else
 CC			= $(CROSS_COMPILE)gcc
-AS			= $(CROSS_COMPILE)as
 LD			= $(CROSS_COMPILE)ld
 AR         ?= $(CROSS_COMPILE)ar
 NM         ?= $(CROSS_COMPILE)nm
@@ -456,7 +454,7 @@ KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 CLANG_FLAGS :=
 LDFLAGS :=
 
-export ARCH SRCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC
+export ARCH SRCARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE LD CC
 export CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE LEX YACC AWK GENKSYMS INSTALLKERNEL PERL PYTHON UTS_MACHINE
 export HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
@@ -647,7 +645,7 @@ endif
 ifneq ($(GCC_TOOLCHAIN),)
 CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
 endif
-ifeq ($(shell $(AS) --version 2>&1 | head -n 1 | grep clang),)
+ifeq ($(if $(AS),$(shell $(AS) --version 2>&1 | head -n 1 | grep clang)),)
 CLANG_FLAGS	+= -no-integrated-as
 endif
 CLANG_FLAGS	+= -Werror=unknown-warning-option
