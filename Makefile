@@ -729,7 +729,7 @@ KBUILD_CFLAGS	+= -Werror
 endif
 
 # Tell compiler to tune the performance of the code for a specified target processor
-ifeq ($(cc-name),clang)
+ifdef CONFIG_CC_IS_CLANG
 ifdef CONFIG_LLVM_POLLY
 POLLY_FLAGS	:= -mllvm -polly \
 		   -mllvm -polly-run-dce \
@@ -804,7 +804,7 @@ ifdef CONFIG_KCOV
   endif
 endif
 
-ifeq ($(cc-name),clang)
+ifdef CONFIG_CC_IS_CLANG
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += $(call cc-disable-warning, duplicate-decl-specifier)

@@ -88,7 +88,7 @@ endif
 
 cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mlittle-endian
 cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mbig-endian)
-ifneq ($(cc-name),clang)
+ifndef CONFIG_CC_IS_CLANG
   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
 endif
 
