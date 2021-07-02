@@ -378,28 +378,26 @@ HOSTCXXFLAGS = -O2
 
 # Make variables (CC, etc...)
 ifneq ($(LLVM),)
-CC			= clang
-LD			= ld.lld
-AR			= llvm-ar
-NM			= llvm-nm
+CC		= clang
+LD		= ld.lld
+AR		= llvm-ar
+NM		= llvm-nm
 OBJCOPY		= llvm-objcopy
 OBJDUMP		= llvm-objdump
-READELF		= llvm-readelf
 STRIP		= llvm-strip
 else
-CC			= $(CROSS_COMPILE)gcc
-LD			= $(CROSS_COMPILE)ld
-AR         ?= $(CROSS_COMPILE)ar
-NM         ?= $(CROSS_COMPILE)nm
+CC		= $(CROSS_COMPILE)gcc
+LD		= $(CROSS_COMPILE)ld
+AR		?= $(CROSS_COMPILE)ar
+NM		?= $(CROSS_COMPILE)nm
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 STRIP		= $(CROSS_COMPILE)strip
 endif
-CPP			= $(CC) -E
-LDLLD		= ld.lld
-LEX			= flex
+CPP		= $(CC) -E
+LEX		= flex
 YACC		= bison
-AWK			= awk
+AWK		= awk
 GENKSYMS	= scripts/genksyms/genksyms
 INSTALLKERNEL  := installkernel
 DEPMOD		= depmod
@@ -648,14 +646,9 @@ CLANG_FLAGS	+= -Werror=unknown-warning-option
 ifeq ($(ld-name),lld)
 CLANG_FLAGS	+= -fuse-ld=$(shell which $(LD))
 endif
-KBUILD_CPPFLAGS	+= -Qunused-arguments
 CLANG_FLAGS    += $(call cc-option, -Wno-bool-operation)
 KBUILD_CFLAGS	+= $(CLANG_FLAGS)
 KBUILD_AFLAGS	+= $(CLANG_FLAGS)
-ifeq ($(ld-name),lld)
-KBUILD_CFLAGS += -fuse-ld=lld
-endif
-KBUILD_CPPFLAGS += -Qunused-arguments
 export CLANG_FLAGS
 endif
 
@@ -677,13 +670,13 @@ endif
 ifdef CONFIG_LTO_GCC
 LTO_CFLAGS		:= -flto -flto=jobserver -fno-fat-lto-objects \
 				-fuse-linker-plugin -fwhole-program
-KBUILD_CFLAGS	+= $(LTO_CFLAGS)
+KBUILD_CFLAGS		+= $(LTO_CFLAGS)
 LTO_LDFLAGS		:= $(LTO_CFLAGS) -Wno-lto-type-mismatch -Wno-psabi \
 				-Wno-stringop-overflow -Wno-stringop-overread \
 				-flinker-output=nolto-rel
 LDFINAL			:= $(CONFIG_SHELL) $(srctree)/scripts/gcc-ld $(LTO_LDFLAGS)
-AR				:= $(CROSS_COMPILE)gcc-ar
-NM				:= $(CROSS_COMPILE)gcc-nm
+AR			:= $(CROSS_COMPILE)gcc-ar
+NM			:= $(CROSS_COMPILE)gcc-nm
 DISABLE_LTO		:= -fno-lto
 export DISABLE_LTO LDFINAL
 else
@@ -803,6 +796,7 @@ ifdef CONFIG_KCOV
 endif
 
 ifdef CONFIG_CC_IS_CLANG
+KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += $(call cc-disable-warning, duplicate-decl-specifier)
