@@ -414,12 +414,6 @@ config CC_STACKPROTECTOR_STRONG
 	  about 20% of all kernel functions, which increases the kernel code
 	  size by about 2%.
 
-config THIN_ARCHIVES
-	def_bool y
-	help
-	  Select this if the architecture wants to use thin archives
-	  instead of ld -r to create the built-in.o files.
-
 config HAVE_LD_DEAD_CODE_DATA_ELIMINATION
 	bool
 	help

@@ -3,7 +3,7 @@
 # link vmlinux
 #
 # vmlinux is linked from the objects selected by $(KBUILD_VMLINUX_INIT) and
-# $(KBUILD_VMLINUX_MAIN) and $(KBUILD_VMLINUX_LIBS). Most are built-in.o files
+# $(KBUILD_VMLINUX_MAIN) and $(KBUILD_VMLINUX_LIBS). Most are built-in.a files
 # from top-level directories in the kernel tree, others are specified in
 # arch/$(ARCH)/Makefile. Ordering when linking is important, and
 # $(KBUILD_VMLINUX_INIT) must be first. $(KBUILD_VMLINUX_LIBS) are archives
@@ -17,7 +17,7 @@
 #   |   +--< init/version.o + more
 #   |
 #   +--< $(KBUILD_VMLINUX_MAIN)
-#   |    +--< drivers/built-in.o mm/built-in.o + more
+#   |    +--< drivers/built-in.a mm/built-in.a + more
 #   |
 #   +--< $(KBUILD_VMLINUX_LIBS)
 #   |    +--< lib/lib.a + more
@@ -50,22 +50,21 @@ info()
 #
 # Traditional incremental style of link does not require this step
 #
-# built-in.o output file
+# built-in.a output file
 #
 archive_builtin()
 {
-	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
-		info AR built-in.o
-		rm -f built-in.o;
-		${AR} rcsTP${KBUILD_ARFLAGS} built-in.o			\
-					${KBUILD_VMLINUX_INIT}		\
-					${KBUILD_VMLINUX_MAIN}
+	info AR built-in.a
+	rm -f built-in.a;
+	${AR} rcsTP${KBUILD_ARFLAGS} built-in.a			\
+				${KBUILD_VMLINUX_INIT}		\
+				${KBUILD_VMLINUX_MAIN}
 
-		if [ -n "${CONFIG_LTO_CLANG}" ]; then
-			mv -f built-in.o built-in.o.tmp
-			${LLVM_AR} rcsT${KBUILD_ARFLAGS} built-in.o $(${AR} t built-in.o.tmp)
-			rm -f built-in.o.tmp
-		fi
+	# rebuild with llvm-ar to update the symbol table
+	if [ -n "${CONFIG_LTO_CLANG}" ]; then
+		mv -f built-in.a built-in.a.tmp
+		${LLVM_AR} rcsT${KBUILD_ARFLAGS} built-in.a $(${AR} t built-in.a.tmp)
+		rm -f built-in.a.tmp
 	fi
 }
 
@@ -79,11 +78,11 @@ lto_lds()
 	fi
 
 	${srctree}/scripts/generate_initcall_order.pl \
-		built-in.o ${KBUILD_VMLINUX_LIBS} \
+		built-in.a ${KBUILD_VMLINUX_LIBS} \
 		> .tmp_lto.lds
 
 	if [ -n "${CONFIG_MODVERSIONS}" ]; then
-		for a in built-in.o ${KBUILD_VMLINUX_LIBS}; do
+		for a in built-in.a ${KBUILD_VMLINUX_LIBS}; do
 			for o in $(${AR} t $a); do
 				if [ -f ${o}.symversions ]; then
 					cat ${o}.symversions >> .tmp_lto.lds
@@ -98,12 +97,10 @@ lto_lds()
 # We can't use --no-whole-archive flag with GCC LTO
 no_whole_archive_check()
 {
-	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
-		if [ -n "${CONFIG_LTO_GCC}" ]; then
-			NO_WHOLE_ARCHIVE=""
-		else
-			NO_WHOLE_ARCHIVE="--no-whole-archive"
-		fi
+	if [ -n "${CONFIG_LTO_GCC}" ]; then
+		NO_WHOLE_ARCHIVE=""
+	else
+		NO_WHOLE_ARCHIVE="--no-whole-archive"
 	fi
 }
 
@@ -113,21 +110,12 @@ modpost_link()
 {
 	local objects
 
-	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
-		no_whole_archive_check
-		objects="--whole-archive				\
-			built-in.o					\
-			${NO_WHOLE_ARCHIVE}				\
-			--start-group					\
-			${KBUILD_VMLINUX_LIBS}				\
-			--end-group"
-	else
-		objects="${KBUILD_VMLINUX_INIT}				\
-			--start-group					\
-			${KBUILD_VMLINUX_MAIN}				\
-			${KBUILD_VMLINUX_LIBS}				\
-			--end-group"
-	fi
+	objects="--whole-archive				\
+		built-in.a					\
+		${NO_WHOLE_ARCHIVE}				\
+		--start-group					\
+		${KBUILD_VMLINUX_LIBS}				\
+		--end-group"
 
 	if [ -n "${CONFIG_LTO}" ]; then
 		# This might take a while, so indicate that we're doing
@@ -170,47 +158,34 @@ vmlinux_link()
 			ldflags="${LDFLAGS_FINAL_vmlinux} ${LDFLAGS_vmlinux}"
 		fi
 
-		if [[ -n "${CONFIG_THIN_ARCHIVES}" && -z "${CONFIG_LTO_CLANG}" ]]; then
-			no_whole_archive_check
-			objects="--whole-archive 			\
-				built-in.o				\
-				${NO_WHOLE_ARCHIVE}			\
-				--start-group				\
-				${KBUILD_VMLINUX_LIBS}			\
-				--end-group				\
+		if [ -z "${CONFIG_LTO_CLANG}" ]; then
+			objects="--whole-archive		\
+				built-in.a			\
+				${NO_WHOLE_ARCHIVE}		\
+				--start-group			\
+				${KBUILD_VMLINUX_LIBS}		\
+				--end-group			\
 				${1}"
 		else
-			objects="${KBUILD_VMLINUX_INIT}			\
-				--start-group				\
-				${KBUILD_VMLINUX_MAIN}			\
-				${KBUILD_VMLINUX_LIBS}			\
-				--end-group				\
+			objects="--start-group			\
+				vmlinux.o			\
+				--end-group			\
 				${1}"
 		fi
 
 		${ld} ${ldflags} -o ${2} -T ${lds} ${objects}
 	else
-		if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
-			no_whole_archive_check
-			objects="-Wl,--whole-archive			\
-				built-in.o				\
-				-Wl,${NO_WHOLE_ARCHIVE}			\
-				-Wl,--start-group			\
-				${KBUILD_VMLINUX_LIBS}			\
-				-Wl,--end-group				\
-				${1}"
-		else
-			objects="${KBUILD_VMLINUX_INIT}			\
-				-Wl,--start-group			\
-				${KBUILD_VMLINUX_MAIN}			\
-				${KBUILD_VMLINUX_LIBS}			\
-				-Wl,--end-group				\
-				${1}"
-		fi
+		objects="-Wl,--whole-archive			\
+			built-in.a				\
+			-Wl,${NO_WHOLE_ARCHIVE}			\
+			-Wl,--start-group			\
+			${KBUILD_VMLINUX_LIBS}			\
+			-Wl,--end-group				\
+			${1}"
 
-		${CC} ${CFLAGS_vmlinux} -o ${2}				\
-			-Wl,-T,${lds}					\
-			${objects}					\
+		${CC} ${CFLAGS_vmlinux} -o ${2}			\
+			-Wl,-T,${lds}				\
+			${objects}				\
 			-lutil -lrt -lpthread
 		rm -f linux
 	fi
@@ -265,7 +240,7 @@ cleanup()
 	rm -f .tmp_kallsyms*
 	rm -f .tmp_lto.lds
 	rm -f .tmp_vmlinux*
-	rm -f built-in.o
+	rm -f built-in.a
 	rm -f System.map
 	rm -f vmlinux
 	rm -f vmlinux.o

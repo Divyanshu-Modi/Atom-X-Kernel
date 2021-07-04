@@ -50,8 +50,8 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso)
 # table and layout of the linked DSO.  With ld -R we can then refer to
 # these symbols in the kernel code rather than hand-coded addresses.
 extra-y += vdso-syms.o
-$(obj)/built-in.o: $(obj)/vdso-syms.o
-$(obj)/built-in.o: ld_flags += -R $(obj)/vdso-syms.o
+$(obj)/built-in.a: $(obj)/vdso-syms.o
+$(obj)/built-in.a: ld_flags += -R $(obj)/vdso-syms.o
 
 SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
                             $(call cc-ldoption, -Wl$(comma)--hash-style=both)
