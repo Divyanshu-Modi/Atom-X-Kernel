@@ -12,6 +12,8 @@ enum df_device {
 	DEVFREQ_MAX
 };
 
+extern unsigned long last_input_time;
+
 #ifdef CONFIG_DEVFREQ_BOOST
 void devfreq_boost_kick(enum df_device device);
 void devfreq_boost_kick_max(enum df_device device, unsigned int duration_ms);
