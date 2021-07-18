@@ -2879,12 +2879,14 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
 				cnt += referenced_filters(p);
 			p->flags += cnt;
 
+#ifndef CC_USING_NOP_MCOUNT
 			/*
 			 * Do the initial record conversion from mcount jump
 			 * to the NOP instructions.
 			 */
 			if (!ftrace_code_disable(mod, p))
 				break;
+#endif
 
 			update_cnt++;
 
