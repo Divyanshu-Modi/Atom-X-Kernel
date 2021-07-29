@@ -16,7 +16,7 @@
  *
  * Atomically decrements @v and calls <fail_fn> if the result is negative.
  */
-#ifdef CC_HAVE_ASM_GOTO
+#ifdef CONFIG_CC_HAS_ASM_GOTO
 static inline void __mutex_fastpath_lock(atomic_t *v,
 					 void (*fail_fn)(atomic_t *))
 {
@@ -71,7 +71,7 @@ static inline int __mutex_fastpath_lock_retval(atomic_t *count)
  *
  * Atomically increments @v and calls <fail_fn> if the result is nonpositive.
  */
-#ifdef CC_HAVE_ASM_GOTO
+#ifdef CONFIG_CC_HAS_ASM_GOTO
 static inline void __mutex_fastpath_unlock(atomic_t *v,
 					   void (*fail_fn)(atomic_t *))
 {

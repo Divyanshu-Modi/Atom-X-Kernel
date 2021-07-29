@@ -165,7 +165,7 @@ extern const char * const x86_bug_flags[NBUGINTS*32];
  * fast paths and boot_cpu_has() otherwise!
  */
 
-#if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_X86_FAST_FEATURE_TESTS)
+#if defined(CONFIG_CC_HAS_ASM_GOTO) && defined(CONFIG_X86_FAST_FEATURE_TESTS)
 /*
  * Static testing of CPU features.  Used the same as boot_cpu_has().
  * These will statically patch the target code for additional

@@ -116,4 +116,4 @@ obj-$(CONFIG_COMPAT)    += $(audit--y)
 pc--$(CONFIG_PERF_EVENTS) := perf_event.o
 obj-$(CONFIG_SPARC64)	+= $(pc--y)
 
-obj-$(CONFIG_SPARC64)	+= jump_label.o
+obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o

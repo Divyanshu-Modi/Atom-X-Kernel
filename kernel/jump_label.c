@@ -15,8 +15,6 @@
 #include <linux/static_key.h>
 #include <linux/jump_label_ratelimit.h>
 
-#ifdef HAVE_JUMP_LABEL
-
 /* mutex to protect coming/going of the the jump_label table */
 static DEFINE_MUTEX(jump_label_mutex);
 
@@ -555,5 +553,3 @@ static __init int jump_label_test(void)
 }
 early_initcall(jump_label_test);
 #endif /* STATIC_KEYS_SELFTEST */
-
-#endif /* HAVE_JUMP_LABEL */
