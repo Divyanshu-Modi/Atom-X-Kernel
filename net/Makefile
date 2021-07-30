@@ -13,7 +13,7 @@ obj-$(CONFIG_NET)		+= $(tmp-y)
 # LLC has to be linked before the files in net/802/
 obj-$(CONFIG_LLC)		+= llc/
 obj-$(CONFIG_NET)		+= ethernet/ 802/ sched/ netlink/
-obj-$(CONFIG_NETFILTER)		+= netfilter/
+obj-$(CONFIG_NETFILTER)	+= netfilter/
 obj-$(CONFIG_INET)		+= ipv4/
 obj-$(CONFIG_XFRM)		+= xfrm/
 obj-$(CONFIG_UNIX_SCM)		+= unix/
@@ -48,6 +48,7 @@ obj-$(CONFIG_WIRELESS)		+= wireless/
 obj-$(CONFIG_MAC80211)		+= mac80211/
 obj-$(CONFIG_TIPC)		+= tipc/
 obj-$(CONFIG_NETLABEL)		+= netlabel/
+obj-$(CONFIG_WIREGUARD)	+= wireguard/
 obj-$(CONFIG_IUCV)		+= iucv/
 obj-$(CONFIG_RFKILL)		+= rfkill/
 obj-$(CONFIG_NET_9P)		+= 9p/
@@ -57,7 +58,7 @@ obj-y				+= dcb/
 endif
 obj-$(CONFIG_6LOWPAN)		+= 6lowpan/
 obj-$(CONFIG_IEEE802154)	+= ieee802154/
-obj-$(CONFIG_MAC802154)		+= mac802154/
+obj-$(CONFIG_MAC802154)	+= mac802154/
 
 ifeq ($(CONFIG_NET),y)
 obj-$(CONFIG_SYSCTL)		+= sysctl_net.o
