@@ -121,3 +121,16 @@ android/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+
+#
+# Ignore build scripts and directories
+#
+/Allrounder.sh
+/build.sh
+/tempest-bot.sh
+/fancy.sh
+/regen.sh
+/out
+/GCC
+/CLANG
+/wayne
