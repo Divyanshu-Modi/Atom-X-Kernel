@@ -4283,6 +4283,9 @@ static int fg_property_is_writeable(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_COOL_TEMP:
 	case POWER_SUPPLY_PROP_WARM_TEMP:
 	case POWER_SUPPLY_PROP_HOT_TEMP:
+#ifdef CONFIG_MACH_XIAOMI_TULIP
+	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
+#endif
 		return 1;
 	default:
 		break;
