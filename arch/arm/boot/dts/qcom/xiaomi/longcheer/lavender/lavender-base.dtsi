@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include "sdm660-camera-sensor-mtp_f7a.dtsi"
-#include "sdm660-novatek-i2c_f7a.dtsi"
-#include "sdm660-synaptics-tcm-i2c_f7a.dtsi"
+#include "sdm660-i2c_f7a.dtsi"
 
 /* msm-pm660.dtsi lavender specific diff */
 &spmi_bus {
