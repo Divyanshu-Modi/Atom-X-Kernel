@@ -9,7 +9,7 @@ __visible struct task_struct *__switch_to(struct task_struct *prev,
 
 #ifdef CONFIG_X86_32
 
-#ifdef CONFIG_CC_STACKPROTECTOR
+#ifdef CONFIG_STACKPROTECTOR
 #define __switch_canary							\
 	"movl %P[task_canary](%[next]), %%ebx\n\t"			\
 	"movl %%ebx, "__percpu_arg([stack_canary])"\n\t"
@@ -103,7 +103,7 @@ do {									\
 	, "rcx", "rbx", "rdx", "r8", "r9", "r10", "r11", \
 	  "r12", "r13", "r14", "r15", "flags"
 
-#ifdef CONFIG_CC_STACKPROTECTOR
+#ifdef CONFIG_STACKPROTECTOR
 #define __switch_canary							  \
 	"movq %P[task_canary](%%rsi),%%r8\n\t"				  \
 	"movq %%r8,"__percpu_arg([gs_canary])"\n\t"

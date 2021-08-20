@@ -507,7 +507,7 @@ void warn_slowpath_null(const char *file, int line)
 EXPORT_SYMBOL(warn_slowpath_null);
 #endif
 
-#ifdef CONFIG_CC_STACKPROTECTOR
+#ifdef CONFIG_STACKPROTECTOR
 
 /*
  * Called when gcc's -fstack-protector feature is used, and
