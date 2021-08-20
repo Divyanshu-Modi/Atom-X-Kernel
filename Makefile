@@ -609,7 +609,7 @@ ifeq ($(KBUILD_EXTMOD),)
 -include include/config/auto.conf.cmd
 
 # To avoid any implicit rule to kick in, define an empty command
-$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+$(KCONFIG_CONFIG): ;
 
 # If .config is newer than include/config/auto.conf, someone tinkered
 # with it and forgot to run make oldconfig.
@@ -618,7 +618,9 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 quiet_cmd_syncconfig = SYNC    $@
       cmd_syncconfig = $(MAKE) -f $(srctree)/Makefile syncconfig
 
-include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+# This exploits the 'multi-target pattern rule' trick.
+# The syncconfig should be executed only once to make all the targets.
+%/auto.conf %/auto.conf.cmd %/tristate.conf: $(KCONFIG_CONFIG)
 	+$(call cmd,syncconfig)
 else
 # external modules needs include/generated/autoconf.h and include/config/auto.conf
