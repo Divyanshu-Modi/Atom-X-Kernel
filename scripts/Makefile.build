@@ -446,7 +446,7 @@ ifdef CONFIG_LTO_CLANG
   # rebuild the symbol table with llvm-ar to include IR files
   update_lto_symtable = ;				\
 	mv -f $@ $@.tmp;				\
-	$(LLVM_AR) rcsT$(KBUILD_ARFLAGS) $@ 		\
+	$(LLVM_AR) cDrsT $@ 		\
 		$$($(AR) t $@.tmp); 			\
 	rm -f $@.tmp
 endif
@@ -463,7 +463,7 @@ ifdef builtin-target
 quiet_cmd_ar_builtin = AR      $@
       cmd_ar_builtin = $(update_lto_symversions) \
 		     rm -f $@; \
-                     $(AR) rcSTP$(KBUILD_ARFLAGS) $@ $(filter $(real-obj-y), $^)
+                     $(AR) cDPrST $@ $(filter $(real-obj-y), $^)
 
 $(builtin-target): $(real-obj-y) FORCE
 	$(call if_changed,ar_builtin)
@@ -494,7 +494,7 @@ quiet_cmd_link_l_target = AR      $@
 cmd_link_l_target = 					\
 	$(update_lto_symversions)			\
 	rm -f $@; 					\
-	$(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(lib-y)	\
+	$(AR) cDPrsT $@ $(lib-y)			\
 	$(update_lto_symtable)
 
 $(lib-target): $(lib-y) FORCE
@@ -563,7 +563,7 @@ cmd_link_multi-link = $(LD) $(ld_flags) -r -o $@ $(link_multi_deps) $(cmd_secana
 
 quiet_cmd_link_multi-y = AR      $@
 cmd_link_multi-y = $(update_lto_symversions) \
-	rm -f $@; $(AR) rcSTP$(KBUILD_ARFLAGS) $@ $(link_multi_deps) \
+	rm -f $@; $(AR) cDPrST $@ $(link_multi_deps) \
 	$(update_lto_symtable)
 
 quiet_cmd_link_multi-m = LD [M]  $@

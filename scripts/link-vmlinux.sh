@@ -56,14 +56,14 @@ archive_builtin()
 {
 	info AR built-in.a
 	rm -f built-in.a;
-	${AR} rcsTP${KBUILD_ARFLAGS} built-in.a			\
+	${AR} cDPrsT built-in.a					\
 				${KBUILD_VMLINUX_INIT}		\
 				${KBUILD_VMLINUX_MAIN}
 
 	# rebuild with llvm-ar to update the symbol table
 	if [ -n "${CONFIG_LTO_CLANG}" ]; then
 		mv -f built-in.a built-in.a.tmp
-		${LLVM_AR} rcsT${KBUILD_ARFLAGS} built-in.a $(${AR} t built-in.a.tmp)
+		${LLVM_AR} cDrsT built-in.a $(${AR} t built-in.a.tmp)
 		rm -f built-in.a.tmp
 	fi
 }
