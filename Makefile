@@ -960,6 +960,12 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
 
+# As per gcc docs when using computed gotos disabling could
+# result in better run-time performing
+ifdef CONFIG_CC_IS_GCC
+KBUILD_CFLAGS   += -fno-gcse
+endif
+
 include scripts/Makefile.kasan
 include scripts/Makefile.extrawarn
 include scripts/Makefile.ubsan
