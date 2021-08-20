@@ -2,22 +2,17 @@
 #
 # link vmlinux
 #
-# vmlinux is linked from the objects selected by $(KBUILD_VMLINUX_INIT) and
-# $(KBUILD_VMLINUX_MAIN) and $(KBUILD_VMLINUX_LIBS). Most are built-in.a files
-# from top-level directories in the kernel tree, others are specified in
-# arch/$(ARCH)/Makefile. Ordering when linking is important, and
-# $(KBUILD_VMLINUX_INIT) must be first. $(KBUILD_VMLINUX_LIBS) are archives
-# which are linked conditionally (not within --whole-archive), and do not
-# require symbol indexes added.
+# vmlinux is linked from the objects selected by $(KBUILD_VMLINUX_OBJS) and
+# $(KBUILD_VMLINUX_LIBS). Most are built-in.a files from top-level directories
+# in the kernel tree, others are specified in arch/$(ARCH)/Makefile.
+# $(KBUILD_VMLINUX_LIBS) are archives which are linked conditionally
+# (not within --whole-archive), and do not require symbol indexes added.
 #
 # vmlinux
 #   ^
 #   |
-#   +-< $(KBUILD_VMLINUX_INIT)
-#   |   +--< init/version.o + more
-#   |
-#   +--< $(KBUILD_VMLINUX_MAIN)
-#   |    +--< drivers/built-in.a mm/built-in.a + more
+#   +--< $(KBUILD_VMLINUX_OBJS)
+#   |    +--< init/built-in.a drivers/built-in.a mm/built-in.a + more
 #   |
 #   +--< $(KBUILD_VMLINUX_LIBS)
 #   |    +--< lib/lib.a + more
@@ -56,9 +51,7 @@ archive_builtin()
 {
 	info AR built-in.a
 	rm -f built-in.a;
-	${AR} cDPrsT built-in.a					\
-				${KBUILD_VMLINUX_INIT}		\
-				${KBUILD_VMLINUX_MAIN}
+	${AR} cDPrsT built-in.a	 ${KBUILD_VMLINUX_OBJS}
 
 	# rebuild with llvm-ar to update the symbol table
 	if [ -n "${CONFIG_LTO_CLANG}" ]; then
@@ -301,8 +294,7 @@ ${MAKE} -f "${srctree}/scripts/Makefile.modpost" vmlinux.o
 if [ -n "${CONFIG_LTO_CLANG}" ]; then
 	# Re-use vmlinux.o, so we can avoid the slow LTO link step in
 	# vmlinux_link
-	KBUILD_VMLINUX_INIT=
-	KBUILD_VMLINUX_MAIN=vmlinux.o
+	KBUILD_VMLINUX_OBJS=vmlinux.o
 	KBUILD_VMLINUX_LIBS=
 
 	# Call recordmcount if needed
