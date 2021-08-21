@@ -1375,7 +1375,7 @@ int32_t msm_sensor_driver_probe(void *setting,
 	struct msm_sensor_ctrl_t             *s_ctrl = NULL;
 	struct msm_camera_cci_client         *cci_client = NULL;
 	struct msm_camera_sensor_slave_info  *slave_info = NULL;
-	struct msm_camera_slave_info         *camera_info = NULL
+	struct msm_camera_slave_info         *camera_info = NULL;
 	unsigned long                        mount_pos = 0;
 	uint32_t                             is_yuv;
 #ifdef CONFIG_MACH_XIAOMI_TULIP
