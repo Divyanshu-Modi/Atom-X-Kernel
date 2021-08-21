@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2017, 2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -425,7 +425,6 @@ int fg_write(struct fg_chip *chip, int addr, u8 *val, int len)
 #else
 	sec_access = (addr & 0x00FF) >= 0xBA;
 #endif
-
 	if (sec_access) {
 		rc = regmap_write(chip->regmap, (addr & 0xFF00) | 0xD0, 0xA5);
 		if (rc < 0) {
