@@ -84,15 +84,7 @@ static struct notifier_block panic_blk = {
 #endif
 
 static int dload_type = SCM_DLOAD_FULLDUMP;
-#ifdef CONFIG_MACH_LONGCHEER
-#ifdef CONFIG_MACH_XIAOMI_WHYRED
-int download_mode = 1;
-#else
-int download_mode = 0;
-#endif
-#else
 static int download_mode = 1;
-#endif
 static struct kobject dload_kobj;
 static void *dload_mode_addr, *dload_type_addr;
 static bool dload_mode_enabled;
@@ -303,6 +295,10 @@ static void msm_restart_prepare(const char *cmd)
 				(cmd != NULL && cmd[0] != '\0'));
 	}
 
+#ifdef CONFIG_QCOM_PRESERVE_MEM
+	need_warm_reset = true;
+#endif
+
 	/* Hard reset the PMIC unless memory contents must be maintained. */
 	if (need_warm_reset) {
 		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
@@ -323,10 +319,12 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_RTC);
 			__raw_writel(0x77665503, restart_reason);
+#if 0
 		} else if (!strcmp(cmd, "dm-verity device corrupted")) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_DMVERITY_CORRUPTED);
 			__raw_writel(0x77665508, restart_reason);
+#endif
 		} else if (!strcmp(cmd, "dm-verity enforcing")) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_DMVERITY_ENFORCE);
@@ -360,15 +358,7 @@ static void msm_restart_prepare(const char *cmd)
 					     restart_reason);
 			}
 		} else if (!strncmp(cmd, "edl", 3)) {
-#ifdef CONFIG_MACH_LONGCHEER
-			if (0) {
-#endif
 			enable_emergency_dload_mode();
-#ifdef CONFIG_MACH_LONGCHEER
-			} else {
-				pr_notice("This command already been disabled\n");
-			}
-#endif
 		} else {
 #ifdef CONFIG_MACH_LONGCHEER
 			qpnp_pon_set_restart_reason(PON_RESTART_REASON_NORMAL);

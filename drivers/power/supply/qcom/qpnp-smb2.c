@@ -35,7 +35,7 @@
 
 union power_supply_propval lct_therm_lvl_reserved;
 union power_supply_propval lct_therm_level;
-#ifndef CONFIG_MACH_XIAOMI_TULIP
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_WHYRED)
 union power_supply_propval lct_therm_call_level = {4,};
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
 union power_supply_propval lct_therm_call_level = {5,};
@@ -212,11 +212,7 @@ struct smb2 {
 	bool			bad_part;
 };
 
-#ifdef CONFIG_MACH_LONGCHEER
-static int __debug_mask = 0xFF;
-#else
 static int __debug_mask;
-#endif
 module_param_named(
 	debug_mask, __debug_mask, int, S_IRUSR | S_IWUSR
 );
@@ -324,6 +320,9 @@ static int smb2_parse_dt(struct smb2 *chip)
 	if (rc < 0)
 		chip->dt.wipower_max_uw = -EINVAL;
 
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_TULIP)
+	if (hwc_check_india) {
+#endif
 	if (of_find_property(node, "qcom,thermal-mitigation", &byte_len)) {
 		chg->thermal_mitigation = devm_kzalloc(chg->dev, byte_len,
 			GFP_KERNEL);
@@ -342,6 +341,28 @@ static int smb2_parse_dt(struct smb2 *chip)
 			return rc;
 		}
 	}
+#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_TULIP)
+	} else {
+		if (of_find_property(node, "qcom,thermal-mitigation-china", &byte_len)) {
+			chg->thermal_mitigation = devm_kzalloc(chg->dev, byte_len,
+				GFP_KERNEL);
+
+			if (chg->thermal_mitigation == NULL)
+				return -ENOMEM;
+
+			chg->thermal_levels = byte_len / sizeof(u32);
+				rc = of_property_read_u32_array(node,
+						"qcom,thermal-mitigation-china",
+						chg->thermal_mitigation,
+						chg->thermal_levels);
+			if (rc < 0) {
+				dev_err(chg->dev,
+					"Couldn't read threm limits rc = %d\n", rc);
+				return rc;
+			}
+		}
+	}
+#endif
 
 	of_property_read_u32(node, "qcom,float-option", &chip->dt.float_option);
 	if (chip->dt.float_option < 0 || chip->dt.float_option > 4) {
@@ -2466,8 +2487,16 @@ static void thermal_fb_notifier_resume_work(struct work_struct *work)
 						&lct_therm_lvl_reserved);
 		}
 	} else if (LctIsInCall)
+		smblib_set_prop_system_temp_level(chg, &lct_therm_call_level);
+	else
+		smblib_set_prop_system_temp_level(chg, &lct_therm_lvl_reserved);
+	LctThermal = 0;
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
 	if (LctIsInCall)
+		smblib_set_prop_system_temp_level(chg, &lct_therm_call_level);
+	else
+		smblib_set_prop_system_temp_level(chg, &lct_therm_lvl_reserved);
+	LctThermal = 0;
 #elif defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 	if ((lct_backlight_off) && (LctIsInCall == 0)) {
 		if (lct_therm_lvl_reserved.intval >= 2)
@@ -2477,6 +2506,10 @@ static void thermal_fb_notifier_resume_work(struct work_struct *work)
 			smblib_set_prop_system_temp_level(chg,
 					&lct_therm_level);
 	} else if (LctIsInCall == 1)
+		smblib_set_prop_system_temp_level(chg, &lct_therm_call_level);
+	else
+		smblib_set_prop_system_temp_level(chg, &lct_therm_lvl_reserved);
+	LctThermal = 0;
 #else
 	if ((lct_backlight_off) && (LctIsInCall == 0) && (hwc_check_india == 0))
 		smblib_set_prop_system_temp_level(chg, &lct_therm_level);
@@ -2489,11 +2522,11 @@ static void thermal_fb_notifier_resume_work(struct work_struct *work)
 			smblib_set_prop_system_temp_level(chg,
 					&lct_therm_level);
 	} else if (LctIsInCall)
-#endif
 		smblib_set_prop_system_temp_level(chg, &lct_therm_call_level);
 	else
 		smblib_set_prop_system_temp_level(chg, &lct_therm_lvl_reserved);
 	LctThermal = 0;
+#endif
 }
 
 /* frame buffer notifier block control the suspend/resume procedure */

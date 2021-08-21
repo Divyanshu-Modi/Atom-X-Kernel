@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016-2017, 2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -420,8 +420,12 @@ int fg_write(struct fg_chip *chip, int addr, u8 *val, int len)
 		return -ENXIO;
 
 	mutex_lock(&chip->bus_lock);
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#ifdef CONFIG_MACH_LONGCHEER
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WAYNE)
+	sec_access = (addr & 0x00FF) > 0xBA;
+#else
 	sec_access = (addr & 0x00FF) > 0xD0;
+#endif
 #else
 	sec_access = (addr & 0x00FF) >= 0xBA;
 #endif
@@ -464,8 +468,12 @@ int fg_masked_write(struct fg_chip *chip, int addr, u8 mask, u8 val)
 		return -ENXIO;
 
 	mutex_lock(&chip->bus_lock);
-#if defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
+#ifdef CONFIG_MACH_LONGCHEER
+#if defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_WAYNE)
+	sec_access = (addr & 0x00FF) > 0xBA;
+#else
 	sec_access = (addr & 0x00FF) > 0xD0;
+#endif
 #else
 	sec_access = (addr & 0x00FF) >= 0xBA;
 #endif

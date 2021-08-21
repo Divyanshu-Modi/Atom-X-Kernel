@@ -28,21 +28,13 @@
 #ifdef CONFIG_MACH_LONGCHEER
 #include "fg-core.h"
 
-#ifdef CONFIG_MACH_XIAOMI_LAVENDER
-struct g_nvt_data {
-	bool valid;
-	bool usb_plugin;
-	struct work_struct nvt_usb_plugin_work;
-};
-extern struct g_nvt_data g_nvt;
-#endif
-
 extern int hwc_check_global;
 #ifdef CONFIG_MACH_XIAOMI_WHYRED
 #define LCT_JEITA_CCC_AUTO_ADJUST
 #endif
 #endif
 
+#ifdef DEBUG
 #define smblib_err(chg, fmt, ...)		\
 	pr_err("%s: %s: " fmt, chg->name,	\
 		__func__, ##__VA_ARGS__)	\
@@ -56,6 +48,19 @@ extern int hwc_check_global;
 			pr_debug("%s: %s: " fmt, chg->name,	\
 				__func__, ##__VA_ARGS__);	\
 	} while (0)
+#else
+#define smblib_err(chg, fmt, ...) do {} while (0)
+#define smblib_dbg(chg, reason, fmt, ...) do {} while (0)
+#endif
+
+#ifdef CONFIG_MACH_XIAOMI_LAVENDER
+struct g_nvt_data {
+	bool valid;
+	bool usb_plugin;
+	struct work_struct nvt_usb_plugin_work;
+};
+extern struct g_nvt_data g_nvt;
+#endif
 
 static bool is_secure(struct smb_charger *chg, int addr)
 {
@@ -204,7 +209,7 @@ int smblib_get_usb_suspend(struct smb_charger *chg, int *suspend)
 }
 
 struct apsd_result {
-	const char * const name;
+	const char * name;
 	const u8 bit;
 	const enum power_supply_type pst;
 };
@@ -1821,8 +1826,6 @@ int smblib_get_prop_batt_health(struct smb_charger *chg,
 			rc);
 		return rc;
 	}
-	smblib_dbg(chg, PR_REGISTER, "BATTERY_CHARGER_STATUS_2 = 0x%02x\n",
-		   stat);
 
 	if (stat & CHARGER_ERROR_STATUS_BAT_OV_BIT) {
 		rc = smblib_get_prop_from_bms(chg,
@@ -2039,7 +2042,7 @@ int smblib_set_prop_system_temp_level(struct smb_charger *chg,
 
 #ifdef CONFIG_MACH_LONGCHEER
 #ifdef THERMAL_CONFIG_FB
-	pr_err("smblib_set_prop_system_temp_level val=%d, chg->system_temp_level=%d, LctThermal=%d, lct_backlight_off= %d, IsInCall=%d, hwc_check_india=%d\n ",
+	pr_debug("smblib_set_prop_system_temp_level val=%d, chg->system_temp_level=%d, LctThermal=%d, lct_backlight_off= %d, IsInCall=%d, hwc_check_india=%d\n ",
 		val->intval,chg->system_temp_level, LctThermal, lct_backlight_off, LctIsInCall, hwc_check_india);
 
 	if (LctThermal == 0)
@@ -2067,11 +2070,11 @@ int smblib_set_prop_system_temp_level(struct smb_charger *chg,
 	if ((lct_backlight_off) && (LctIsInCall == 0) && (val->intval > 1) && (hwc_check_india == 1))
 	    return 0;
 #endif
-#ifdef CONFIG_MACH_XIAOMI_TULIP
-	if ((LctIsInCall == 1) && (val->intval != 5))
-		return 0;
-#else
+#if defined(CONFIG_MACH_XIAOMI_LAVENDER) || defined(CONFIG_MACH_XIAOMI_WHYRED) || defined(CONFIG_MACH_XIAOMI_WAYNE)
 	if ((LctIsInCall == 1) && (val->intval != 4))
+		return 0;
+#elif defined(CONFIG_MACH_XIAOMI_TULIP)
+	if ((LctIsInCall == 1) && (val->intval != 5))
 		return 0;
 #endif
 #ifdef CONFIG_MACH_XIAOMI_WAYNE
@@ -3336,14 +3339,16 @@ int smblib_get_charge_current(struct smb_charger *chg,
 
 #ifdef CONFIG_MACH_LONGCHEER
 	/* QC 3.0 adapter */
-	if (apsd_result->bit) {
-		if (QC_3P0_BIT) {
-			*total_current_ua = HVDCP_CURRENT_UA;
-			pr_info("QC3.0 set icl to 2.9A\n");
-		} else if (QC_2P0_BIT) {
-			*total_current_ua = HVDCP2_CURRENT_UA;
-			pr_info("QC2.0 set icl to 1.5A\n");
-		}
+	if (apsd_result->bit & QC_3P0_BIT) {
+		*total_current_ua = HVDCP_CURRENT_UA;
+		pr_info("QC3.0 set icl to 2.9A\n");
+		return 0;
+	}
+
+	/* QC 2.0 adapter */
+	if (apsd_result->bit & QC_2P0_BIT) {
+		*total_current_ua = HVDCP2_CURRENT_UA;
+		pr_info("QC2.0 set icl to 1.5A\n");
 		return 0;
 	}
 #else
@@ -3426,6 +3431,7 @@ int smblib_get_prop_slave_current_now(struct smb_charger *chg,
  * INTERRUPT HANDLERS *
  **********************/
 
+#ifdef DEBUG
 irqreturn_t smblib_handle_debug(int irq, void *data)
 {
 	struct smb_irq_data *irq_data = data;
@@ -3434,6 +3440,12 @@ irqreturn_t smblib_handle_debug(int irq, void *data)
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: %s\n", irq_data->name);
 	return IRQ_HANDLED;
 }
+#else
+inline irqreturn_t smblib_handle_debug(__attribute__((unused)) int irq, __attribute__((unused)) void *data)
+{
+	return IRQ_HANDLED;
+}
+#endif
 
 irqreturn_t smblib_handle_otg_overcurrent(int irq, void *data)
 {
@@ -4128,7 +4140,7 @@ static void smblib_handle_apsd_done(struct smb_charger *chg, bool rising)
 			smblib_set_prop_pd_active(chg, &pval);
 			chg->float_rerun_apsd = false;
 		} else if (apsd_result->bit & FLOAT_CHARGER_BIT) {
-#ifndef CONFIG_MACH_XIAOMI_WHYRED
+#if defined(CONFIG_MACH_XIAOMI_WAYNE) || defined(CONFIG_MACH_XIAOMI_TULIP) || defined(CONFIG_MACH_XIAOMI_LAVENDER)
 			vote(chg->usb_icl_votable, LEGACY_UNKNOWN_VOTER, true,
 					1000000);
 #else

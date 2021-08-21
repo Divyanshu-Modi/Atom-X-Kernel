@@ -1073,16 +1073,14 @@ out:
 #ifdef CONFIG_MACH_LONGCHEER
 static int __init hwc_setup(char *s)
 {
-	if ((strcmp(s, "India") == 0))
+	if (strcmp(s, "India") == 0)
 		hwc_check_india = 1;
 	else
 		hwc_check_india = 0;
-
-	if ((strcmp(s, "Global") == 0))
+	if (strcmp(s, "Global") == 0)
 		hwc_check_global = 1;
 	else
 		hwc_check_global = 0;
-
 	return 1;
 }
 __setup("androidboot.hwc=", hwc_setup);
@@ -2281,15 +2279,19 @@ static int fg_adjust_recharge_voltage(struct fg_chip *chip)
 
 	/* Lower the recharge voltage in soft JEITA */
 #ifdef CONFIG_MACH_LONGCHEER
+#if defined(CONFIG_MACH_XIAOMI_WHYRED)
 	if (chip->health == POWER_SUPPLY_HEALTH_WARM)
 		recharge_volt_mv = 4050;
-#if defined(CONFIG_MACH_XIAOMI_WHYRED)
 	if (chip->health == POWER_SUPPLY_HEALTH_COOL)
 		recharge_volt_mv = 4282;
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
+	if (chip->health == POWER_SUPPLY_HEALTH_WARM)
+		recharge_volt_mv = 4050;
 	if (chip->health == POWER_SUPPLY_HEALTH_COOL)
 		recharge_volt_mv = 4250;
 #else
+	if (chip->health == POWER_SUPPLY_HEALTH_WARM)
+		recharge_volt_mv = 4050;
 	if (chip->health == POWER_SUPPLY_HEALTH_COOL)
 		recharge_volt_mv = 4280;
 #endif
@@ -4012,6 +4014,9 @@ static int fg_psy_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CC_STEP_SEL:
 		pval->intval = chip->ttf.cc_step.sel;
 		break;
+	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
+		pval->intval = 0;
+		break;
 	default:
 		pr_err("unsupported property %d\n", psp);
 		rc = -EINVAL;
@@ -4022,6 +4027,100 @@ static int fg_psy_get_property(struct power_supply *psy,
 		return -ENODATA;
 
 	return 0;
+}
+
+#define BCL_RESET_RETRY_COUNT 4
+static int fg_bcl_reset(struct fg_chip *chip)
+{
+	int i, ret, rc = 0;
+	u8 val, peek_mux;
+	bool success = false;
+
+	/* Read initial value of peek mux1 */
+	rc = fg_read(chip, BATT_INFO_PEEK_MUX1(chip), &peek_mux, 1);
+	if (rc < 0) {
+		pr_err("Error in writing peek mux1, rc=%d\n", rc);
+		return rc;
+	}
+
+	val = 0x83;
+	rc = fg_write(chip, BATT_INFO_PEEK_MUX1(chip), &val, 1);
+	if (rc < 0) {
+		pr_err("Error in writing peek mux1, rc=%d\n", rc);
+		return rc;
+	}
+
+	mutex_lock(&chip->sram_rw_lock);
+	for (i = 0; i < BCL_RESET_RETRY_COUNT; i++) {
+		rc = fg_dma_mem_req(chip, true);
+		if (rc < 0) {
+			pr_err("Error in locking memory, rc=%d\n", rc);
+			goto unlock;
+		}
+
+		rc = fg_read(chip, BATT_INFO_RDBACK(chip), &val, 1);
+		if (rc < 0) {
+			pr_err("Error in reading rdback, rc=%d\n", rc);
+			goto release_mem;
+		}
+
+		if (val & PEEK_MUX1_BIT) {
+			rc = fg_masked_write(chip, BATT_SOC_RST_CTRL0(chip),
+						BCL_RESET_BIT, BCL_RESET_BIT);
+			if (rc < 0) {
+				pr_err("Error in writing RST_CTRL0, rc=%d\n",
+						rc);
+				goto release_mem;
+			}
+
+			rc = fg_dma_mem_req(chip, false);
+			if (rc < 0)
+				pr_err("Error in unlocking memory, rc=%d\n",
+						rc);
+
+			/* Delay of 2ms */
+			usleep_range(2000, 3000);
+			ret = fg_masked_write(chip, BATT_SOC_RST_CTRL0(chip),
+						BCL_RESET_BIT, 0);
+			if (ret < 0)
+				pr_err("Error in writing RST_CTRL0, rc=%d\n",
+						rc);
+			if (!rc && !ret)
+				success = true;
+
+			goto unlock;
+		} else {
+			rc = fg_dma_mem_req(chip, false);
+			if (rc < 0) {
+				pr_err("Error in unlocking memory, rc=%d\n",
+						rc);
+				goto unlock;
+			}
+			success = false;
+			pr_err_ratelimited("PEEK_MUX1 not set retrying...\n");
+			msleep(1000);
+		}
+	}
+
+release_mem:
+	rc = fg_dma_mem_req(chip, false);
+	if (rc < 0)
+		pr_err("Error in unlocking memory, rc=%d\n", rc);
+
+unlock:
+	ret = fg_write(chip, BATT_INFO_PEEK_MUX1(chip), &peek_mux, 1);
+	if (ret < 0) {
+		pr_err("Error in writing peek mux1, rc=%d\n", rc);
+		mutex_unlock(&chip->sram_rw_lock);
+		return ret;
+	}
+
+	mutex_unlock(&chip->sram_rw_lock);
+
+	if (!success)
+		return -EAGAIN;
+	else
+		return rc;
 }
 
 static int fg_psy_set_property(struct power_supply *psy,
@@ -4112,6 +4211,13 @@ static int fg_psy_set_property(struct power_supply *psy,
 			return rc;
 		}
 		break;
+	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
+		rc = fg_bcl_reset(chip);
+		if (rc < 0) {
+			pr_err("Error in resetting BCL clock, rc=%d\n", rc);
+			return rc;
+		}
+		break;
 	default:
 		break;
 	}
@@ -4127,14 +4233,14 @@ static int fg_property_is_writeable(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE:
 	case POWER_SUPPLY_PROP_CC_STEP:
 	case POWER_SUPPLY_PROP_CC_STEP_SEL:
-    case POWER_SUPPLY_PROP_CHARGE_FULL:
+#ifdef CONFIG_MACH_XIAOMI_TULIP
+	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
+#endif
+	case POWER_SUPPLY_PROP_CHARGE_FULL:
 	case POWER_SUPPLY_PROP_COLD_TEMP:
 	case POWER_SUPPLY_PROP_COOL_TEMP:
 	case POWER_SUPPLY_PROP_WARM_TEMP:
 	case POWER_SUPPLY_PROP_HOT_TEMP:
-#ifdef CONFIG_MACH_XIAOMI_TULIP
-	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
-#endif
 		return 1;
 	default:
 		break;
@@ -4212,6 +4318,7 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
 	POWER_SUPPLY_PROP_CC_STEP,
 	POWER_SUPPLY_PROP_CC_STEP_SEL,
+	POWER_SUPPLY_PROP_FG_RESET_CLOCK,
 };
 
 static const struct power_supply_desc fg_psy_desc = {

@@ -127,22 +127,22 @@ static struct jeita_fcc_cfg jeita_fcc_config = {
 		/* TEMP_LOW	TEMP_HIGH	FCC */
 #ifdef CONFIG_MACH_LONGCHEER
 #if defined(CONFIG_MACH_XIAOMI_WAYNE)
-		{0,	    	50,	    	300000},
+		{0,		50,		300000},
 		{51,		150,		900000},
 		{151,		450,		2900000},
 		{451,		600,		1500000},
-#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
-		{0,   		50,	    	400000},
-		{51,		150,		1200000},
-		{151,		450,		2500000},
-		{451,		600,		1200000},
 #elif defined(CONFIG_MACH_XIAOMI_LAVENDER)
-		{0,	    	50,	    	400000},
+		{0,		50,		400000},
 		{51,		150,		1200000},
 		{151,		450,		2900000},
 		{451,		600,		2000000},
+#elif defined(CONFIG_MACH_XIAOMI_WHYRED)
+		{0,		50,		400000},
+		{51,		150,		1200000},
+		{151,		450,		2500000},
+		{451,		600,		1200000},
 #elif defined(CONFIG_MACH_XIAOMI_TULIP)
-		{0,	    	50,	       	400000},
+		{0,		50,		400000},
 		{51,		150,		1200000},
 		{151,		450,		2500000},
 		{451,		600,		2000000},
@@ -203,6 +203,7 @@ static int get_val(struct range_data *range, int hysteresis, int current_index,
 			range[i].high_threshold, threshold)) {
 			*new_index = i;
 			*val = range[i].value;
+			break;
 		}
 
 	/* if nothing was found, return -ENODATA */
@@ -410,7 +411,7 @@ static int handle_jeita(struct step_chg_info *chip)
 	vote(chip->fv_votable, JEITA_VOTER, true, fv_uv);
 
 	pr_debug("%s = %d FCC = %duA FV = %duV\n",
-		step_chg_config.prop_name, pval.intval, fcc_ua, fv_uv);
+		jeita_fv_config.prop_name, pval.intval, fcc_ua, fv_uv);
 
 update_time:
 	chip->jeita_last_update_time = ktime_get();
