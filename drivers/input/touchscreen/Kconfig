@@ -1230,10 +1230,6 @@ config TOUCHSCREEN_COMMON
 
 	  If unsure, say N.
 
-source "drivers/input/touchscreen/nvt_touch_a/Kconfig"
-source "drivers/input/touchscreen/nvt_touch_e7s/Kconfig"
-source "drivers/input/touchscreen/nvt_touch_d2s/Kconfig"
-source "drivers/input/touchscreen/nvt_touch_f7a/Kconfig"
 source "drivers/input/touchscreen/focal_ft8719/Kconfig"
 source "drivers/input/touchscreen/synaptics_dsx_e7s/Kconfig"
 source "drivers/input/touchscreen/synaptics_dsx/Kconfig"
