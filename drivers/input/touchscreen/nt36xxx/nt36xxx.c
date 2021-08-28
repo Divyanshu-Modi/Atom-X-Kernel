@@ -422,11 +422,13 @@ static int nvt_gpio_config(struct nvt_ts_data *ts)
 	if (gpio_is_valid(ts->reset_gpio)) {
 #if TOUCHSCREEN_WHYRED || TOUCHSCREEN_WAYNE
 		ret = gpio_request(ts->reset_gpio,"NVT-reset");
+		if (ret)
+			goto err_request_irq_gpio;
 #else
 		ret = gpio_request_one(ts->reset_gpio, GPIOF_OUT_INIT_HIGH, "NVT-tp-rst");
-#endif
 		if (ret)
 			goto err_request_reset_gpio;
+#endif
 	}
 #endif
 
