@@ -914,8 +914,10 @@ out:
 static inline int
 remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
 {
+
 	if (hrtimer_is_queued(timer)) {
 		u8 state = timer->state;
+
 		int reprogram;
 
 		/*
