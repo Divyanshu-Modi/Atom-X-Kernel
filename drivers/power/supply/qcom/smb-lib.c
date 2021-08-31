@@ -38,6 +38,7 @@ extern int hwc_check_global;
 	pr_err("%s: %s: " fmt, chg->name,	\
 		__func__, ##__VA_ARGS__)	\
 
+#ifdef CONFIG_DEBUG_SMB_LIB
 #define smblib_dbg(chg, reason, fmt, ...)			\
 	do {							\
 		if (*chg->debug_mask & (reason))		\
@@ -47,6 +48,9 @@ extern int hwc_check_global;
 			pr_debug("%s: %s: " fmt, chg->name,	\
 				__func__, ##__VA_ARGS__);	\
 	} while (0)
+#else
+#define smblib_dbg(chg, reason, fmt, ...) do {} while (0)
+#endif
 
 #ifdef CONFIG_MACH_XIAOMI_LAVENDER
 struct g_nvt_data {
@@ -1821,8 +1825,6 @@ int smblib_get_prop_batt_health(struct smb_charger *chg,
 			rc);
 		return rc;
 	}
-	smblib_dbg(chg, PR_REGISTER, "BATTERY_CHARGER_STATUS_2 = 0x%02x\n",
-		   stat);
 
 	if (stat & CHARGER_ERROR_STATUS_BAT_OV_BIT) {
 		rc = smblib_get_prop_from_bms(chg,
@@ -3338,14 +3340,14 @@ int smblib_get_charge_current(struct smb_charger *chg,
 	/* QC 3.0 adapter */
 	if (apsd_result->bit & QC_3P0_BIT) {
 		*total_current_ua = HVDCP_CURRENT_UA;
-		pr_info("QC3.0 set icl to 2.9A\n");
+		pr_info_ratelimited("QC3.0 set icl to 2.9A\n");
 		return 0;
 	}
 
 	/* QC 2.0 adapter */
 	if (apsd_result->bit & QC_2P0_BIT) {
 		*total_current_ua = HVDCP2_CURRENT_UA;
-		pr_info("QC2.0 set icl to 1.5A\n");
+		pr_info_ratelimited("QC2.0 set icl to 1.5A\n");
 		return 0;
 	}
 #else
@@ -3428,14 +3430,23 @@ int smblib_get_prop_slave_current_now(struct smb_charger *chg,
  * INTERRUPT HANDLERS *
  **********************/
 
+#ifdef DEBUG
 irqreturn_t smblib_handle_debug(int irq, void *data)
 {
+#ifdef CONFIG_DEBUG_SMB_LIB
 	struct smb_irq_data *irq_data = data;
 	struct smb_charger *chg = irq_data->parent_data;
 
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: %s\n", irq_data->name);
+#endif
 	return IRQ_HANDLED;
 }
+#else
+inline irqreturn_t smblib_handle_debug(__attribute__((unused)) int irq, __attribute__((unused)) void *data)
+{
+	return IRQ_HANDLED;
+}
+#endif
 
 irqreturn_t smblib_handle_otg_overcurrent(int irq, void *data)
 {
